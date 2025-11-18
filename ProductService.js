@@ -7,8 +7,7 @@ import { logAndThrow } from "./until.js";
 
 const BASE_URL = "https://panda-market-api-crud.vercel.app/products";
 
-/**
- *page, pageSize, keyword 쿼리 파라미터를 이용해 주세요.
+/*page, pageSize, keyword 쿼리 파라미터를 이용해 주세요.
  * Product 리스트 조회
  * @param {Object} params - 쿼리 파라미터 { page, pageSize, keyword }
  * @returns {Promise<Object>} Product 리스트 데이터
@@ -22,10 +21,12 @@ export async function getProductList(params) {
     logAndThrow("getting product list", e);
   }
 }
+/*
+작동 테스트
 getProductList({ page: 1, pageSize: 5 }).then(console.log);
+*/
 
-/*getProduct()
- * 특정 Product 조회
+/* 특정 Product 조회
  * @param {number} productId - Product ID
  * @returns {Promise<Object>} Product 데이터
  */
@@ -38,10 +39,12 @@ export async function getProduct(productId) {
     logAndThrow("getting product", e);
   }
 }
+/*
+작동 테스트
 getProduct(2793).then(console.log);
+*/
 
-/**
- * createProduct() : POST 메소드를 사용해 주세요. product 생성
+/*createProduct() : POST 메소드를 사용해 주세요. product 생성
  * request body에 name, description, price, tags, images 를 포함해 주세요.
  * @param {Product} product
  * @returns {Promise<Object>} 생성된 Product 데이터
@@ -54,6 +57,8 @@ export async function createProduct(product) {
     logAndThrow("creating product", e);
   }
 }
+/*
+작동 테스트
 createProduct({
   name: "🐶강아지",
   description: "string",
@@ -61,9 +66,9 @@ createProduct({
   tags: "Pet",
   images: "https://t1.daumcdn.net/cfile/tistory/995F9E435B6C5B9E22",
 }).then(console.log);
+*/
 
-/**
- * patchProduct() : Product 수정
+/* patchProduct() : Product 수정
  * @param {number} productId - Product ID
  * @param {Object} product - 수정할 데이터 (name, description, price, tags, images 중 일부 또는 전부)
  * @returns {Promise<Object>} 수정된 Product 데이터
@@ -76,6 +81,8 @@ export async function patchProduct(productId, product) {
     logAndThrow("patching product", e);
   }
 }
+/*
+작동 테스트
 patchProduct(2793, {
   name: "맥북",
   description: "맥북 air",
@@ -84,9 +91,9 @@ patchProduct(2793, {
   images:
     "https://www.apple.com/assets-www/en_WW/mac/01_product_tile/small/mba_13_15_e1e5effed_2x.jpg",
 }).then(console.log);
+*/
 
-/**
- * deleteProduct()  - Product 삭제
+/*deleteProduct()  - Product 삭제
  * @param {number} productId - Product ID
  * @returns {Promise<void>}
  */
@@ -101,12 +108,15 @@ export async function deleteProduct(productId) {
     logAndThrow("deleting product", e);
   }
 }
+/*
+작동 테스트
 deleteProduct(2789).then(console.log);
+*/
 
-//getProductList()를 통해서 받아온 상품 리스트를 각각 인스턴스로 만들어 products 배열에 저장해 주세요.
-//해시태그에 "전자제품"이 포함되어 있는 상품들은 Product 클래스 대신 ElectronicProduct 클래스를 사용해 인스턴스를 생성해 주세요.
-//나머지 상품들은 모두 Product 클래스를 사용해 인스턴스를 생성해 주세요.
-
+/*getProductList()를 통해서 받아온 상품 리스트를 각각 인스턴스로 만들어 products 배열에 저장해 주세요.
+*해시태그에 "전자제품"이 포함되어 있는 상품들은 Product 클래스 대신 ElectronicProduct 클래스를 사용해 인스턴스를 생성해 주세요.
+나머지 상품들은 모두 Product 클래스를 사용해 인스턴스를 생성해 주세요.
+*/
 function productFromInfo(productInfo) {
   const { name, description, price, tags, images, manufacturer } = productInfo;
   if (tags.includes("전자제품")) {
