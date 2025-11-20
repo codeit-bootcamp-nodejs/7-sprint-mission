@@ -74,7 +74,7 @@ export function patchArticle(articleId, article) {
 }
 
 // -------------------------
-// 5. deleteArticle()
+// 5. deleteArticle
 // -------------------------
 export function deleteArticle(articleId) {
   return axios
