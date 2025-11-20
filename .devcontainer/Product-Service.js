@@ -4,7 +4,7 @@ import { ElectronicProduct } from "./main";
 
 const BASE_URL = "https://panda-market-api-crud.vercel.app/products";
 
-// 서버 응답 → ElectronicProduct 객체 변환
+// ElectronicProduct 객체 변환
 export const productFromInfo = ({ title, price, description, image }) =>
   new ElectronicProduct(title, price, description, image);
 

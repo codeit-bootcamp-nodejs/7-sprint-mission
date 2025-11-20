@@ -7,7 +7,7 @@ const BASE_URL = "https://panda-market-api-crud.vercel.app/articles";
 export const articleFromInfo = ({ title, content, writer, createdAt }) =>
   new Article(title, content, writer, createdAt);
 
-// 공통 에러 처리
+//에러 처리
 export const logAndThrow = (error) => {
   console.error("Article API Error:", error);
   throw error;
