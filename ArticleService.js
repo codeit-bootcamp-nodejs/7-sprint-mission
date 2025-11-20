@@ -16,10 +16,6 @@ export function getArticleList(params) {
     .then(({ data }) => data.list.map(Article.of))
     .catch((error) => logAndThrow("getting article list", error));
 }
-/*
-작동 테스트
-getArticleList({ page: 1, pageSize: 5, keyword: "내용" }).then(console.log);
-*/
 
 //getArticle() : GET 메소드를 사용해 주세요.
 export function getArticle(articleId) {
@@ -28,10 +24,6 @@ export function getArticle(articleId) {
     .then(Article.of)
     .catch((error) => logAndThrow("getting article", error));
 }
-/*
-작동 테스트
-getArticle(5314).then(console.log);
-*/
 
 /*createArticle() : POST 메소드를 사용해 주세요.
 request body에 title, content, image 를 포함해 주세요.
@@ -41,14 +33,6 @@ export function createArticle(article) {
     .post(BASE_URL, article)
     .catch((error) => logAndThrow("creating article", error));
 }
-/*
-작동 테스트
-createArticle({
-  title: "자바스크립트.",
-  content: "어려워..",
-  image: "https://example.com/...",
-}).then(console.log);
-*/
 
 //patchArticle() : PATCH 메소드를 사용해 주세요.
 export function patchArticle(id, article) {
@@ -56,14 +40,6 @@ export function patchArticle(id, article) {
     .patch(`${BASE_URL}/${id}`, article)
     .catch((error) => logAndThrow("patching article", error));
 }
-/*
-작동 테스트
-patchArticle(5314, {
-  title: "게시글 제목입니다.",
-  content: "게시글 내용입니다.",
-  image: "https://example.com/...",
-}).then(console.log);
-*/
 
 //deleteArticle() : DELETE 메소드를 사용해 주세요.
 export function deleteArticle(articleId) {
@@ -72,7 +48,3 @@ export function deleteArticle(articleId) {
     .then(({ id }) => id)
     .catch((error) => logAndThrow("deleting article", error));
 }
-/*
-작동 테스트
-deleteArticle(5312).then(console.log);
-*/
