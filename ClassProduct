@@ -1,0 +1,18 @@
+export class Product {
+  #favoriteCount; // private 필드로 캡슐화
+
+  constructor(name, description, price, tags = [], images = []) {
+    validateProduct(name, description, price, tags, images);
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.tags = tags;
+    this.images = images;
+    this.#favoriteCount = 0;
+  }
+
+  // 찜하기 메소드
+  favorite() {
+    this.#favoriteCount++;
+  }
+}
