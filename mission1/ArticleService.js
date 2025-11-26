@@ -5,11 +5,7 @@
 
 import axios from "axios";
 import { Article } from "./main2.js";
-// ⭐ ⭐ ⭐ 제일 먼저 여기에 logAndThrow를 선언해줘야 해! ⭐ ⭐ ⭐
-const logAndThrow = (error) => {
-    console.error("Error fetching article list;", error); // 'Error' 대신 'error' 인 거 기억하지?
-    throw error;
-};
+import { logAndThrow } from "./LogAndThrow.js;"
 
 // Article 요청 함수 구현하기
 // https://panda-market-api-crud.vercel.app/docs 의 Article API를 이용하여 아래 함수들을 구현해 주세요.
