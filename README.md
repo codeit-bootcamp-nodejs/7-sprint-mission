@@ -66,7 +66,7 @@ GET /products?keyword=pc
     "name": "수정이름",
     "price": 990000,
     "description": "수정 메모",
-    "tags": ["수정1", "수정2", "수정3"],
+    "tags": ["수정1", "수정2", "수정3"]
   }'
   ```
 
