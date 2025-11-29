@@ -1,9 +1,25 @@
-이번 2차 미션 시작
-GitHub에  PR, upstream 미션을 제출해야 한다.
-1. 본인 브랜치에 스프린트 미션을 업로드
-2. N-Sprint-Mission 레포지토리를 fork (7-로 시작해야 7기)
-3. GitHub에 Pull Request를 생성하고 upstream의 본인 브랜치(이요한)에 미션 제출
-4. PR comment에 아래 내용 포함
- - 체크리스트 (- [ ]) 생성
- - 완료한 만큼 체크 표시 (- [x])를 한다.
-이요한에 commit을 위한 한 줄 추가
+🔥 궁극 요약 (5초 컷)
+종류 데이터 위치 예시 용도
+req.query URL ?뒤 /product?name=pc 검색·필터·정렬
+req.params URL 경로 변수 /product/3 특정 리소스 조회/삭제
+req.body 요청 본문(body) POST로 JSON 전송 글 작성, 회원가입 등 데이터 생성
+
+🧠 완전히 이해되는 예시
+✔ 검색(필터)
+GET /products?keyword=pc
+
+---
+
+→ req.query.keyword
+
+✔ 특정 상품 조회
+GET /products/12
+
+→ req.params.id = 12
+
+✔ 상품 등록
+POST /products
+body = { name: "...", price: 20000 }
+
+→ req.body.name
+→ req.body.price
