@@ -30,38 +30,54 @@ GET /products?keyword=pc
 
 ## curl TEST example
 
-- 전체조회
+- **전체조회**
+
+  ```bash
   curl localhost:3000/product
+  ```
 
-- 상세조회 (id 값으로)
+- **상세조회** (id 값으로)
+
+  ```bash
   curl localhost:3000/product/3
+  ```
 
-- 상세조회 (name, price 값으로)
+- **상세조회** (name, price 값으로)
+  - 둘 다 일치, 하나만 일치 해도 가져옴
 
-* 둘 다 일치, 하나만 일치 해도 가져옴
+  ```bash
   curl localhost:3000/product/search?name=keyboard&price=3000
   curl localhost:3000/product/search?name=keyboard
   curl localhost:3000/product/search?price=3000
+  ```
 
-- 삭제 (id 값으로)
+- **삭제** (id 값으로)
+
+  ```bash
   curl -X DELETE localhost:3000/products/3
+  ```
 
-- 수정 (
+- **수정** (
+
+  ```bash
   curl -X PATCH localhost:3000/products/4 \
-   -H "Content-Type: application/json" \
-   -d '{
-  "name": "수정이름",
-  "price": 990000,
-  "description": "수정 메모",
-  "tags": ["수정1", "수정2", "수정3"],
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "수정이름",
+    "price": 990000,
+    "description": "수정 메모",
+    "tags": ["수정1", "수정2", "수정3"],
   }'
+  ```
 
-- 생성
+- **생성**
+  ```bash
   curl -X POST localhost:3000/products \
-   -H "Content-Type: application/json" \
-   -d '{
-  "name": "노트북",
-  "price": 1290000,
-  "description": "고성능 노트북",
-  "tags": ["computer","laptop"]
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "노트북",
+    "price": 1290000,
+    "description": "고성능 노트북",
+    "tags": ["computer","laptop"]
   }'
+  ```
