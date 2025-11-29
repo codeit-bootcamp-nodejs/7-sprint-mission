@@ -11,15 +11,15 @@ GET /products?keyword=pc
 ## 🧠 완전히 이해되는 예시
 
 - **검색(필터)**
-  - 요청: `GET /products?keyword=pc`
+  - 요청: `GET /product?keyword=pc`
   - 사용: `req.query.keyword`
 
 - **특정 상품 조회**
-  - 요청: `GET /products/12`
+  - 요청: `GET /product/12`
   - 사용: `req.params.id = 12`
 
 - **상품 등록**
-  - 요청: `POST /products`
+  - 요청: `POST /product`
   - Body 예시:
     ```json
     { "name": "...", "price": 20000 }
@@ -54,13 +54,13 @@ GET /products?keyword=pc
 - **삭제** (id 값으로)
 
   ```bash
-  curl -X DELETE localhost:3000/products/3
+  curl -X DELETE localhost:3000/product/3
   ```
 
 - **수정** (
 
   ```bash
-  curl -X PATCH localhost:3000/products/4 \
+  curl -X PATCH localhost:3000/product/4 \
   -H "Content-Type: application/json" \
   -d '{
     "name": "수정이름",
@@ -72,7 +72,7 @@ GET /products?keyword=pc
 
 - **생성**
   ```bash
-  curl -X POST localhost:3000/products \
+  curl -X POST localhost:3000/product \
   -H "Content-Type: application/json" \
   -d '{
     "name": "노트북",
