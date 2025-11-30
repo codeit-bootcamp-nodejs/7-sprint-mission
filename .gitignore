@@ -1,3 +1,7 @@
+
+# 내가 올리기 싫은거
+.devcontainer
+
 # 의존성
 /node_modules
 /package-lock.json
@@ -18,7 +22,7 @@
 /.tsbuildinfo
 
 # 환경 변수 및 보안 파일
-.env
+# .env
 .env.local
 .env.*.local
 
@@ -28,6 +32,4 @@ Thumbs.db
 
 # VS Code 설정
 .vscode
-/generated/prisma
-
 /generated/prisma
