@@ -1,3 +1,13 @@
+import { Router } from "express";
+import {
+  orderByToSort,
+  createContinuationToken,
+  parseContinuationToken,
+  buildCursorWhere,
+} from "../utils/cursor-pagination.js";
+import { prisma } from "../prisma/prisma.js";
+import { ArticleComment } from "./comment.js";
+
 const articleCommentRouter = new Router({ mergeParams: true });
 
 // ### 댓글
