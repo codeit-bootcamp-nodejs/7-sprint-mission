@@ -1,0 +1,135 @@
+Server is running on port 3000
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Cannot find comment
+    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  status: 404
+}
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Cannot find comment
+    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  status: 404
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Cannot find comment
+    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  status: 404
+}
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Cannot find comment
+    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  status: 404
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Cannot find comment
+    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  status: 404
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}
+HTTPError: Content is required and must be a string
+    at file:///workspaces/sprint3/routes/comments.js:16:13
+    at file:///workspaces/sprint3/asyncHandler.js:2:19
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
+    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
+    at /workspaces/sprint3/node_modules/router/index.js:295:15
+    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
+    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
+  status: 400
+}

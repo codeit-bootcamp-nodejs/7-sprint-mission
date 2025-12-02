@@ -2,32 +2,23 @@ import express from "express";
 import { prisma } from "../prisma/prisma.js";
 import { asyncHandler } from "../asyncHandler.js";
 import { HTTPError } from "../error.js";
+import { buildSearchQuery } from "../utils/search.js";
+import { Article } from "../structs/article.js";
+import { Comment } from "../structs/comment.js";
 
 const router = express.Router();
-
-class Article {
-  constructor(id, title, content, createdAt) {
-    this.id = id;
-    this.title = title;
-    this.content = content;
-    this.createdAt = createdAt;
-  }
-
-  static fromEntity(entity) {
-    return new Article(
-      entity.id.toString(),
-      entity.title,
-      entity.content,
-      entity.created_at
-    );
-  }
-}
 
 // 게시글 목록 조회
 router.get(
   "/",
   asyncHandler(async (req, res) => {
-    const { offset = 0, limit = 10, sort = "recent", keyword = "" } = req.query;
+    const {
+      offset = 0,
+      limit = 10,
+      sort = "recent",
+      search = "",
+      keyword = "",
+    } = req.query;
     const skip = parseInt(offset, 10);
     const take = parseInt(limit, 10);
 
@@ -38,13 +29,11 @@ router.get(
     const orderBy =
       sort === "recent" ? { created_at: "desc" } : { created_at: "desc" };
 
+    const searchQuery = search || keyword;
+    const where = buildSearchQuery(searchQuery, ["title", "content"]);
+
     const articles = await prisma.article.findMany({
-      where: {
-        OR: [
-          { title: { contains: keyword } },
-          { content: { contains: keyword } },
-        ],
-      },
+      where,
       skip,
       take,
       orderBy,
@@ -69,10 +58,10 @@ router.post(
       throw new HTTPError(400, "Content is required and must be a string");
     }
 
-    const article = await prisma.article.create({
+    const newArticle = await prisma.article.create({
       data: { title, content },
     });
-    res.status(201).json(Article.fromEntity(article));
+    res.status(201).json(Article.fromEntity(newArticle));
   })
 );
 
@@ -81,6 +70,11 @@ router.get(
   "/:id",
   asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+
     const article = await prisma.article.findUnique({
       where: { id },
     });
@@ -107,7 +101,6 @@ router.patch(
     if (title !== undefined && typeof title !== "string") {
       throw new HTTPError(400, "Title must be a string");
     }
-
     if (content !== undefined && typeof content !== "string") {
       throw new HTTPError(400, "Content must be a string");
     }
@@ -134,6 +127,36 @@ router.delete(
       where: { id },
     });
     res.status(200).json(Article.fromEntity(article));
+  })
+);
+
+// 게시글 댓글 등록
+router.post(
+  "/:id/comments",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+
+    if (!content || typeof content !== "string") {
+      throw new HTTPError(400, "Content is required and must be a string");
+    }
+
+    const article = await prisma.article.findUnique({ where: { id } });
+    if (!article) {
+      throw new HTTPError(404, "Article not found");
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        content,
+        articleId: id,
+      },
+    });
+    res.status(201).json(Comment.fromEntity(comment));
   })
 );
 
