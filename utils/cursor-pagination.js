@@ -12,7 +12,9 @@ export function createContinuationToken(lastItem, sort) {
     sort,
   };
 
-  return Buffer.from(JSON.stringify(token)).toString("base64");
+  return Buffer.from(
+    JSON.stringify(token, (k, v) => (k === "id" ? v.toString() : v))
+  ).toString("base64");
 }
 
 /**
@@ -25,7 +27,7 @@ export function parseContinuationToken(token) {
 
   try {
     const decoded = Buffer.from(token, "base64").toString("utf-8");
-    return JSON.parse(decoded);
+    return JSON.parse(decoded, (k, v) => (k === "id" ? BigInt(v) : v));
   } catch (e) {
     return null;
   }
