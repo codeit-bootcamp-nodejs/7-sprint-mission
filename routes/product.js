@@ -99,7 +99,12 @@ router.post("/", async (req, res, next) => {
         tags: tags,
       },
     });
-    res.json(postProduct);
+    // res.json(postProduct)를 한다면 무조건 typeError가 뜬다.
+    // 우리가 위에 작성한 fromEntity로 직렬화 변환을 해줘서 응답을 해야하기 때문에
+    // newPost라는 필터를 거쳐준 응답을 해주어야 함.
+    const newPost = Product.fromEntity(postProduct);
+    console.log("정상 등록");
+    res.json(newPost);
   } catch (e) {
     console.error("상품 등록 오류", e);
     next(e);
@@ -120,7 +125,8 @@ router.patch("/:id", async (req, res, next) => {
         tags: tags,
       },
     });
-    res.json(patchProduct);
+    const updateProduct = Product.fromEntity(patchProduct);
+    res.json(updateProduct);
     // 존재하지 않는다면 / 존재한다면 의 더 디테일한 예외처리가 가능하지만
     // 굳이 작성하지 않아도 어차피 catch 예외처리 구문으로 넘어가서 걱정 ㄴㄴ.
   } catch (e) {
@@ -146,7 +152,8 @@ router.delete("/:id", async (req, res, next) => {
         id: id,
       },
     });
-    res.json(deleteProduct);
+    const deletedProduct = Product.fromEntity(deleteProduct);
+    res.json(deletedProduct);
   } catch (e) {
     console.error("상품 삭제 오류", e);
     next(e);

@@ -80,12 +80,13 @@ router.get("/:id", (req, res, next) =>
 router.post("/", async (req, res, next) => {
   const { title, content } = req.body;
   try {
-    const newPost = await prisma.article.create({
+    const newEntity = await prisma.article.create({
       data: {
         title: title,
         content: content,
       },
     });
+    const newPost = Article.fromEntity(newEntity);
     res.json(newPost);
   } catch (e) {
     console.log("Post 생성 중 오류", e);
@@ -101,7 +102,7 @@ router.patch("/:id", async (req, res, next) => {
   const { title, content } = req.body;
 
   try {
-    const updatePost = await prisma.article.update({
+    const updateEntity = await prisma.article.update({
       // 어떤 경로의 ID인지 식별
       where: {
         id: id,
@@ -111,6 +112,7 @@ router.patch("/:id", async (req, res, next) => {
         content: content,
       },
     });
+    const updatePost = Article.fromEntity(updateEntity);
     res.json(updatePost);
   } catch (e) {
     console.error("Post 수정 중 오류");
@@ -123,11 +125,12 @@ router.delete("/:id", async (req, res, next) => {
   const id = parseInt(req.params.id);
 
   try {
-    const deletedPost = await prisma.article.delete({
+    const deletedEntity = await prisma.article.delete({
       where: {
         id: id,
       },
     });
+    const deletedPost = Article.fromEntity(deletedEntity);
     res.json(deletedPost);
   } catch (e) {
     console.error("Post 삭제 중 오류", e);

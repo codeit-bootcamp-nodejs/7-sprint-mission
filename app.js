@@ -9,6 +9,9 @@ dotenv.config();
 
 const app = express();
 
+// 역직렬화 로직 => JSON 문자열을 JS 객체나 배열로 변경해줌
+// !중요 사항! 역직렬화가 있다면 직렬화 로직은 붙어다니는 한쌍이다. 왜? 변환한 JS 객체를 클라이언트에게 응답 시 다시 JSON으로 바꿔줘야 하니깐.
+// res.json()이 직렬화 변환 응답. res.json() -> res.stringify() -> send(JSON)
 // bigInt의 경우는 데이터베이스에서 다루는 정수의 크기가 커서 큰 정수를 다루기 위해 자바스크립트에서 도입 됨.
 // 근데 클라이언트는 JSON으로 요청을 보낸다고 했지? 근데 JSON에는 bigInt가 없음.
 // 그래서 서버 충돌을 하게 됨. 그래서 bigInt 데이터 타입이면 문자열로 변환하여 응답을 해줌.
@@ -29,8 +32,8 @@ app.use(express.json());
 // 라우터 mount
 // 이거는 첫번째 인자에는 해당 경로, 두번째 인자에는 처리 할 객체를 넣어줌.
 // 그래서 해당 경로에 온 모든 요청들을 해당 라우터 객체로 일 처리를 다 짬 때림.
-app.use("/articles", articleRouter);
-app.use("/products", productRouter);
+app.use("/api/articles", articleRouter);
+app.use("/api/products", productRouter);
 
 app.get("/", (req, res) => {
   res.json({
