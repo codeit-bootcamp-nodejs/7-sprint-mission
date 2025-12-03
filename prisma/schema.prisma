@@ -24,8 +24,8 @@ model product {
   created_at  DateTime  @default(now()) @db.Timestamptz(6)
   updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
   comments    product_comment[]
-  // image_id    BigInt    @unique
-  // image       product_image @relation(fields: [image_id], references: [id], onDelete: Cascade)
+  image_id    BigInt    @unique
+  image       product_image @relation(fields: [image_id], references: [id], onDelete: Cascade)
 }
 
 model product_comment {
@@ -37,12 +37,12 @@ model product_comment {
   product     product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
 }
 
-// model product_image {
-//   id          BigInt    @id @default(autoincrement())
-//   path        String
-//   created_at  DateTime  @default(now()) @db.Timestamptz(6)
-//   product     product?
-// }
+model product_image {
+  id          BigInt    @id @default(autoincrement())
+  path        String
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  product     product?
+}
 
 
 // Article 스키마를 작성해 주세요.
