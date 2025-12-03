@@ -2,7 +2,6 @@ import { Article, UnregisteredArticle } from "./article.js";
 import { Router } from "express";
 import { prisma } from "../prisma/prisma.js";
 import { BadRequestError, NotFoundError } from "../errors/customErrors.js";
-import articleCommentRouter from "./article-comment.route.js";
 
 // 라우터를 만드는 이유?
 // 빈 객체 라우터를 만들어서 채워지면 export 라우터를 통해 이거 쓰세요~ 느낌.

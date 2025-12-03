@@ -2,7 +2,6 @@ import { Product, UnregisteredProduct } from "./product.js";
 import { Router } from "express";
 import { prisma } from "../prisma/prisma.js";
 import { BadRequestError, NotFoundError } from "../errors/customErrors.js";
-import articleCommentRouter from "./article-comment.route.js";
 
 const productRouter = new Router();
 
@@ -47,7 +46,7 @@ productRouter.get("/:id", validateGetProduct, async (req, res, next) => {
 });
 
 // 상품 등록 => req.body를 받아서 응답한다.
-productRouter.post("/", validatePostArticle, async (req, res, next) => {
+productRouter.post("/", validatePostProduct, async (req, res, next) => {
   try {
     // req.body를 받아서 해당 객체에 할당한다.
     const unregistered = UnregisteredProduct.fromInfo(req.body);
@@ -95,12 +94,6 @@ productRouter.patch("/:id", validatePatchProduct, async (req, res, next) => {
   } catch (e) {
     // update() 함수에서는 수정할려는 id가 존재하지 않으면 에러를 띄움.
     // 이 에러 코드가 "P2025"임.
-    if (e.code === "P2025") {
-      return res.status(404).json({
-        message: `${req.params.id}인 상품을 찾을 수 없습니다.`,
-        errorCode: "NOT_FOUND",
-      });
-    }
     console.error("상품 수정 오류", e);
     next(e);
   }
@@ -172,8 +165,8 @@ function validateGetProduct(req, res, next) {
   if (isNaN(id)) throw new BadRequestError("id가 왜 이럼??");
   next();
 }
-function validatePostArticle(req, res, next) {
+function validatePostProduct(req, res, next) {
   next();
 }
 
-export default router;
+export default productRouter;
