@@ -3,6 +3,7 @@ import articleRouter from "./routes/article.router.js";
 import productRouter from "./routes/product.router.js";
 import articleCommentRouter from "./routes/article-comment.router.js";
 import productCommentRouter from "./routes/product-comment.router.js";
+import multerUploadRouter from "./routes/multer.router.js";
 import { HttpError } from "./errors/customError.js";
 
 const app = express();
@@ -12,6 +13,7 @@ app.use("/api/articles", articleRouter);
 app.use("/api/products", productRouter);
 app.use("/api/articles/:articleId/comments", articleCommentRouter);
 app.use("/api/products/:productId/comments", productCommentRouter);
+app.use("/api/upload", multerUploadRouter);
 
 app.get("/", (req, res) => {
   res.json({
