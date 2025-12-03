@@ -18,6 +18,9 @@ class Article {
       entity.created_at
     );
   }
+  static fromEntity2({ id, title, content, created_at }) {
+    return new Article(id.toString(), title, content, created_at);
+  }
 }
 
 // 게시글 목록 조회 API를 만들어 주세요.

@@ -2,9 +2,9 @@ import { prisma } from "./prisma.js";
 
 async function main() {
   // 기존 데이터 삭제 (초기화)
-  console.log("Delete previous data");
-  await prisma.article.deleteMany();
-  await prisma.product.deleteMany();
+  //console.log("Delete previous data");
+  //await prisma.article.deleteMany();
+  //await prisma.product.deleteMany();
 
   // 더미 데이터 생성
   console.log("Seed dummies");
