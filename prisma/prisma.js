@@ -10,6 +10,9 @@ import pkg from "pg";
 const connectionString = process.env.DATABASE_URL;
 const pool = new pkg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({
+  adapter,
+  log: ["query", "error", "info", "warn"],
+});
 
 export { prisma };
