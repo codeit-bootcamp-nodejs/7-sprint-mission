@@ -5,6 +5,12 @@ import { HTTPError } from "../error.js";
 import { buildSearchQuery } from "../utils/search.js";
 import { Product } from "../structs/product.js";
 import { Comment } from "../structs/comment.js";
+import {
+  createContinuationToken,
+  parseContinuationToken,
+  buildCursorWhere,
+  orderByToSort,
+} from "../utils/cursor-pagination.js";
 
 const router = express.Router();
 
@@ -188,6 +194,58 @@ router.post(
 
     // 2차 검증 (fromEntity)
     res.status(201).json(Comment.fromEntity(comment));
+  })
+);
+
+// 상품 댓글 목록 조회 (Cursor Pagination)
+router.get(
+  "/:id/comments",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { limit = 10, cursorId } = req.query;
+
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+
+    const take = parseInt(limit, 10);
+    if (isNaN(take) || take < 1) {
+      throw new HTTPError(400, "Limit must be a positive number");
+    }
+
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      throw new HTTPError(404, "Product not found");
+    }
+
+    // 기본 정렬: 최신순 (created_at desc, id desc) - id는 고유성을 위한 보조 정렬
+    const orderBy = [{ created_at: "desc" }, { id: "desc" }];
+    const sort = orderByToSort(orderBy);
+
+    // 커서 파싱 및 Where 조건 생성
+    const cursorData = parseContinuationToken(cursorId);
+    const cursorWhere = buildCursorWhere(cursorData, sort);
+
+    // 최종 Where 조건: 상품 ID + 커서 조건
+    const where = {
+      productId: id,
+      ...cursorWhere,
+    };
+
+    const comments = await prisma.comment.findMany({
+      where,
+      take,
+      orderBy,
+    });
+
+    // 다음 페이지 커서 생성
+    const lastItem = comments[comments.length - 1];
+    const nextCursor = createContinuationToken(lastItem, sort);
+
+    res.status(200).json({
+      list: comments.map((comment) => Comment.fromEntity(comment)),
+      nextCursor,
+    });
   })
 );
 
