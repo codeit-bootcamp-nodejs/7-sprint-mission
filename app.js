@@ -3,12 +3,14 @@ import articleRouter from "./routes/article.route.js";
 import { HttpError } from "./errors/customErrors.js";
 
 import { config } from "dotenv";
+import productRouter from "./routes/product.route.js";
 config(); // .env 읽어서 process.env.아래 위치시키기
 
 const app = express();
 app.use(express.json());
 
 app.use("/articles", articleRouter);
+app.use("/products", productRouter);
 
 app.get("/", (req, res) => {
   res.json({

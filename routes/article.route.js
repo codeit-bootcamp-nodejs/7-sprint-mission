@@ -20,7 +20,7 @@ articleRouter.get("/", validateGetArticles, async (req, res, next) => {
 });
 
 // 특정 게시글 조회 (404 예시)
-articleRouter.get("/:id", validateGetArticle, async (req, res, next) => {
+articleRouter.route("/:id").get(validateGetArticle, async (req, res, next) => {
   try {
     const { id } = req.params;
     const articleId = parseInt(id);

@@ -6,33 +6,33 @@ import {
   buildCursorWhere,
 } from "../utils/cursor-pagination.js";
 import { prisma } from "../prisma/prisma.js";
-import { ArticleComment } from "./comment.js";
+import { ProductComment } from "./comment.js";
 
-const articleCommentRouter = new Router({ mergeParams: true });
+const productCommentRouter = new Router({ mergeParams: true });
 
 // ### 댓글
-articleCommentRouter
+productCommentRouter
   .route("/")
   .post(validatePostComment, async (req, res) => {
     // - 댓글 등록 API를 만들어 주세요.
-    // /articles/:articleId/comments/ POST
+    // /products/:productId/comments/ POST
     //     - `content`를 입력하여 댓글을 등록합니다.
     //     - 중고마켓, 자유게시판 댓글 등록 API를 따로 만들어 주세요.
 
     const { content } = req.body;
 
-    const created = await prisma.article_comment.create({
+    const created = await prisma.product_comment.create({
       data: {
         content,
-        article_id: req.params.articleId,
+        product_id: req.params.productId,
       },
     });
-    const articleComment = ArticleComment.fromEntity(created);
-    res.json(articleComment);
+    const productComment = ProductComment.fromEntity(created);
+    res.json(productComment);
   })
   .get(validateGetComments, async (req, res, next) => {
     // - 댓글 목록 조회 API를 만들어 주세요.
-    // /articles/:articleId/comments/ GET
+    // /products/:productId/comments/ GET
     //     - `id`, `content`, `createdAt` 를 조회합니다.
     //     - cursor 방식의 페이지네이션 기능을 포함해 주세요.
 
@@ -54,9 +54,9 @@ articleCommentRouter
         ? buildCursorWhere(cursorToken.data, cursorToken.sort)
         : {};
 
-      // 기본 where 조건 (article_id 필터)
+      // 기본 where 조건 (product_id 필터)
       const baseWhere = {
-        article_id: req.params.articleId,
+        product_id: req.params.productId,
       };
 
       // cursor 조건과 기본 조건 병합
@@ -66,7 +66,7 @@ articleCommentRouter
           : baseWhere;
 
       // limit + 1개를 조회하여 다음 페이지 존재 여부 확인
-      const entities = await prisma.article_comment.findMany({
+      const entities = await prisma.product_comment.findMany({
         where,
         orderBy,
         take: take + 1,
@@ -85,10 +85,10 @@ articleCommentRouter
         sort
       );
 
-      const articleComments = items.map(ArticleComment.fromEntity);
+      const productComments = items.map(ProductComment.fromEntity);
 
       res.json({
-        data: articleComments,
+        data: productComments,
         lastElemCursor,
         hasNext,
       });
@@ -98,40 +98,40 @@ articleCommentRouter
   });
 
 // - 댓글 수정 API를 만들어 주세요.
-articleCommentRouter
+productCommentRouter
   .route("/:commentId")
   .patch(validatePatchComment, async (req, res) => {
-    // /articles/:articleId/comments/:commentId PATCH
+    // /products/:productId/comments/:commentId PATCH
     //     - `PATCH` 메서드를 사용해 주세요.
     const { content } = req.body;
 
-    const updated = await prisma.article_comment.update({
+    const updated = await prisma.product_comment.update({
       where: {
         id: req.params.commentId,
       },
       data: {
         content,
-        article_id: req.params.articleId,
+        product_id: req.params.productId,
       },
     });
-    const articleComment = ArticleComment.fromEntity(updated);
-    res.json(articleComment);
+    const productComment = ProductComment.fromEntity(updated);
+    res.json(productComment);
   })
   .delete(validateDeleteComment, (req, res) =>
     // - 댓글 삭제 API를 만들어 주세요.
-    // /articles/:articleId/comments/:commentId DELETE
+    // /products/:productId/comments/:commentId DELETE
 
-    prisma.article_comment
+    prisma.product_comment
       .delete({
         where: {
           id: req.params.commentId,
         },
       })
-      .then(ArticleComment.fromEntity)
+      .then(ProductComment.fromEntity)
       .then((comment) => res.json(comment))
   );
 
-export default articleCommentRouter;
+export default productCommentRouter;
 
 function validateDeleteComment(req, res, next) {
   next();
