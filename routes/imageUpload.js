@@ -1,26 +1,35 @@
-import express from "express";
+import { Router } from "express";
+import { prisma } from "../prisma/prisma.js";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import _path from "path";
+import fs from "fs/promises";
+import { BadRequestError, NotFoundError } from "../errors/error.js";
 
-const router = express.Router();
+const productImageRouter = new Router({ mergeParams: true });
 
-const storage = multer.diskStorage({
-  destination: async function (req, file, cb) {
-    const userId = req.user?.id || "anonymous";
-    const uploadPath = path.join("uploads", "profiles", userId.toString());
-    await fs.mkdir(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    // 프로필 사진은 하나만: profile + 타임스탬프 + 확장자
-    const ext = path.extname(file.originalname);
-    cb(null, `profile-${Date.now()}${ext}`);
-  },
-});
-
+// routes/image.js
 const upload = multer({
-  storage: storage,
+  storage: multer.diskStorage({
+    // 사용자별 폴더 생성
+    destination: async function (req, file, cb) {
+      const uploadDir = _path.join(
+        "uploads",
+        "images",
+        "products",
+        req.params.productId
+      );
+
+      // 폴더가 없으면 생성
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      // 프로필 사진은 하나만: image + 타임스탬프 + 확장자
+      const productId = req.params.productId;
+      const ext = _path.extname(file.originalname);
+      cb(null, `${productId}-${Date.now()}${ext}`);
+    },
+  }),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
   },
@@ -28,7 +37,7 @@ const upload = multer({
     // 이미지 파일만 허용
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(
-      path.extname(file.originalname).toLowerCase()
+      _path.extname(file.originalname).toLowerCase()
     );
     const mimetype = allowedTypes.test(file.mimetype);
 
@@ -42,37 +51,82 @@ const upload = multer({
   },
 });
 
-router.post(
-  "/upload",
-  upload.single("profileImage"),
-  async (req, res, next) => {
+// 프로필 이미지 업로드
+productImageRouter
+  .route("/")
+  .post(upload.single("image"), async (req, res, next) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: "파일이 업로드되지 않았습니다" });
+        throw new BadRequestError("파일이 업로드되지 않았습니다");
       }
 
-      // 이전 프로필 이미지 삭제 (있다면)
-      const userId = req.user?.id || "anonymous";
-      const uploadDir = path.join("uploads", "profiles", userId.toString());
-      const files = await fs.readdir(uploadDir);
+      const { filename: name, path, size } = req.file;
 
-      for (const file of files) {
-        if (file !== path.basename(req.file.path)) {
-          await fs.unlink(path.join(uploadDir, file));
-        }
-      }
+      const { image, image_id, ...productEntity } =
+        await prisma.product.findUnique({
+          where: { id: req.params.productId },
+          include: {
+            image: true,
+          },
+        });
+      console.log(productEntity);
+
+      const newImageEntity = {
+        name,
+        path,
+        size,
+      };
+
+      const newProductEntity = await prisma.product.update({
+        where: { id: productEntity.id },
+        data: {
+          ...productEntity,
+          image: {
+            create: newImageEntity,
+          },
+        },
+      });
+
+      console.log(newProductEntity);
 
       res.json({
         message: "프로필 이미지 업로드 성공",
         file: {
-          filename: req.file.filename,
-          path: req.file.path,
-          size: req.file.size,
-          url: `/uploads/profiles/${userId}/${req.file.filename}`,
+          name,
+          path,
+          size,
+          url: _path.join(path),
         },
       });
     } catch (err) {
       next(err);
     }
-  }
-);
+  })
+  .get(async (req, res, next) => {
+    // 프로필 이미지 조회
+    try {
+      const { productId } = req.params;
+      const {
+        image: { name, path },
+      } = await prisma.product.findUnique({
+        where: { id: productId },
+        include: {
+          image: true,
+        },
+      });
+
+      res.sendFile(
+        // 절대 경로 필요
+        _path.join(import.meta.dirname, "..", path)
+      );
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        next(
+          new NotFoundError(`제품 ${productId}의 이미지를 찾을 수 없습니다`)
+        );
+      }
+      next(err);
+    }
+  });
+
+export default productImageRouter;

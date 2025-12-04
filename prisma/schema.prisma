@@ -22,6 +22,24 @@ model product {
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @db.Timestamptz(6)
   comments    product_comment[]
+  image_id    BigInt?   @unique
+  image       product_image? @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+model product_comment {
+  id          BigInt    @id @default(autoincrement())
+  content     String
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
+  product_id  BigInt 
+  product     product   @relation(fields: [product_id], references: [id] ,onDelete: Cascade)
+}
+model product_image {
+  id          BigInt    @id @default(autoincrement())
+  name        String    @unique
+  path        String
+  size        Int
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  product     product?
 }
 
 model article {
@@ -39,14 +57,6 @@ model article_comment {
   created_at  DateTime  @default(now()) @db.Timestamptz(6)
   updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
   article_id  BigInt 
-  article     article   @relation(fields: [article_id], references: [id])
+  article     article   @relation(fields: [article_id], references: [id],onDelete: Cascade)
 }
 
-model product_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  product_id  BigInt 
-  product     product   @relation(fields: [product_id], references: [id])
-}
