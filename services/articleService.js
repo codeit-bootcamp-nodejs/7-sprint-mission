@@ -9,8 +9,10 @@ export async function getAllArticles(req, res, next) {
       where: findOption.where,
     });
 
-    res.send({
+    res.status(200).send({
       totalCount: totalCount,
+      limit: findOption.take || 10,
+      offset: findOption.skip || 0,
       data: articles,
     });
   } catch (e) {
@@ -29,7 +31,7 @@ export async function creatArticles(req, res, next) {
         content,
       },
     });
-    res.send(newArticle);
+    res.status(204).send(newArticle);
   } catch (e) {
     next(e);
   }
@@ -46,7 +48,7 @@ export async function getArticleById(req, res, next) {
     if (!getArticle) {
       throw new NotFoundError(message);
     }
-    res.send(getArticle);
+    res.status(200).send(getArticle);
   } catch (e) {
     next(e);
   }
@@ -64,7 +66,7 @@ export async function updateArticle(req, res, next) {
         content,
       },
     });
-    res.send(updateArticle);
+    res.status(200).send(updateArticle);
   } catch (e) {
     next(e);
   }
@@ -77,6 +79,7 @@ export async function deleteArticle(req, res, next) {
     await prisma.article.delete({
       where: { id: id },
     });
+    res.status(204).send({ message: "게시글이 성공적으로 삭제되었습니다." });
   } catch (e) {
     next(e);
   }
@@ -87,15 +90,19 @@ function getFindOptionFrom(req) {
   const findOption = {
     orderBy: { created_at: "desc" },
   };
+  // 1. limit 처리
   if (req.query.limit) {
     const limit = parseInt(req.query.limit, 10);
+    // 유효성 검사 수정: !isNaN(limit) && limit > 0
     if (!isNaN(limit) && limit > 0) findOption.take = limit;
   }
+
   if (req.query.offset) {
-    const offset = parseInt(req.qurey.offset, 10);
+    const offset = parseInt(req.query.offset, 10);
     if (!isNaN(offset) && offset >= 0) findOption.skip = offset;
   }
-  // name, description 에 포함된 단어로 검색 가능
+
+  // 3. 키워드 검색 처리
   if (req.query.keyword) {
     findOption.where = {
       OR: [

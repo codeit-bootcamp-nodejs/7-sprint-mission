@@ -5,30 +5,17 @@ import { BadRequestError, NotFoundError } from "../utils/CustomErrors.js";
 //상품 목록조회
 export async function getProducts(req, res, next) {
   try {
-    const { page, pageSize, orderBy, keyword } = create(
-      req.query,
-      GetProductListParamsStruct
-    );
-
-    const where = keyword
-      ? {
-          OR: [
-            { name: { contains: keyword } },
-            { description: { contains: keyword } },
-          ],
-        }
-      : undefined;
-    const totalCount = await prismaClient.product.count({ where });
-    const products = await prismaClient.product.findMany({
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      orderBy: orderBy === "recent" ? { id: "desc" } : { id: "asc" },
-      where,
+    const findOption = getFindOptionFrom(req);
+    const totalCount = await prisma.product.count({
+      where: findOption.where,
     });
+    const products = await prisma.product.findMany(findOption);
 
-    return res.send({
-      list: products,
-      totalCount,
+    res.status(200).send({
+      totalCount: totalCount, // 전체 개수
+      limit: findOption.take || 10, // 현재 페이지 limit 정보
+      offset: findOption.skip || 0, // 현재 페이지 offset 정보
+      data: products,
     });
   } catch (e) {
     next(e);
@@ -66,7 +53,7 @@ export async function getProductById(req, res, next) {
     if (!getProduct) {
       throw new NotFoundError(message);
     }
-    res.send(getProduct);
+    res.status(200).send(getProduct);
   } catch (e) {
     next(e);
   }
@@ -100,7 +87,7 @@ export async function deleteProduct(req, res, next) {
     await prisma.product.delete({
       where: { id: id },
     });
-    res.status(204).send();
+    res.status(204).send({ message: "상품이 성공적으로 삭제되었습니다." });
   } catch (e) {
     next(e);
   }
@@ -111,24 +98,32 @@ function getFindOptionFrom(req) {
   const findOption = {
     orderBy: { created_at: "desc" },
   };
+  const { limit, offset, search } = req.query;
   //limit 처리
-  if (req.query.limit) {
-    const limit = parseInt(req.query.limit, 10);
-    if (!isNaN(limit) || limit <= 0) {
-      throw new BadRequestError("limit 값은 1 이상이여야 합니다.");
+  if (limit) {
+    const parsedLimit = parseInt(limit, 10);
+    if (isNaN(parsedLimit) || parsedLimit <= 0) {
+      throw new BadRequestError("limit 값은 1 이상의 숫자여야 합니다.");
     }
-    findOption.take = limit;
+    findOption.take = parsedLimit;
+  } else {
+    // limit이 없을 경우 기본값 설정
+    findOption.take = 10;
   }
-  if (req.query.offset) {
-    const offset = parseInt(req.query.offset, 10);
-    if (!isNaN(offset) && offset >= 0) findOption.skip = offset;
+  if (offset) {
+    const parsedOffset = parseInt(offset, 10);
+    if (isNaN(parsedOffset) || parsedOffset < 0) {
+      throw new BadRequestError("offset 값은 0 이상의 숫자여야 합니다.");
+    }
+    findOption.skip = parsedOffset;
   }
+
   // name, description 에 포함된 단어로 검색 가능
-  if (req.query.search) {
+  if (search) {
     findOption.where = {
       OR: [
-        { name: { contains: searchKeyword } },
-        { description: { contains: searchKeyword } },
+        { name: { contains: search } },
+        { description: { contains: search } },
       ],
     };
   }

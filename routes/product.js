@@ -15,15 +15,15 @@ const productRouter = express.Router();
 productRouter.use("/:productId/image", productImageRouter);
 productRouter.use("/:productId/comments", productCommentRouter);
 
-//상품 목록 조회
-productRouter.get("/", getProducts);
-//상품 등록
-productRouter.post("/", validateProductInfo, createProduct);
-//상품 목록 상세 조회
-productRouter.get("/:id", getProductById);
-//상품 수정
-productRouter.patch("/:id", validateProductInfo, updateProduct);
-//상품 삭제
-productRouter.delete("/:id", deleteProduct);
+productRouter
+  .route("/")
+  .get(getProducts) // 상품 목록 조회
+  .post(validateProductInfo, createProduct); // 상품 등록
+
+productRouter
+  .route("/:id")
+  .get(getProductById) // 상품 목록 상세 조회
+  .patch(validateProductInfo, updateProduct) // 상품 수정
+  .delete(deleteProduct); // 상품 삭제
 
 export default productRouter;
