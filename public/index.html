@@ -2,8 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TEST</title>
+    <title>상품 조회 페이지</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -18,11 +17,12 @@
     </style>
   </head>
   <body>
-    <h1>상품 조회 (GET)</h1>
+    <h1>상품 조회</h1>
 
     <form id="productForm">
       <input type="text" id="name" placeholder="상품명" />
       <input type="number" id="price" placeholder="가격" />
+      <input type="text" id="description" placeholder="상품 설명" />
       <button type="submit">조회</button>
     </form>
 
@@ -38,40 +38,56 @@
 
         const name = document.getElementById("name").value;
         const price = document.getElementById("price").value;
+        const description = document.getElementById("description").value;
 
-        const query = new URLSearchParams({
-          ...(name && { name }),
-          ...(price && { price }),
-        }).toString();
+        // 백엔드에서 사용하는 쿼리 키와 맞추기 (name, price, description ...)
+        const params = {};
+        if (name) params.name = name;
+        if (price) params.price = price;
+        if (description) params.description = description;
 
-        const res = await fetch(`/api/products?${query}`, {
+        const query = new URLSearchParams(params).toString();
+
+        // 🔥 productRouter 의 /search 사용
+        const res = await fetch(`/api/products/search?${query}`, {
           method: "GET",
         });
 
         const data = await res.json();
+        console.log("response:", data);
 
-        // HTML로 결과 출력
+        // 응답 구조가 [배열] 이거나 { product: [] } 인 경우 둘 다 처리
+        let list = [];
+
         if (Array.isArray(data)) {
-          // 배열이면 리스트 출력
-          if (data.length === 0) {
-            resultBox.innerHTML = "<p>검색 결과가 없습니다.</p>";
-          } else {
-            resultBox.innerHTML = data
-              .map(
-                (item) => `
-              <div style="padding: 8px; border-bottom: 1px solid #ddd;">
-                <strong>ID:</strong> ${item.id}<br>
-                <strong>이름:</strong> ${item.name}<br>
-                <strong>가격:</strong> ${item.price}<br>
-              </div>
-            `
-              )
-              .join("");
-          }
-        } else {
-          // 객체이면 그대로 출력
-          resultBox.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          list = data;
+        } else if (Array.isArray(data.product)) {
+          list = data.product;
+        } else if (Array.isArray(data.products)) {
+          list = data.products;
         }
+
+        if (!list.length) {
+          resultBox.innerHTML = "<p>검색 결과가 없습니다.</p>";
+          return;
+        }
+
+        resultBox.innerHTML = list
+          .map(
+            (item) => `
+          <div style="padding: 8px; border-bottom: 1px solid #ddd;">
+            <strong>ID:</strong> ${item.id}<br>
+            <strong>이름:</strong> ${item.name}<br>
+            <strong>가격:</strong> ${item.price}<br>
+            ${
+              item.description
+                ? `<strong>설명:</strong> ${item.description}<br>`
+                : ""
+            }
+          </div>
+        `
+          )
+          .join("");
       });
     </script>
   </body>
