@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./src/app.js",
-    "build": "npm install && npx prisma db push && npx prisma gerate"
+    "build": "npm install && npx prisma db push && npx prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
