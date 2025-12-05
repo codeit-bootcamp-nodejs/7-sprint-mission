@@ -12,20 +12,30 @@ const upload = multer({
   storage: multer.diskStorage({
     // 사용자별 폴더 생성
     destination: function (req, file, cb) {
-      const uploadDir = path.join(
-        "uploads",
-        "images",
-        "products",
-        req.params.productId
-      );
+      const productId = req.params.productId;
+      if (!productId) {
+        return cb(
+          new Error("라우트 매개변수 (productId)가 누락되었습니다."),
+          null
+        );
+      }
+
+      const uploadDir = path.join("uploads", "images", "products", productId);
 
       // 폴더가 없으면 생성
-      fs.mkdir(uploadDir, { recursive: true });
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
       cb(null, uploadDir);
     },
+
     filename: function (req, file, cb) {
       // 프로필 사진은 하나만: image + 타임스탬프 + 확장자
       const productId = req.params.productId;
+      if (!productId) {
+        return cb(new Error("ProductId가 없습니다."), null);
+      }
       const ext = path.extname(file.originalname);
       cb(null, `${productId}-${Date.now()}${ext}`);
     },
