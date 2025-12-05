@@ -2,14 +2,25 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>상품 조회 페이지</title>
+    <title>상품 등록 & 조회 페이지</title>
     <style>
       body {
         font-family: Arial, sans-serif;
         padding: 20px;
       }
-      #result {
-        margin-top: 20px;
+      h2 {
+        margin-top: 30px;
+      }
+      form {
+        margin-bottom: 10px;
+      }
+      input {
+        margin-right: 8px;
+        margin-bottom: 4px;
+      }
+      #createResult,
+      #searchResult {
+        margin-top: 10px;
         padding: 10px;
         border: 1px solid #ddd;
         background: #fafafa;
@@ -17,30 +28,101 @@
     </style>
   </head>
   <body>
-    <h1>상품 조회</h1>
+    <h1>상품 등록 & 조회</h1>
 
-    <form id="productForm">
-      <input type="text" id="name" placeholder="상품명" />
-      <input type="number" id="price" placeholder="가격" />
-      <input type="text" id="description" placeholder="상품 설명" />
+    <!-- ✅ 1. 상품 등록 폼 (POST /api/products) -->
+    <h2>상품 등록</h2>
+    <form id="createForm">
+      <input type="text" id="c_name" placeholder="상품명" required />
+      <input type="number" id="c_price" placeholder="가격" required />
+      <input type="text" id="c_description" placeholder="설명" />
+      <input type="text" id="c_tags" placeholder="태그 (콤마로 구분)" />
+      <button type="submit">등록</button>
+    </form>
+
+    <div id="createResult">등록 결과가 여기에 표시됩니다.</div>
+
+    <!-- ✅ 2. 상품 조회 폼 (GET /api/products/search) -->
+    <h2>상품 조회</h2>
+    <form id="searchForm">
+      <input type="text" id="s_name" placeholder="상품명" />
+      <input type="number" id="s_price" placeholder="가격" />
+      <input type="text" id="s_description" placeholder="설명(옵션)" />
       <button type="submit">조회</button>
     </form>
 
-    <!-- 조회 결과 표시 영역 -->
-    <div id="result">조회 결과가 여기에 표시됩니다.</div>
+    <div id="searchResult">조회 결과가 여기에 표시됩니다.</div>
 
     <script>
-      const form = document.getElementById("productForm");
-      const resultBox = document.getElementById("result");
+      // -----------------------------
+      // ✅ 상품 등록 (POST /api/products)
+      // -----------------------------
+      const createForm = document.getElementById("createForm");
+      const createResult = document.getElementById("createResult");
 
-      form.addEventListener("submit", async (e) => {
+      createForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const name = document.getElementById("name").value;
-        const price = document.getElementById("price").value;
-        const description = document.getElementById("description").value;
+        const name = document.getElementById("c_name").value;
+        const price = document.getElementById("c_price").value;
+        const description = document.getElementById("c_description").value;
+        const tagsInput = document.getElementById("c_tags").value;
 
-        // 백엔드에서 사용하는 쿼리 키와 맞추기 (name, price, description ...)
+        // tags를 콤마 기준으로 배열로 변환 (백엔드에서 string[] 사용한다고 가정)
+        const tags =
+          tagsInput.trim() === ""
+            ? []
+            : tagsInput.split(",").map((t) => t.trim());
+
+        try {
+          const res = await fetch("/api/products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, price, description, tags }),
+          });
+
+          const data = await res.json();
+          console.log("create response:", data);
+
+          if (!res.ok) {
+            createResult.innerHTML = `<p style="color:red;">에러: ${data.error || "등록 실패"}</p>`;
+            return;
+          }
+
+          const p = data.product || data; // { product: {...} } 형식 고려
+
+          createResult.innerHTML = `
+          <p>등록 성공!</p>
+          <div style="padding: 8px; border-top: 1px solid #ddd;">
+            <strong>ID:</strong> ${p.id}<br>
+            <strong>이름:</strong> ${p.name}<br>
+            <strong>가격:</strong> ${p.price}<br>
+            ${p.description ? `<strong>설명:</strong> ${p.description}<br>` : ""}
+            ${p.tags ? `<strong>태그:</strong> ${p.tags}<br>` : ""}
+          </div>
+        `;
+
+          // 폼 초기화
+          createForm.reset();
+        } catch (err) {
+          console.error(err);
+          createResult.innerHTML = `<p style="color:red;">요청 중 오류가 발생했습니다.</p>`;
+        }
+      });
+
+      // -----------------------------
+      // ✅ 상품 조회 (GET /api/products/search)
+      // -----------------------------
+      const searchForm = document.getElementById("searchForm");
+      const searchResult = document.getElementById("searchResult");
+
+      searchForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("s_name").value;
+        const price = document.getElementById("s_price").value;
+        const description = document.getElementById("s_description").value;
+
         const params = {};
         if (name) params.name = name;
         if (price) params.price = price;
@@ -48,46 +130,50 @@
 
         const query = new URLSearchParams(params).toString();
 
-        // 🔥 productRouter 의 /search 사용
-        const res = await fetch(`/api/products/search?${query}`, {
-          method: "GET",
-        });
+        try {
+          const res = await fetch(`/api/products/search?${query}`, {
+            method: "GET",
+          });
 
-        const data = await res.json();
-        console.log("response:", data);
+          const data = await res.json();
+          console.log("search response:", data);
 
-        // 응답 구조가 [배열] 이거나 { product: [] } 인 경우 둘 다 처리
-        let list = [];
+          let list = [];
 
-        if (Array.isArray(data)) {
-          list = data;
-        } else if (Array.isArray(data.product)) {
-          list = data.product;
-        } else if (Array.isArray(data.products)) {
-          list = data.products;
+          if (Array.isArray(data)) {
+            list = data;
+          } else if (Array.isArray(data.product)) {
+            list = data.product;
+          } else if (Array.isArray(data.products)) {
+            list = data.products;
+          }
+
+          if (!list.length) {
+            searchResult.innerHTML = "<p>검색 결과가 없습니다.</p>";
+            return;
+          }
+
+          searchResult.innerHTML = list
+            .map(
+              (item) => `
+            <div style="padding: 8px; border-bottom: 1px solid #ddd;">
+              <strong>ID:</strong> ${item.id}<br>
+              <strong>이름:</strong> ${item.name}<br>
+              <strong>가격:</strong> ${item.price}<br>
+              ${
+                item.description
+                  ? `<strong>설명:</strong> ${item.description}<br>`
+                  : ""
+              }
+              ${item.tags ? `<strong>태그:</strong> ${item.tags}<br>` : ""}
+            </div>
+          `
+            )
+            .join("");
+        } catch (err) {
+          console.error(err);
+          searchResult.innerHTML = `<p style="color:red;">조회 중 오류가 발생했습니다.</p>`;
         }
-
-        if (!list.length) {
-          resultBox.innerHTML = "<p>검색 결과가 없습니다.</p>";
-          return;
-        }
-
-        resultBox.innerHTML = list
-          .map(
-            (item) => `
-          <div style="padding: 8px; border-bottom: 1px solid #ddd;">
-            <strong>ID:</strong> ${item.id}<br>
-            <strong>이름:</strong> ${item.name}<br>
-            <strong>가격:</strong> ${item.price}<br>
-            ${
-              item.description
-                ? `<strong>설명:</strong> ${item.description}<br>`
-                : ""
-            }
-          </div>
-        `
-          )
-          .join("");
       });
     </script>
   </body>
