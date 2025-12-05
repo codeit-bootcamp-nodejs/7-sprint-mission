@@ -1,8 +1,8 @@
 import express from "express";
+import cors from "cors";
 import articleRouter from "./routes/article.route.js";
 import productRouter from "./routes/product.route.js";
 import { HttpError } from "./errors/customErrors.js";
-import cors from "cors";
 //근데 import방식은 import순서대로 진행이 되기 때문에 import 이전에 서버가 열리면 적용이 안 될 수도 있음.
 //config도 마찬가지이기 때문에 권장하는 방식이 따로 있음.
 import { config } from "dotenv";
@@ -12,7 +12,6 @@ config();
 // 그럼 서버에서는 이 JSON 문자열을 다시 자바스크립트 객체로 변환을 해야겠지?
 // 그게 express.json()임. 번역기라고 생각하면 됨.
 const app = express();
-
 app.use(express.json());
 app.use(cors());
 
@@ -91,9 +90,9 @@ app.use((err, req, res, next) => {
 });
 
 // process.env(환경변수)를 사용하기 위해서는 Dotenv라는 Node.js 패키지를 불러와야 함.
-const apiPort = process.env.API_PORT;
-app.listen(apiPort, () => {
-  console.log(`Server running on port ${apiPort}`);
+const port = process.env.PORT || process.env.API_PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
 
 // 미들웨어란 - 클라이언트에게 요청을 받고 전달되기 전까지 실행되는 함순.
