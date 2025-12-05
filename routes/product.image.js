@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { prisma } from "../prisma/prisma.js";
 import multer from "multer";
-import path from "path";
-import fs from "fs/promises";
+import * as path from "path";
+import * as fs from "fs";
 import { BadRequestError, NotFoundError } from "../utils/CustomErrors.js";
 
 const productImageRouter = new Router({ mergeParams: true });
@@ -19,23 +19,18 @@ const upload = multer({
           null
         );
       }
-
       const uploadDir = path.join("uploads", "images", "products", productId);
 
       // 폴더가 없으면 생성
       if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+        fs.mkdirSync(uploadDir, { recursive: true }); // <-- fs.mkdirSync 사용
       }
 
       cb(null, uploadDir);
     },
-
     filename: function (req, file, cb) {
       // 프로필 사진은 하나만: image + 타임스탬프 + 확장자
       const productId = req.params.productId;
-      if (!productId) {
-        return cb(new Error("ProductId가 없습니다."), null);
-      }
       const ext = path.extname(file.originalname);
       cb(null, `${productId}-${Date.now()}${ext}`);
     },
@@ -70,27 +65,28 @@ productImageRouter
         throw new BadRequestError("파일이 업로드되지 않았습니다");
       }
 
-      const { filename: name, path, size } = req.file;
+      const { filename: name, path: filePath, size } = req.file;
 
-      const { image, image_id, ...productEntity } =
-        await prisma.product.findUnique({
-          where: { id: req.params.productId },
-          include: {
-            image: true,
-          },
-        });
+      const productEntity = await prisma.product.findUnique({
+        where: { id: req.params.productId },
+      });
       console.log(productEntity);
+
+      if (!productEntity) {
+        throw new NotFoundError(
+          `제품 ${req.params.productId}를 찾을 수 없습니다.`
+        );
+      }
 
       const newImageEntity = {
         name,
-        path,
+        path: filePath,
         size,
       };
 
       const newProductEntity = await prisma.product.update({
         where: { id: productEntity.id },
         data: {
-          ...productEntity,
           image: {
             create: newImageEntity,
           },
@@ -103,9 +99,9 @@ productImageRouter
         message: "프로필 이미지 업로드 성공",
         file: {
           name,
-          path,
+          path: filePath,
           size,
-          url: path.join(path),
+          url: path.join("/", filePath),
         },
       });
     } catch (err) {

@@ -39,7 +39,8 @@ productCommentRouter.post("/", validateContentRequired, async (req, res) => {
 
 productCommentRouter.get("/", async (req, res, next) => {
   try {
-    const { cursor, limit = "10" } = req.query;
+    const { cursorId, limit = "10" } = req.query;
+    const cursor = cursorId;
     const take = parseInt(limit);
 
     if (isNaN(take) || take <= 0) {
@@ -51,7 +52,8 @@ productCommentRouter.get("/", async (req, res, next) => {
     const sort = orderByToSort(orderBy);
 
     // cursor token 파싱
-    const cursorToken = parseContinuationToken(cursor);
+
+    const cursorToken = parseContinuationToken(cursorId);
     const cursorWhere = cursorToken
       ? buildCursorWhere(cursorToken.data, cursorToken.sort)
       : {};

@@ -47,7 +47,8 @@ articleCommentRouter.get("/", async (req, res, next) => {
   //     - cursor 방식의 페이지네이션 기능을 포함해 주세요.
 
   try {
-    const { cursor, limit = "10" } = req.query;
+    const { cursorId, limit = "10" } = req.query;
+    const cursor = cursorId;
     const take = parseInt(limit);
 
     if (isNaN(take) || take <= 0) {
@@ -59,7 +60,7 @@ articleCommentRouter.get("/", async (req, res, next) => {
     const sort = orderByToSort(orderBy);
 
     // cursor token 파싱
-    const cursorToken = parseContinuationToken(cursor);
+    const cursorToken = parseContinuationToken(cursorId);
     const cursorWhere = cursorToken
       ? buildCursorWhere(cursorToken.data, cursorToken.sort)
       : {};

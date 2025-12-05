@@ -1,7 +1,6 @@
 import express from "express";
 import articleRouter from "./routes/article.js";
 import productRouter from "./routes/product.js";
-import productImageRouter from "./routes/product.image.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { NotFoundError } from "./utils/CustomErrors.js";
 import cors from "cors";
@@ -21,7 +20,6 @@ BigInt.prototype.toJSON = function () {
 // 라우터 미들웨어 등록
 app.use("/api/articles", articleRouter);
 app.use("/api/products", productRouter);
-app.use("/api/upload/image", productImageRouter);
 
 app.get("/", (req, res) => {
   res.json({
