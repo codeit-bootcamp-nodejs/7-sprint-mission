@@ -1,14 +1,16 @@
 import { Router } from "express";
 import multer from "multer";
 import { BadRequestError } from "../errors/customError.js";
+import path from "path";
 
 const router = Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/upload");
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now());
+    const ext = path.extname(file.originalname);
+    cb(null, `${file.fieldname}-${Date.now()}${ext}`);
   },
 });
 const fs = multer({
