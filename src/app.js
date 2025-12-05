@@ -1,5 +1,10 @@
 import express from "express";
 import cors from "cors";
+
+//path  설정
+import path from "path";
+import { fileURLToPath } from "url";
+
 import articleRouter from "./routes/article.router.js";
 import productRouter from "./routes/product.router.js";
 import articleCommentRouter from "./routes/article-comment.router.js";
@@ -12,6 +17,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+//index.html 서빙
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "../public")));
+
+//API ROUTERS
 app.use("/api/articles", articleRouter);
 app.use("/api/products", productRouter);
 app.use("/api/articles/:articleId/comments", articleCommentRouter);
