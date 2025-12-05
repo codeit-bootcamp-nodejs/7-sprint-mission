@@ -4,8 +4,75 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TEST</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+      }
+    </style>
   </head>
   <body>
-    <h1>TEST</h1>
+    <h1>상품 조회 (GET)</h1>
+
+    <form id="productForm">
+      <input type="text" id="name" placeholder="상품명" />
+      <input type="number" id="price" placeholder="가격" />
+      <button type="submit">조회</button>
+    </form>
+
+    <!-- 조회 결과 표시 영역 -->
+    <div id="result">조회 결과가 여기에 표시됩니다.</div>
+
+    <script>
+      const form = document.getElementById("productForm");
+      const resultBox = document.getElementById("result");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const price = document.getElementById("price").value;
+
+        const query = new URLSearchParams({
+          ...(name && { name }),
+          ...(price && { price }),
+        }).toString();
+
+        const res = await fetch(`/api/products?${query}`, {
+          method: "GET",
+        });
+
+        const data = await res.json();
+
+        // HTML로 결과 출력
+        if (Array.isArray(data)) {
+          // 배열이면 리스트 출력
+          if (data.length === 0) {
+            resultBox.innerHTML = "<p>검색 결과가 없습니다.</p>";
+          } else {
+            resultBox.innerHTML = data
+              .map(
+                (item) => `
+              <div style="padding: 8px; border-bottom: 1px solid #ddd;">
+                <strong>ID:</strong> ${item.id}<br>
+                <strong>이름:</strong> ${item.name}<br>
+                <strong>가격:</strong> ${item.price}<br>
+              </div>
+            `
+              )
+              .join("");
+          }
+        } else {
+          // 객체이면 그대로 출력
+          resultBox.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      });
+    </script>
   </body>
 </html>
