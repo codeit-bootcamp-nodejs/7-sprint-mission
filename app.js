@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 
 app.use(errorHandler);
 
-const apiPort = process.env.API_PORT;
-app.listen(apiPort, () => {
-  console.log(`서버 시작 ${apiPort}`);
+const port = process.env.PORT || process.env.API_PORT || 3000;
+app.listen(port, () => {
+  console.log(`서버 시작 ${Port}`);
 });
