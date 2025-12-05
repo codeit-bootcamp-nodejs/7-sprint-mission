@@ -44,5 +44,5 @@ app.use(errorHandler);
 
 const port = process.env.PORT || process.env.API_PORT || 3000;
 app.listen(port, () => {
-  console.log(`서버 시작 ${Port}`);
+  console.log(`서버 시작 ${port}`);
 });
