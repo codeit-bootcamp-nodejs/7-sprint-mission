@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import productRouter from "./routes/product.js";
 import articleRouter from "./routes/article.js";
 import dotenv from "dotenv";
@@ -6,7 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { ValidationError } from "./middlewares/validator.js";
 import productImageRouter from "./routes/productImage.js";
-import { HttpError, NotFoundError } from "./exseptions/errors.js";
+import { HttpError, NotFoundError } from "./exceptions/errors.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +24,7 @@ const bigIntToStringOrBypass = (_, value) => {
 };
 
 app.use(express.json());
+app.use(cors());
 app.use("json replacer", bigIntToStringOrBypass);
 
 // 라우터 mount
@@ -49,12 +51,6 @@ app.use((req, res, next) => {
   );
 });
 
-// 포트 기본값 설정 추가
-const apiPort = process.env.API_PORT;
-app.listen(apiPort, () => {
-  console.log(`Server running on port ${apiPort}`);
-});
-
 // 최종 에러 처리 미들웨어 (HTTP Error 반영)
 app.use((err, req, res, next) => {
   console.error("🚨 에러 발생:", err.stack);
@@ -79,4 +75,10 @@ app.use((err, req, res, next) => {
     error: "InternalServerError",
     message: "서버에서 알 수 없는 에러가 발생했습니다.",
   });
+});
+
+// 포트 기본값 설정 추가
+const apiPort = process.env.API_PORT;
+app.listen(apiPort, () => {
+  console.log(`Server running on port ${apiPort}`);
 });
