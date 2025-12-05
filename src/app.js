@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import articleRouter from "./routes/article.router.js";
 import productRouter from "./routes/product.router.js";
 import articleCommentRouter from "./routes/article-comment.router.js";
@@ -9,6 +10,7 @@ import { HttpError } from "./errors/customError.js";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use("/api/articles", articleRouter);
 app.use("/api/products", productRouter);
