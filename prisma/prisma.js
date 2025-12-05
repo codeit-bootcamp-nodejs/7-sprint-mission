@@ -1,7 +1,7 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
-const { PrismaClient } = require("../generated/prisma/index.js");
+const { PrismaClient } = require("@prisma/client");
 
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
