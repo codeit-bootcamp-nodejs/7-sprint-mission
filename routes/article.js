@@ -9,7 +9,7 @@ export class Article {
 
   // 파라미터 entity는 db객체를 끌어다 가져오는 파라미터임.
   // 그래서 가져온 db객체를 변환해주는 역할.
-  static fromEmtity({ id, title, content, created_at }) {
+  static fromEntity({ id, title, content, created_at }) {
     const info = {
       id: id.toString(),
       title,

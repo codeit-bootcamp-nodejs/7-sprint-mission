@@ -2,8 +2,11 @@ import { Product, UnregisteredProduct } from "./product.js";
 import { Router } from "express";
 import { prisma } from "../prisma/prisma.js";
 import { BadRequestError, NotFoundError } from "../errors/customErrors.js";
+import productCommentRouter from "./product-comment.route.js";
 
 const productRouter = new Router();
+
+productRouter.use("/:productId/comments", productCommentRouter);
 
 // 상품 전체 조회
 productRouter.get("/", validateGetProducts, async (req, res, next) => {

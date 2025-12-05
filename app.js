@@ -2,13 +2,19 @@ import express from "express";
 import articleRouter from "./routes/article.route.js";
 import productRouter from "./routes/product.route.js";
 import { HttpError } from "./errors/customErrors.js";
+import cors from "cors";
 //근데 import방식은 import순서대로 진행이 되기 때문에 import 이전에 서버가 열리면 적용이 안 될 수도 있음.
 //config도 마찬가지이기 때문에 권장하는 방식이 따로 있음.
 import { config } from "dotenv";
 config();
 
+// 클라이언트가 서버로 요청을 보내면 JSON형식의 문자열로 요청을 보내게 됨.
+// 그럼 서버에서는 이 JSON 문자열을 다시 자바스크립트 객체로 변환을 해야겠지?
+// 그게 express.json()임. 번역기라고 생각하면 됨.
 const app = express();
+
 app.use(express.json());
+app.use(cors());
 
 // 역직렬화 로직 => JSON 문자열을 JS 객체나 배열로 변경해줌
 // !중요 사항! 역직렬화가 있다면 직렬화 로직은 붙어다니는 한쌍이다. 왜? 변환한 JS 객체를 클라이언트에게 응답 시 다시 JSON으로 바꿔줘야 하니깐.
@@ -24,11 +30,6 @@ const bigIntToStringOrBypass = (_, value) => {
   }
   return value;
 };
-
-// 클라이언트가 서버로 요청을 보내면 JSON형식의 문자열로 요청을 보내게 됨.
-// 그럼 서버에서는 이 JSON 문자열을 다시 자바스크립트 객체로 변환을 해야겠지?
-// 그게 express.json()임. 번역기라고 생각하면 됨.
-app.use(express.json());
 
 // 라우터 mount
 // 이거는 첫번째 인자에는 해당 경로, 두번째 인자에는 처리 할 객체를 넣어줌.

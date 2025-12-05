@@ -2,10 +2,14 @@ import { Article, UnregisteredArticle } from "./article.js";
 import { Router } from "express";
 import { prisma } from "../prisma/prisma.js";
 import { BadRequestError, NotFoundError } from "../errors/customErrors.js";
+import articleCommentRouter from "./article-comment.route.js";
 
 // 라우터를 만드는 이유?
 // 빈 객체 라우터를 만들어서 채워지면 export 라우터를 통해 이거 쓰세요~ 느낌.
 const articleRouter = new Router();
+
+// articleId/comments 로 들어오면 articleCommentRouter로 넘긴다.
+articleRouter.use("/:articleId/comments", articleCommentRouter);
 
 // 여기까지 들어온 거면 "/" 이여도 localhost:3000/api/aticles/ 이 URL인거임.
 articleRouter.get("/", validateGetArticles, async (req, res, next) => {

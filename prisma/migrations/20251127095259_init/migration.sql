@@ -21,3 +21,5 @@ CREATE TABLE "article" (
 
     CONSTRAINT "article_pkey" PRIMARY KEY ("id")
 );
+
+
