@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import articleRouter from "./routes/article.route.js";
 import { HttpError } from "./errors/customErrors.js";
 
@@ -8,6 +9,7 @@ config(); // .env 읽어서 process.env.아래 위치시키기
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use("/articles", articleRouter);
 app.use("/products", productRouter);
