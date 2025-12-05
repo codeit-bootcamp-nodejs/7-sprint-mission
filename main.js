@@ -16,6 +16,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 // 정적 파일 제공 (uploads 폴더)
 app.use("/uploads", express.static("uploads"));
 
