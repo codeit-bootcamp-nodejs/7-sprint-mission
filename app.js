@@ -15,6 +15,13 @@ app.use(cors());
 app.use("/products", productsRouter);
 app.use("/articles", articlesRouter);
 
+app.get("/", (req, res) => {
+  res.json({
+    message: "RESTful API server",
+    endpoints: ["/products", "/articles"],
+  });
+});
+
 app.use((err, req, res, next) => {
   if (err instanceof HttpError) {
     return res.status(err.statusCode).json({
