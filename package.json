@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node ./src/app.js",
+    "start": "node app.js",
     "build": "npm install && npx prisma db push && npx prisma generate"
   },
   "dependencies": {
