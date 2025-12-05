@@ -3,12 +3,14 @@ import dotenv from "dotenv";
 import productsRouter from "./routes/products.js";
 import articlesRouter from "./routes/articles.js";
 import { HttpError } from "./errors/error.js";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/products", productsRouter);
 app.use("/articles", articlesRouter);
