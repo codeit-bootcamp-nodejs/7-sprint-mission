@@ -23,6 +23,10 @@
     "axios": "^1.13.2"
 =======
   "type": "module",
+  "scripts": {
+    "start": "node main.js",
+    "build": "npm install && npx prisma db push && npx prisma generate"
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
