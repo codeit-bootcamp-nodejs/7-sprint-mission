@@ -125,7 +125,7 @@ GET /products?keyword=pc
   -H "Content-Type: application/json" \
   -d '{
     "title": "수정이름",
-    "content": "수정내용",
+    "content": "수정내용"
   }'
   ```
 
@@ -136,6 +136,15 @@ GET /products?keyword=pc
   -H "Content-Type: application/json" \
   -d '{
     "title": "새로생성 제목",
-    "content": "새로생성 내용",
+    "content": "새로생성 내용"
   }'
   ```
+
+
+*** multer image ***
+
+  ```bash
+  curl -X POST localhost:3000/api/upload/image \
+  -F "image=@images/dog.png"
+  ```
+
