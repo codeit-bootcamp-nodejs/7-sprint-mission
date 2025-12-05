@@ -78,7 +78,7 @@ app.use((err, req, res, next) => {
 });
 
 // 포트 기본값 설정 추가
-const apiPort = process.env.API_PORT;
+const apiPort = process.env.API_PORT || 3000;
 app.listen(apiPort, () => {
   console.log(`Server running on port ${apiPort}`);
 });
