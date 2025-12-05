@@ -1,4 +1,5 @@
 import { prisma } from "../prisma/prisma.js";
+import { BadRequestError, NotFoundError } from "../utils/CustomErrors.js";
 
 //게시글 목록 조회
 export async function getAllArticles(req, res, next) {
@@ -40,13 +41,18 @@ export async function creatArticles(req, res, next) {
 //게시글 목록 상세 조회
 export async function getArticleById(req, res, next) {
   try {
-    const { id } = req.parmas;
+    const { id } = req.params;
+    const articleId = parseInt(id, 10);
+
+    if (isNaN(articleId)) {
+      throw new BadRequestError(`유효하지 않은 아티클 ID '${id}'입니다.`);
+    }
 
     const getArticle = await prisma.article.findUnique({
-      where: { id: id },
+      where: { id: articleId },
     });
     if (!getArticle) {
-      throw new NotFoundError(message);
+      throw new NotFoundError(`아티클 ID ${id}를 찾을 수 없습니다.`);
     }
     res.status(200).send(getArticle);
   } catch (e) {

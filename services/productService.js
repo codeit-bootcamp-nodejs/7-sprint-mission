@@ -46,12 +46,16 @@ export async function createProduct(req, res, next) {
 export async function getProductById(req, res, next) {
   try {
     const { id } = req.params;
+    const productId = parseInt(id, 10);
 
+    if (isNaN(productId)) {
+      throw new BadRequestError(`유효하지 않은 상품 ID '${id}'입니다.`);
+    }
     const getProduct = await prisma.product.findUnique({
-      where: { id: id },
+      where: { id: productId },
     });
     if (!getProduct) {
-      throw new NotFoundError(message);
+      throw new NotFoundError(`상품 ID ${id}를 찾을 수 없습니다.`);
     }
     res.status(200).send(getProduct);
   } catch (e) {
