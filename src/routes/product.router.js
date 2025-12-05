@@ -20,7 +20,7 @@ router.get("/search", async (req, res) => {
     } = req.query;
     const getDetailProduct = {};
 
-    console.log("req : ", req.query);
+    console.log("req : ", req.query.name);
 
     if (name && price) {
       getDetailProduct.name = { contains: name, mode: "insensitive" };
