@@ -28,3 +28,7 @@ Thumbs.db
 
 # VS Code 설정
 .vscode
+/generated
+
+# Uploads (Multer storage)
+/uploads
