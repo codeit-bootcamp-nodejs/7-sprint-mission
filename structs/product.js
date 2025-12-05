@@ -10,19 +10,25 @@ export class Product {
     this.createdAt = createdAt;
   }
 
-  validateName(name) {
+  static validateId(id) {
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+  }
+
+  static validateName(name) {
     if (!name || typeof name !== "string") {
       throw new HTTPError(400, "Name is required and must be a string");
     }
   }
 
-  validateDescription(description) {
+  static validateDescription(description) {
     if (description && typeof description !== "string") {
       throw new HTTPError(400, "Description must be a string");
     }
   }
 
-  validatePrice(price) {
+  static validatePrice(price) {
     if (price === undefined || typeof price !== "number" || price < 0) {
       throw new HTTPError(
         400,
@@ -31,7 +37,7 @@ export class Product {
     }
   }
 
-  validateTags(tags) {
+  static validateTags(tags) {
     if (
       tags &&
       (!Array.isArray(tags) || !tags.every((tag) => typeof tag === "string"))
@@ -40,11 +46,26 @@ export class Product {
     }
   }
 
+  static validateCreate(body) {
+    Product.validateName(body.name);
+    Product.validateDescription(body.description);
+    Product.validatePrice(body.price);
+    Product.validateTags(body.tags);
+  }
+
+  static validateUpdate(body) {
+    if (body.name !== undefined) Product.validateName(body.name);
+    if (body.description !== undefined)
+      Product.validateDescription(body.description);
+    if (body.price !== undefined) Product.validatePrice(body.price);
+    if (body.tags !== undefined) Product.validateTags(body.tags);
+  }
+
   validate() {
-    this.validateName(this.name);
-    this.validateDescription(this.description);
-    this.validatePrice(this.price);
-    this.validateTags(this.tags);
+    Product.validateName(this.name);
+    Product.validateDescription(this.description);
+    Product.validatePrice(this.price);
+    Product.validateTags(this.tags);
   }
 
   static fromEntity(entity) {

@@ -8,21 +8,37 @@ export class Article {
     this.createdAt = createdAt;
   }
 
-  validateTitle(title) {
+  static validateId(id) {
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+  }
+
+  static validateTitle(title) {
     if (!title || typeof title !== "string") {
       throw new HTTPError(400, "Title is required and must be a string");
     }
   }
 
-  validateContent(content) {
+  static validateContent(content) {
     if (!content || typeof content !== "string") {
       throw new HTTPError(400, "Content is required and must be a string");
     }
   }
 
+  static validateCreate(body) {
+    Article.validateTitle(body.title);
+    Article.validateContent(body.content);
+  }
+
+  static validateUpdate(body) {
+    if (body.title !== undefined) Article.validateTitle(body.title);
+    if (body.content !== undefined) Article.validateContent(body.content);
+  }
+
   validate() {
-    this.validateTitle(this.title);
-    this.validateContent(this.content);
+    Article.validateTitle(this.title);
+    Article.validateContent(this.content);
   }
 
   static fromEntity(entity) {

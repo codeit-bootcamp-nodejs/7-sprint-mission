@@ -1,135 +1,55 @@
 Server is running on port 3000
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE 1=1 ORDER BY "public"."product"."created_at" DESC LIMIT $1 OFFSET $2
+prisma:query INSERT INTO "public"."article" ("title","content","created_at","updated_at") VALUES ($1,$2,$3,$4) RETURNING "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at"
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."title" ILIKE $1 OR "public"."article"."content" ILIKE $2) ORDER BY "public"."article"."created_at" DESC LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."title" ILIKE $1 OR "public"."article"."content" ILIKE $2) ORDER BY "public"."article"."created_at" DESC LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."comment" ("content","article_id","created_at","updated_at") VALUES ($1,$2,$3,$4) RETURNING "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at"
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."comment" ("content","article_id","created_at","updated_at") VALUES ($1,$2,$3,$4) RETURNING "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at"
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE "public"."comment"."article_id" = $1 ORDER BY "public"."comment"."created_at" DESC, "public"."comment"."id" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."article"."id", "public"."article"."title", "public"."article"."content", "public"."article"."created_at", "public"."article"."updated_at" FROM "public"."article" WHERE ("public"."article"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."article_id" = $1 AND ("public"."comment"."created_at" < $2 OR ("public"."comment"."created_at" = $3 AND "public"."comment"."id" < $4))) ORDER BY "public"."comment"."created_at" DESC, "public"."comment"."id" DESC LIMIT $5 OFFSET $6
+prisma:query INSERT INTO "public"."product" ("name","description","price","tags","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,$6) RETURNING "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at"
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."name" ILIKE $1 OR "public"."product"."description" ILIKE $2) ORDER BY "public"."product"."created_at" DESC LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."name" ILIKE $1 OR "public"."product"."description" ILIKE $2) ORDER BY "public"."product"."created_at" DESC LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."comment" ("content","product_id","created_at","updated_at") VALUES ($1,$2,$3,$4) RETURNING "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at"
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query INSERT INTO "public"."comment" ("content","product_id","created_at","updated_at") VALUES ($1,$2,$3,$4) RETURNING "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at"
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE "public"."comment"."product_id" = $1 ORDER BY "public"."comment"."created_at" DESC, "public"."comment"."id" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE "public"."comment"."product_id" = $1 ORDER BY "public"."comment"."created_at" DESC, "public"."comment"."id" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."product_id" = $1 AND ("public"."comment"."created_at" < $2 OR ("public"."comment"."created_at" = $3 AND "public"."comment"."id" < $4))) ORDER BY "public"."comment"."created_at" DESC, "public"."comment"."id" DESC LIMIT $5 OFFSET $6
+prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query UPDATE "public"."comment" SET "content" = $1, "updated_at" = $2 WHERE ("public"."comment"."id" = $3 AND 1=1) RETURNING "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at"
 prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
 HTTPError: Cannot find comment
-    at file:///workspaces/sprint3/routes/comments.js:24:13
+    at file:///workspaces/sprint3/routes/comments.route.js:20:13
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
   status: 404
 }
-prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
-HTTPError: Cannot find comment
-    at file:///workspaces/sprint3/routes/comments.js:24:13
+Error: Only image files are allowed!
+    at fileFilter (file:///workspaces/sprint3/middlewares/upload.js:33:19)
+    at wrappedFileFilter (/workspaces/sprint3/node_modules/multer/index.js:44:7)
+    at Multipart.<anonymous> (/workspaces/sprint3/node_modules/multer/lib/make-middleware.js:132:7)
+    at Multipart.emit (node:events:518:28)
+    at HeaderParser.cb (/workspaces/sprint3/node_modules/busboy/lib/types/multipart.js:358:14)
+    at HeaderParser.push (/workspaces/sprint3/node_modules/busboy/lib/types/multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (/workspaces/sprint3/node_modules/busboy/lib/types/multipart.js:394:37)
+    at feed (/workspaces/sprint3/node_modules/streamsearch/lib/sbmh.js:219:14)
+    at SBMH.push (/workspaces/sprint3/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/workspaces/sprint3/node_modules/busboy/lib/types/multipart.js:567:19) {
+  code: 'LIMIT_FILE_TYPES',
+  storageErrors: []
+}
+prisma:query DELETE FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) RETURNING "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at"
+prisma:query SELECT "public"."product"."id", "public"."product"."name", "public"."product"."description", "public"."product"."price", "public"."product"."tags", "public"."product"."created_at", "public"."product"."updated_at" FROM "public"."product" WHERE ("public"."product"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+HTTPError: Product not found
+    at file:///workspaces/sprint3/routes/products.route.js:139:15
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
   status: 404
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
-HTTPError: Cannot find comment
-    at file:///workspaces/sprint3/routes/comments.js:24:13
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  status: 404
-}
-prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
-HTTPError: Cannot find comment
-    at file:///workspaces/sprint3/routes/comments.js:24:13
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  status: 404
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-prisma:query SELECT "public"."comment"."id", "public"."comment"."content", "public"."comment"."product_id", "public"."comment"."article_id", "public"."comment"."created_at", "public"."comment"."updated_at" FROM "public"."comment" WHERE ("public"."comment"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
-HTTPError: Cannot find comment
-    at file:///workspaces/sprint3/routes/comments.js:24:13
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
-  status: 404
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
-}
-HTTPError: Content is required and must be a string
-    at file:///workspaces/sprint3/routes/comments.js:16:13
-    at file:///workspaces/sprint3/asyncHandler.js:2:19
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at next (/workspaces/sprint3/node_modules/router/lib/route.js:157:13)
-    at Route.dispatch (/workspaces/sprint3/node_modules/router/lib/route.js:117:3)
-    at handle (/workspaces/sprint3/node_modules/router/index.js:435:11)
-    at Layer.handleRequest (/workspaces/sprint3/node_modules/router/lib/layer.js:152:17)
-    at /workspaces/sprint3/node_modules/router/index.js:295:15
-    at param (/workspaces/sprint3/node_modules/router/index.js:600:14)
-    at param (/workspaces/sprint3/node_modules/router/index.js:610:14) {
-  status: 400
 }

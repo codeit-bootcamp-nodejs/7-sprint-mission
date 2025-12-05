@@ -20,6 +20,11 @@ export function errorHandler(err, req, res, next) {
     return res.status(404).json({ error: "Resource not found" });
   }
 
+  // Multer: 파일 타입 제한
+  if (err.code === "LIMIT_FILE_TYPES") {
+    return res.status(400).json({ error: err.message });
+  }
+
   // 그 외 서버 에러
   res.status(500).json({ error: err.message || "Internal Server Error" });
 }

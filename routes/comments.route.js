@@ -6,21 +6,13 @@ import { Comment } from "../structs/comment.js";
 
 const router = express.Router();
 
-router.patch(
-  "/:id",
+router.route("/:id").patch(
   asyncHandler(async (req, res) => {
     const { id } = req.params;
+    Comment.validateId(id);
     const body = req.body || {};
+    Comment.validateUpdate(body);
     const { content } = body;
-
-    if (isNaN(id)) {
-      throw new HTTPError(400, "ID must be a number");
-    }
-
-    // 1차: 입력값 검증 (미들웨어/핸들러)
-    if (!content || typeof content !== "string") {
-      throw new HTTPError(400, "Content is required and must be a string");
-    }
 
     const comment = await prisma.comment.findUnique({
       where: { id },
@@ -35,7 +27,6 @@ router.patch(
       data: { content },
     });
 
-    // 2차: fromEntity 검증
     res.send(Comment.fromEntity(updatedComment));
   })
 );

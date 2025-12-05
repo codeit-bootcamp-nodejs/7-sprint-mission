@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import productsRouter from "./routes/products.route.js";
 import articlesRouter from "./routes/articles.route.js";
 import commentsRouter from "./routes/comments.route.js";
@@ -12,6 +13,7 @@ BigInt.prototype.toJSON = function () {
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 // 정적 파일 제공 (uploads 폴더)

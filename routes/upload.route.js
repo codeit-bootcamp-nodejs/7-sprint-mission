@@ -4,8 +4,7 @@ import { asyncHandler } from "../asyncHandler.js";
 
 const router = express.Router();
 
-router.post(
-  "/image",
+router.route("/image").post(
   upload.single("image"), // 'image'라는 필드명으로 파일 수신
   asyncHandler(async (req, res) => {
     if (!req.file) {

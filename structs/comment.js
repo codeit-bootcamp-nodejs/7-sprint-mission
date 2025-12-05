@@ -10,14 +10,28 @@ export class Comment {
     this.updatedAt = updatedAt;
   }
 
-  validateContent(content) {
+  static validateId(id) {
+    if (isNaN(id)) {
+      throw new HTTPError(400, "ID must be a number");
+    }
+  }
+
+  static validateContent(content) {
     if (!content || typeof content !== "string") {
       throw new HTTPError(400, "Content is required and must be a string");
     }
   }
 
+  static validateCreate(body) {
+    Comment.validateContent(body.content);
+  }
+
+  static validateUpdate(body) {
+    if (body.content !== undefined) Comment.validateContent(body.content);
+  }
+
   validate() {
-    this.validateContent(this.content);
+    Comment.validateContent(this.content);
   }
 
   static fromEntity(entity) {
