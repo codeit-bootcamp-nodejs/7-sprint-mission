@@ -1,7 +1,12 @@
-import { Product, ElectronicProduct } from "./Product.js";
-import { Article, NewsArticle } from "./Article.js";
-import { ProductService } from "./ProductService.js";
-import { ArticleService } from "./ArticleService.js";
+import { Product } from "./models/Product.js";
+import { ElectronicProduct } from "./models/ElectronicProduct.js";
+
+import { Article } from "./models/Article.js";
+import { NewsArticle } from "./models/Article.js";
+
+import { ProductService } from "./services/ProductService.js";
+import { ArticleService } from "./services/ArticleService.js";
+
 
 const productService = new ProductService();
 const articleService = new ArticleService();
