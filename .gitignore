@@ -26,3 +26,7 @@ coverage/
 .vscode/
 .idea/
 *.swp
+
+# VS Code 설정
+.vscode
+/generated/prisma
