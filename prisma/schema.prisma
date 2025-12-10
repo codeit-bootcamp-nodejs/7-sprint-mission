@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id          BigInt    @id @default(autoincrement())
+  name        String
+  description String?
+  price       Int
+  tags        String[]  @default([])
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
+  comments    Comment[]
+
+  @@map("product")
+}
+
+model Article {
+  id          BigInt    @id @default(autoincrement())
+  title       String
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
+  comments    Comment[]
+
+  @@map("article")
+}
+
+model Comment {
+  id      BigInt    @id @default(autoincrement())
+  content String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz(6)
+  productId   BigInt? @map("product_id")
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  articleId   BigInt? @map("article_id")
+  article     Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("comment")
+}
