@@ -39,7 +39,7 @@ export async function getProduct(req, res) {
     isLiked = !!like;
   }
 
-  return res.send(...product, isLiked);
+  return res.send({...product, isLiked});
 }
 
 export async function updateProduct(req, res) {
@@ -108,7 +108,7 @@ export async function createComment(req, res) {
     throw new NotFoundError('product', productId);
   }
 
-  const comment = await prismaClient.comment.create({ data: { productId, content } });
+  const comment = await prismaClient.comment.create({ data: { productId, content, userId: req.user.id } });
 
   return res.status(201).send(comment);
 }

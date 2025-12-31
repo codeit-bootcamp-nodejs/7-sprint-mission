@@ -37,7 +37,7 @@ export async function getArticle(req, res) {
     isLiked = !!like;
   }
 
-  return res.send(...article, isLiked);
+  return res.send({...article, isLiked});
 }
 
 export async function updateArticle(req, res) {

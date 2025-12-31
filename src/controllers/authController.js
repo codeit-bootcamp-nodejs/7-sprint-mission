@@ -48,7 +48,7 @@ export async function login(req, res) {
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7});
 
     const { password: _, ...userWithoutPassword } = user;
-    return res.send('userWithoutPassword');
+    return res.send(userWithoutPassword);
 }
 
 export async function logout(req, res) {
