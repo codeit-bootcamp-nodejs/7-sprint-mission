@@ -8,11 +8,12 @@ import {
   GetArticleListParamsStruct,
 } from '../structs/articlesStructs.js';
 import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct.js';
+import ForbiddenError from '../lib/errors/ForbiddenError.js';
 
 export async function createArticle(req, res) {
   const data = create(req.body, CreateArticleBodyStruct);
 
-  const article = await prismaClient.article.create({ data });
+  const article = await prismaClient.article.create({ data : { ...data, userId: req.user.id } });
 
   return res.status(201).send(article);
 }
@@ -34,10 +35,16 @@ export async function updateArticle(req, res) {
 
   const article = await prismaClient.article.update({ where: { id }, data });
   if (!article) {
-    throw new NotFoundError('article', articleId);
+    throw new NotFoundError('article', id);
   }
 
-  return res.send(article);
+  if (article.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to update this article');
+  }
+  
+  const updatedArticle = await prismaClient.article.update({ where: { id }, data });
+
+  return res.send(updatedArticle);
 }
 
 export async function deleteArticle(req, res) {
@@ -46,6 +53,10 @@ export async function deleteArticle(req, res) {
   const existingArticle = await prismaClient.article.findUnique({ where: { id } });
   if (!existingArticle) {
     throw new NotFoundError('article', id);
+  }
+
+  if (existingArticle.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to delete this article');
   }
 
   await prismaClient.article.delete({ where: { id } });
@@ -87,6 +98,7 @@ export async function createComment(req, res) {
     data: {
       articleId,
       content,
+      userId: req.user.id,
     },
   });
 

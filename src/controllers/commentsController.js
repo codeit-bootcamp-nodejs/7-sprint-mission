@@ -3,6 +3,7 @@ import { prismaClient } from '../lib/prismaClient.js';
 import { UpdateCommentBodyStruct } from '../structs/commentsStruct.js';
 import NotFoundError from '../lib/errors/NotFoundError.js';
 import { IdParamsStruct } from '../structs/commonStructs.js';
+import ForbiddenError from '../lib/errors/ForbiddenError.js';
 
 export async function updateComment(req, res) {
   const { id } = create(req.params, IdParamsStruct);
@@ -11,6 +12,9 @@ export async function updateComment(req, res) {
   const existingComment = await prismaClient.comment.findUnique({ where: { id } });
   if (!existingComment) {
     throw new NotFoundError('comment', id);
+  }
+  if (existingComment.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to update this comment');
   }
 
   const updatedComment = await prismaClient.comment.update({
@@ -27,6 +31,10 @@ export async function deleteComment(req, res) {
   const existingComment = await prismaClient.comment.findUnique({ where: { id } });
   if (!existingComment) {
     throw new NotFoundError('comment', id);
+  }
+  
+  if (existingComment.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to delete this comment');
   }
 
   await prismaClient.comment.delete({ where: { id } });
