@@ -1,6 +1,7 @@
 import { StructError } from 'superstruct';
 import BadRequestError from '../lib/errors/BadRequestError.js';
 import NotFoundError from '../lib/errors/NotFoundError.js';
+import ForbiddenError from '../lib/errors/ForbiddenError.js';
 
 export function defaultNotFoundHandler(req, res, next) {
   return res.status(404).send({ message: 'Not found' });
@@ -26,6 +27,10 @@ export function globalErrorHandler(err, req, res, next) {
   /** Application error */
   if (err instanceof NotFoundError) {
     return res.status(404).send({ message: err.message });
+  }
+
+  if (err instanceof ForbiddenError) {
+    return res.status(403).send({ message: err.message });
   }
 
   console.error(err);
