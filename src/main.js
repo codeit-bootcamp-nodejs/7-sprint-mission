@@ -7,6 +7,7 @@ import authRouter from './routers/authRouter.js';
 import productsRouter from './routers/productsRouter.js';
 import commentsRouter from './routers/commentsRouter.js';
 import imagesRouter from './routers/imagesRouter.js';
+import usersRouter from './routers/usersRouter.js';
 import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController.js';
 import cookieParser from 'cookie-parser';
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use(STATIC_PATH, express.static(path.resolve(process.cwd(), PUBLIC_PATH)));
 
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 app.use('/articles', articlesRouter);
 app.use('/products', productsRouter);
 app.use('/comments', commentsRouter);
