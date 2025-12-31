@@ -9,16 +9,17 @@ import {
   getProductList,
   createComment,
   getCommentList,
+  productLike
 } from '../controllers/productsController.js';
 
 const productsRouter = express.Router();
 
 productsRouter.post('/', authenticate(), withAsync(createProduct));
-productsRouter.get('/:id', withAsync(getProduct));
+productsRouter.get('/:id',authenticate({ optional: true }), withAsync(getProduct));
 productsRouter.patch('/:id', authenticate(), withAsync(updateProduct));
 productsRouter.delete('/:id', authenticate(), withAsync(deleteProduct));
-productsRouter.get('/', authenticate(), withAsync(getProductList));
+productsRouter.get('/', withAsync(getProductList));
 productsRouter.post('/:id/comments', authenticate(), withAsync(createComment));
 productsRouter.get('/:id/comments', withAsync(getCommentList));
-
+productsRouter.post('/:id/like', authenticate(), withAsync(productLike));
 export default productsRouter;

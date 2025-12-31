@@ -6,6 +6,7 @@ import {
   updateUser,
   updatePassword,
   getMyProducts,
+  getLikedProducts
 } from '../controllers/usersController.js';
 
 const usersRouter = express.Router();
@@ -14,5 +15,6 @@ usersRouter.get('/me', authenticate(), withAsync(getUser));
 usersRouter.patch('/me', authenticate(), withAsync(updateUser));
 usersRouter.patch('/me/password', authenticate(), withAsync(updatePassword));
 usersRouter.get('/me/products', authenticate(), withAsync(getMyProducts));
+usersRouter.get('/me/liked-products', authenticate(), withAsync(getLikedProducts));
 
 export default usersRouter;

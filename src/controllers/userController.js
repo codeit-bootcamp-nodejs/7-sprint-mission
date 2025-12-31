@@ -55,3 +55,21 @@ export async function getMyProducts(req, res) {
         totalCount,
     });
 }
+
+export async function getLikedProducts(req, res) {
+    const {page, pageSize} = create(req.query, GetProductListParamsStruct);
+    const userId = req.user.id;
+    
+    const where = {likes: {some: {userId}}};
+    const totalCount = await prismaClient.product.count({where});
+    const products = await prismaClient.product.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: {id: 'desc'},
+        where,
+    });
+    return res.send({
+        list: products,
+        totalCount,
+    });
+}
