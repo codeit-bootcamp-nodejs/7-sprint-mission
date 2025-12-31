@@ -1,5 +1,6 @@
 import express from 'express';
 import { withAsync } from '../lib/withAsync.js';
+import { authenticate } from '../lib/authenticate.js';
 import {
   createProduct,
   getProduct,
@@ -12,12 +13,12 @@ import {
 
 const productsRouter = express.Router();
 
-productsRouter.post('/', withAsync(createProduct));
+productsRouter.post('/', authenticate(), withAsync(createProduct));
 productsRouter.get('/:id', withAsync(getProduct));
-productsRouter.patch('/:id', withAsync(updateProduct));
-productsRouter.delete('/:id', withAsync(deleteProduct));
-productsRouter.get('/', withAsync(getProductList));
-productsRouter.post('/:id/comments', withAsync(createComment));
+productsRouter.patch('/:id', authenticate(), withAsync(updateProduct));
+productsRouter.delete('/:id', authenticate(), withAsync(deleteProduct));
+productsRouter.get('/', authenticate(), withAsync(getProductList));
+productsRouter.post('/:id/comments', authenticate(), withAsync(createComment));
 productsRouter.get('/:id/comments', withAsync(getCommentList));
 
 export default productsRouter;

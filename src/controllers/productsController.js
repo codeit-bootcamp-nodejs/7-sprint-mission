@@ -8,12 +8,13 @@ import {
   UpdateProductBodyStruct,
 } from '../structs/productsStruct.js';
 import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct.js';
+import ForbiddenError from '../lib/errors/ForbiddenError.js';
 
 export async function createProduct(req, res) {
   const { name, description, price, tags, images } = create(req.body, CreateProductBodyStruct);
-
+  const userId = req.user.id;
   const product = await prismaClient.product.create({
-    data: { name, description, price, tags, images },
+    data: { name, description, price, tags, images, userId },
   });
 
   res.status(201).send(product);
@@ -38,6 +39,9 @@ export async function updateProduct(req, res) {
   if (!existingProduct) {
     throw new NotFoundError('product', id);
   }
+  if (existingProduct.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to update this product');
+  }
 
   const updatedProduct = await prismaClient.product.update({
     where: { id },
@@ -54,7 +58,9 @@ export async function deleteProduct(req, res) {
   if (!existingProduct) {
     throw new NotFoundError('product', id);
   }
-
+  if (existingProduct.userId !== req.user.id) {
+    throw new ForbiddenError('You are not allowed to delete this product');
+  }
   await prismaClient.product.delete({ where: { id } });
 
   return res.status(204).send();
