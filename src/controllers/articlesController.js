@@ -20,13 +20,24 @@ export async function createArticle(req, res) {
 
 export async function getArticle(req, res) {
   const { id } = create(req.params, IdParamsStruct);
+  const userId = req.user.id;
 
-  const article = await prismaClient.article.findUnique({ where: { id } });
+  const article = await prismaClient.article.findUnique({ 
+    where: { id }, 
+    include: {_count: { select : { likes: true}}},
+   })
+
   if (!article) {
     throw new NotFoundError('article', id);
   }
 
-  return res.send(article);
+  let isLiked = false;
+  if (userId) {
+    const like = await prismaClient.articleLike.findUnique({ where: { userId, articleId: id } });
+    isLiked = !!like;
+  }
+
+  return res.send(...article, isLiked);
 }
 
 export async function updateArticle(req, res) {
@@ -128,4 +139,23 @@ export async function getCommentList(req, res) {
     list: comments,
     nextCursor,
   });
+}
+
+export async function articleLike(req, res) {
+  const { id: articleId } = create(req.params, IdParamsStruct);
+  const userId = req.user.id;
+
+  const article = await prismaClient.article.findUnique({ where: { id: articleId } });
+  if (!article) {
+    throw new NotFoundError('article', articleId);
+  }
+
+  const existingLike = await prismaClient.articleLike.findUnique({ where: { articleId, userId } });
+  if (existingLike) {
+    await prismaClient.articleLike.delete({ where: { id: existingLike.id } });
+    return res.status(204).send();
+  } else {
+    await prismaClient.articleLike.create({ data: { articleId, userId } });
+    return res.status(201).send();
+  }
 }
