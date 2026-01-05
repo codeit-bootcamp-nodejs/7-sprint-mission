@@ -1,21 +1,21 @@
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
-import { prismaClient } from '../lib/prismaClient.js';
+import { prisma as prismaClient } from '../lib/prismaClient.js';
 import BadRequestError from '../lib/errors/BadRequestError.js';
-import { UpdateUserBodyStruct, UpdatePasswordBodyStruct } from '../structs/userStructs.js';
+import { UpdateUserBodyStruct, UpdatePasswordBodyStruct } from '../structs/userStruct.js';
 import { GetProductListParamsStruct } from '../structs/productsStruct.js';
 
-export async function getUSer(req, res) {
+export async function getUser(req, res) {
     const  {password, ...userWithoutPassword} = req.user;
     return res.send(userWithoutPassword);
 }
 
 export async function updateUser(req, res) {
-    const { nickmame, image} = create(req.body, UpdateUserBodyStruct);
+    const { nickname, image} = create(req.body, UpdateUserBodyStruct);
 
     const updatedUser = await prismaClient.user.update({
         where: { id: req.user.id },
-        data: { nickmame, image },
+        data: { nickname, image },
     });
 
     const {password, ...userWithoutPassword} = updatedUser;

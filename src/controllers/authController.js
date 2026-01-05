@@ -1,5 +1,5 @@
 import { create } from 'superstruct';
-import { prismaClient } from '../lib/prismaClient.js';
+import { prisma as prismaClient } from '../lib/prismaClient.js';
 import BadRequestError from '../lib/errors/BadRequestError.js';
 import { registerBodyStruct, loginBodyStruct } from '../structs/authStruct.js';
 import bcrypt from 'bcrypt';

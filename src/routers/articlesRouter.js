@@ -11,7 +11,6 @@ import {
   getCommentList,
   articleLike,
 } from '../controllers/articlesController.js';
-import { optional } from 'superstruct';
 
 const articlesRouter = express.Router();
 

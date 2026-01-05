@@ -7,7 +7,7 @@ import {
   updatePassword,
   getMyProducts,
   getLikedProducts
-} from '../controllers/usersController.js';
+} from '../controllers/userController.js';
 
 const usersRouter = express.Router();
 
