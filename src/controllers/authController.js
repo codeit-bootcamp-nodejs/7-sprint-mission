@@ -42,10 +42,9 @@ export async function login(req, res) {
         throw new BadRequestError('비밀번호가 일치하지 않습니다.');
     }
     
-    const accessToken = generateTokens(user.id);
-    const refreshToken = generateTokens(user.id);
-    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24});
-    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7});
+    const tokens = generateTokens(user.id); 
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, tokens.accessToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24});
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7});
 
     const { password: _, ...userWithoutPassword } = user;
     return res.send(userWithoutPassword);

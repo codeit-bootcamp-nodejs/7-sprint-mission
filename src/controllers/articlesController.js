@@ -150,7 +150,7 @@ export async function articleLike(req, res) {
     throw new NotFoundError('article', articleId);
   }
 
-  const existingLike = await prismaClient.articleLike.findUnique({ where: { articleId, userId } });
+  const existingLike = await prismaClient.articleLike.findUnique({ where: { userId_articleId: { articleId, userId } }});
   if (existingLike) {
     await prismaClient.articleLike.delete({ where: { id: existingLike.id } });
     return res.status(204).send();

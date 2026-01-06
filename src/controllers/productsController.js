@@ -146,7 +146,7 @@ export async function productLike(req, res) {
     throw new NotFoundError('product', productId);
   }
 
-  const existingLike = await prismaClient.productLike.findUnique({ where: { productId, userId } });
+  const existingLike = await prismaClient.productLike.findUnique({ where: { userId_productId: { userId, productId } } });
   if (existingLike) {
     await prismaClient.productLike.delete({ where: { id: existingLike.id } });
     return res.status(204).send();
