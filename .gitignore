@@ -1,0 +1,39 @@
+# 의존성
+/node_modules
+/package-lock.json
+/yarn.lock
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
+
+# 빌드 출력 (TypeScript 컴파일 결과)
+/dist
+/build
+/out
+/es
+/lib
+
+# TypeScript 캐시
+/.tsbuildinfo
+
+# 환경 변수 및 보안 파일
+.env
+.env.local
+.env.*.local
+
+# 운영체제/에디터 파일
+.DS_Store
+Thumbs.db
+
+# VS Code 설정
+.vscode
+/generated/prisma
+
+
+#PR 업로드시 제외
+.github/PULL_REQUEST_TEMPLATE.md
+.devcontainer/devcontainer.json
+tests/test.http
+tests/test.png
+public/.gitkeep
