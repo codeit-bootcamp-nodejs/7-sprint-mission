@@ -1,22 +1,27 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node app.js",
-    "build": "npm install && npx prisma db push && npx prisma generate"
+    "start": "node ./build/main.js",
+    "build": "tsc"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.1",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "superstruct": "^2.0.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "prisma": "^7.0.1",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

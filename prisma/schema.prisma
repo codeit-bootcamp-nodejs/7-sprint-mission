@@ -6,57 +6,80 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  //url      = env("DATABASE_URL")
+}
+model User {
+id                Int       @id @default(autoincrement())
+email             String       @unique 
+nickname          String       @unique 
+image             String?
+password          String
+createdAt         DateTime  @default(now())
+updatedAt         DateTime  @updatedAt
+Comments Comment[]
+Products Product[]
+refreshToken String?  @unique
+productLikes ProductLike[]
+articleLikes ArticleLike[]
 }
 
-model product {
-  id         BigInt       @id @default(autoincrement())
-  name       String
-  description String?
-  price       Int
-  tags      String[]   @default([])
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-  comments    product_comment[]
-  image_id    BigInt?   @unique
-  image       product_image? @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-}
-model product_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  product_id  BigInt 
-  product     product   @relation(fields: [product_id], references: [id] ,onDelete: Cascade)
-}
-model product_image {
-  id          BigInt    @id @default(autoincrement())
-  name        String    @unique
-  path        String
-  size        Int
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  product     product?
+model Article {
+  id             Int       @id @default(autoincrement())
+  title          String
+  content        String
+  image          String?
+  ArticleComment Comment[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  articleLikes ArticleLike[]
 }
 
-model article {
-  id           BigInt       @id @default(autoincrement())
-  title        String
-  content      String    
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-   comments    article_comment[]
+model Product {
+  id             Int       @id @default(autoincrement())
+  name           String
+  description    String
+  price          Int
+  tags           String[]
+  images         String[]
+  ProductComment Comment[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  productLikes ProductLike[]
 }
 
-model article_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  article_id  BigInt 
-  article     article   @relation(fields: [article_id], references: [id],onDelete: Cascade)
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  user      User    @relation(fields: [userId],references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+model ProductLike {
+id        String    @id @default(uuid())
+userId    Int
+productId Int
+user    User  @relation(fields:[userId], references: id, onDelete: Cascade)
+product Product @relation(fields: [productId], references: id, onDelete: Cascade)
+@@unique([userId,productId])  
+}
+
+model ArticleLike {
+id        String    @id @default(uuid())
+userId    Int
+articleId Int
+user    User    @relation(fields: [userId], references: id, onDelete: Cascade)
+article Article @relation(fields: [articleId], references: id, onDelete: Cascade)
+@@unique([userId,articleId])  
+}
