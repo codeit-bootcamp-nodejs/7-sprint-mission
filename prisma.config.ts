@@ -10,6 +10,10 @@ export default defineConfig({
     seed: "node prisma/seed.js",
   },
   datasource: {
+<<<<<<< HEAD
     url: process.env.DATABASE_URL!,
+=======
+    url: env("DATABASE_URL"),
+>>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
   },
 });
