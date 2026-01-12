@@ -1,18 +1,16 @@
 {
+  "name": "7-sprint-mission",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-<<<<<<< HEAD
-    "start": "node ./build/main.js",
-    "build": "tsc"
-=======
-    "start": "node app.js",
-    "build": "npm install && npx prisma db push && npx prisma generate"
->>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/main.ts",
+    "db:push": "npx prisma db push && npx prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.1",
-<<<<<<< HEAD
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -22,23 +20,14 @@
     "pg": "^8.16.3",
     "superstruct": "^2.0.2",
     "uuid": "^13.0.0"
-=======
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "multer": "^2.0.2",
-    "pg": "^8.16.3"
->>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@types/pg": "^8.15.6",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "nodemon": "^3.1.0",
     "prisma": "^7.0.1",
-<<<<<<< HEAD
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-=======
-    "ts-node": "^10.9.2"
->>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
+    "typescript": "^5.0.0"
   }
 }
