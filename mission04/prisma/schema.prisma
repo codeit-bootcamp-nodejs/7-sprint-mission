@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            BigInt    @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  nickname      String    @unique
+  image         String?
+  refresh_token String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  product       Product[]
+  post          Post[]
+  comment       Comment[]
+  product_like  ProductLike[]
+  post_like     PostLike[]
+}
+
+model Product {
+  id            BigInt    @id @default(autoincrement())
+  name          String
+  price         Int
+  like_count    Int       @default(0)
+
+  comment       Comment[]
+  product_like  ProductLike[]
+
+  user_id       BigInt
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model ProductLike {
+  id            BigInt    @id @default(autoincrement())
+
+  user_id       BigInt
+  product_id    BigInt
+
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product       Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, product_id])
+} 
+
+model Post {
+  id            BigInt    @id @default(autoincrement())
+  title         String
+  contents      String
+  like_count    Int       @default(0)
+
+  comment       Comment[]
+  post_like     PostLike[]
+
+  user_id       BigInt
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model PostLike {
+  id            BigInt    @id @default(autoincrement())
+
+  user_id       BigInt
+  post_id       BigInt
+
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post          Post      @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, post_id])
+}
+
+model Comment {
+  id            BigInt    @id @default(autoincrement())
+  contents      String
+
+  user_id       BigInt
+  post_id       BigInt?
+  product_id    BigInt?
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post          Post?      @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  product       Product?   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+}
