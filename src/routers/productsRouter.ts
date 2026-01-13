@@ -1,6 +1,6 @@
 import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { authenticate } from '../lib/authenticate.js';
+import { withAsync } from '../lib/withAsync';
+import { authenticate } from '../lib/authenticate';
 import {
   createProduct,
   getProduct,
@@ -10,7 +10,7 @@ import {
   createComment,
   getCommentList,
   productLike
-} from '../controllers/productsController.js';
+} from '../controllers/productsController';
 
 const productsRouter = express.Router();
 

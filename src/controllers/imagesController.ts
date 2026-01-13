@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -33,9 +34,11 @@ export const upload = multer({
   },
 });
 
-export async function uploadImage(req, res) {
+export async function uploadImage(req: Request, res: Response) {
+  if (!req.file) {
+    throw new BadRequestError('No file uploaded');
+  }
   const host = req.get('host');
-  const filePath = path.join(host, STATIC_PATH, req.file.filename);
-  const url = `http://${filePath}`;
+  const url = `http://${host}/${STATIC_PATH}/${req.file.filename}`;
   return res.send({ url });
 }

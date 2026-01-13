@@ -1,157 +1,66 @@
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
-import { prisma as prismaClient } from '../lib/prismaClient.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreateProductBodyStruct,
   GetProductListParamsStruct,
   UpdateProductBodyStruct,
-} from '../structs/productsStruct.js';
-import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
+} from '../structs/productsStruct';
+import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct';
+import { productService } from '../services/productService';
+import { commentService } from '../services/commentService';
 
-export async function createProduct(req, res) {
-  const { name, description, price, tags, images } = create(req.body, CreateProductBodyStruct);
-  const userId = req.user.id;
-  const product = await prismaClient.product.create({
-    data: { name, description, price, tags, images, userId },
-  });
-
+export async function createProduct(req: Request, res: Response) {
+  const data = create(req.body, CreateProductBodyStruct);
+  const product = await productService.createProduct(req.user!.id, data);
   res.status(201).send(product);
 }
 
-export async function getProduct(req, res) {
+export async function getProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
-  const userId = req.user.id;
-
-  const product = await prismaClient.product.findUnique({ 
-    where: { id },
-  include : {
-    _count: { select: { likes: true}}
-  } });
-  if (!product) {
-    throw new NotFoundError('product', id);
-  }
-
-  let isLiked = false;
-  if (userId) {
-    const like = await prismaClient.productLike.findUnique({ where: { userId, productId: id } });
-    isLiked = !!like;
-  }
-
-  return res.send({...product, isLiked});
+  const product = await productService.getProduct(id, req.user);
+  return res.send(product);
 }
 
-export async function updateProduct(req, res) {
+export async function updateProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
-  const { name, description, price, tags, images } = create(req.body, UpdateProductBodyStruct);
-
-  const existingProduct = await prismaClient.product.findUnique({ where: { id } });
-  if (!existingProduct) {
-    throw new NotFoundError('product', id);
-  }
-  if (existingProduct.userId !== req.user.id) {
-    throw new ForbiddenError('You are not allowed to update this product');
-  }
-
-  const updatedProduct = await prismaClient.product.update({
-    where: { id },
-    data: { name, description, price, tags, images },
-  });
-
-  return res.send(updatedProduct);
+  const data = create(req.body, UpdateProductBodyStruct);
+  const updated = await productService.updateProduct(id, req.user!.id, data);
+  return res.send(updated);
 }
 
-export async function deleteProduct(req, res) {
+export async function deleteProduct(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
-  const existingProduct = await prismaClient.product.findUnique({ where: { id } });
-
-  if (!existingProduct) {
-    throw new NotFoundError('product', id);
-  }
-  if (existingProduct.userId !== req.user.id) {
-    throw new ForbiddenError('You are not allowed to delete this product');
-  }
-  await prismaClient.product.delete({ where: { id } });
-
+  await productService.deleteProduct(id, req.user!.id);
   return res.status(204).send();
 }
 
-export async function getProductList(req, res) {
+export async function getProductList(req: Request, res: Response) {
   const { page, pageSize, orderBy, keyword } = create(req.query, GetProductListParamsStruct);
-
-  const where = keyword
-    ? {
-        OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-      }
-    : undefined;
-  const totalCount = await prismaClient.product.count({ where });
-  const products = await prismaClient.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    where,
-  });
-
-  return res.send({
-    list: products,
-    totalCount,
-  });
+  const result = await productService.getList(page, pageSize, orderBy, keyword);
+  return res.send(result);
 }
 
-export async function createComment(req, res) {
+export async function createComment(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
-  const { content } = create(req.body, CreateCommentBodyStruct);
-
-  const existingProduct = await prismaClient.product.findUnique({ where: { id: productId } });
-  if (!existingProduct) {
-    throw new NotFoundError('product', productId);
-  }
-
-  const comment = await prismaClient.comment.create({ data: { productId, content, userId: req.user.id } });
-
+  const data = create(req.body, CreateCommentBodyStruct);
+  const comment = await commentService.createComment(req.user!.id, productId, data, 'product');
   return res.status(201).send(comment);
 }
 
-export async function getCommentList(req, res) {
+export async function getCommentList(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
-
-  const existingProduct = await prismaClient.product.findUnique({ where: { id: productId } });
-  if (!existingProduct) {
-    throw new NotFoundError('product', productId);
-  }
-
-  const commentsWithCursorComment = await prismaClient.comment.findMany({
-    cursor: cursor ? { id: cursor } : undefined,
-    take: limit + 1,
-    where: { productId },
-  });
-  const comments = commentsWithCursorComment.slice(0, limit);
-  const cursorComment = commentsWithCursorComment[comments.length - 1];
-  const nextCursor = cursorComment ? cursorComment.id : null;
-
-  return res.send({
-    list: comments,
-    nextCursor,
-  });
+  const result = await commentService.getComments(productId, 'product', cursor, limit);
 }
 
-export async function productLike(req, res) {
+export async function productLike(req: Request, res: Response) {
   const { id: productId } = create(req.params, IdParamsStruct);
-  const userId = req.user.id;
+  const result = await productService.toggleLike(req.user!.id, productId);
 
-  const product = await prismaClient.product.findUnique({ where: { id: productId } });
-  if (!product) {
-    throw new NotFoundError('product', productId);
-  }
-
-  const existingLike = await prismaClient.productLike.findUnique({ where: { userId_productId: { userId, productId } } });
-  if (existingLike) {
-    await prismaClient.productLike.delete({ where: { id: existingLike.id } });
-    return res.status(204).send();
-  } else {
-    await prismaClient.productLike.create({ data: { productId, userId } });
+  if (result.isLiked) {
     return res.status(201).send();
+  } else {
+    return res.status(204).send();
   }
 }

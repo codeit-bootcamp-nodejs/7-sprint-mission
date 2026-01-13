@@ -1,13 +1,13 @@
 import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { authenticate } from '../lib/authenticate.js';
+import { withAsync } from '../lib/withAsync';
+import { authenticate } from '../lib/authenticate';
 import {
   getUser,
   updateUser,
   updatePassword,
   getMyProducts,
   getLikedProducts
-} from '../controllers/userController.js';
+} from '../controllers/userController';
 
 const usersRouter = express.Router();
 

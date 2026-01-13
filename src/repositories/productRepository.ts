@@ -9,12 +9,18 @@ export const productRepository = {
     });
   },
 
-  async findList(skip: number, take: number, orderBy: 'recent' | undefined, keyword?: string) {
-    const where = keyword
-      ? {
-          OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-        }
-      : undefined;
+  async findList(skip: number, take: number, orderBy: 'recent' | undefined, keyword?: string, userId?: number, isLikedFilter: boolean = false) {
+    const where: any = {};
+    if (keyword) {
+      where.OR = [{ name: { contains: keyword } }, { description: { contains: keyword } }];
+    }
+    if (userId) {
+      if (isLikedFilter) {
+        where.likes = { some: { userId } }; 
+      } else {
+        where.userId = userId; 
+      }
+    }
 
     return prisma.product.findMany({
       skip,
@@ -24,14 +30,21 @@ export const productRepository = {
     });
   },
 
-  async count(keyword?: string) {
-    const where = keyword
-      ? {
-          OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-        }
-      : undefined;
+  async count(keyword?: string, userId?: number, isLikedFilter: boolean = false) {
+    const where: any = {};
+    if (keyword) {
+      where.OR = [{ name: { contains: keyword } }, { description: { contains: keyword } }];
+    }
+    if (userId) {
+      if (isLikedFilter) {
+        where.likes = { some: { userId } };
+      } else {
+        where.userId = userId;
+      }
+    }
     return prisma.product.count({ where });
   },
+
 
   async create(userId: number, data: CreateProductBody) {
     return prisma.product.create({
