@@ -1,11 +1,14 @@
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET, ACCESS_TOKEN_COOKIE_NAME } from './constants.js';
-import { prisma as prismaClient } from './prismaClient.js';
-import { verifyToken } from './token.js';
-import BadRequestError from './errors/BadRequestError.js';
+import { Request, Response, NextFunction } from 'express';
+import { ACCESS_TOKEN_COOKIE_NAME } from './constants';
+import { prisma as prismaClient } from './prismaClient';
+import { verifyToken } from './token';
+import BadRequestError from './errors/BadRequestError';
 
-export function authenticate(option = { optional: false}){
-    return async function(req, res, next){
+interface AuthenticateOptions {
+  optional?: boolean;
+}
+export function authenticate(option: AuthenticateOptions = { optional: false}){
+    return async function(req: Request, res: Response, next: NextFunction) {
         const accessToken = req.cookies[ACCESS_TOKEN_COOKIE_NAME];
 
         if (!accessToken) {
