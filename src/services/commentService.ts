@@ -1,22 +1,37 @@
 import { commentRepository } from '../repositories/commentRepository';
 import { articleRepository } from '../repositories/articleRepository';
+import { productRepository } from '../repositories/productRepository';
 import NotFoundError from '../lib/errors/NotFoundError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import { CreateCommentBody, UpdateCommentBody } from '../structs/commentsStruct';
 
-export const commentService = {
-  async createComment(userId: number, articleId: number, data: CreateCommentBody) {
-    const article = await articleRepository.findById(articleId);
-    if (!article) throw new NotFoundError('article', articleId);
+type TargetType = 'article' | 'product';
 
-    return commentRepository.create(userId, { articleId }, data);
+export const commentService = {
+  async createComment(userId: number, targetId: number, data: CreateCommentBody, targetType: TargetType) {
+    if (targetType === 'article') {
+    const article = await articleRepository.findById(targetId);
+    if (!article) throw new NotFoundError('article', targetId);
+    } else if (targetType === 'product') {
+      const product = await productRepository.findById(targetId);
+      if (!product) throw new NotFoundError('product', targetId);
+    }
+    const target = targetType === 'article' ? { articleId: targetId } : { productId: targetId };
+
+    return commentRepository.create(userId, target, data);
   },
 
-  async getComments(articleId: number, cursor?: number, limit: number = 10) {
-    const article = await articleRepository.findById(articleId);
-    if (!article) throw new NotFoundError('article', articleId);
+  async getComments(targetId: number, targetType: TargetType, cursor?: number, limit: number = 10) {
+    if (targetType === 'article') {
+      const article = await articleRepository.findById(targetId);
+      if (!article) throw new NotFoundError('article', targetId);
+    } else if (targetType === 'product') {
+      const product = await productRepository.findById(targetId);
+      if (!product) throw new NotFoundError('product', targetId);
+    }
+    const target = targetType === 'article' ? { articleId: targetId } : { productId: targetId };
 
-    const commentsWithCursor = await commentRepository.findListByTarget({ articleId }, cursor, limit);
+    const commentsWithCursor = await commentRepository.findListByTarget(target , cursor, limit);
     
     const comments = commentsWithCursor.slice(0, limit);
     const lastItem = commentsWithCursor[commentsWithCursor.length - 1];

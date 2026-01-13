@@ -47,14 +47,14 @@ export async function getArticleList(req: Request, res: Response) {
 export async function createComment(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const data = create(req.body, CreateCommentBodyStruct);
-  const comment = await commentService.createComment(req.user!.id, articleId, data);
+  const comment = await commentService.createComment(req.user!.id, articleId, data, 'article');
   return res.status(201).send(comment);
 }
 
 export async function getCommentList(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
-  const result = await commentService.getComments(articleId, cursor, limit);
+  const result = await commentService.getComments(articleId, 'article',cursor, limit);
   return res.send(result);
 }
 
