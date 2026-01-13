@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { StructError } from 'superstruct';
-import BadRequestError from '../lib/errors/BadRequestError.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
+import BadRequestError from '../lib/errors/BadRequestError';
+import NotFoundError from '../lib/errors/NotFoundError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
 
 export function defaultNotFoundHandler(req: Request, res: Response, next: NextFunction) {
   return res.status(404).send({ message: 'Not found' });

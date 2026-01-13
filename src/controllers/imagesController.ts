@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { PUBLIC_PATH, STATIC_PATH } from '../lib/constants.js';
-import BadRequestError from '../lib/errors/BadRequestError.js';
+import { PUBLIC_PATH, STATIC_PATH } from '../lib/constants';
+import BadRequestError from '../lib/errors/BadRequestError';
 
 const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
