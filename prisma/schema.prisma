@@ -1,72 +1,79 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// Product 스키마를 작성해 주세요.
-//id, name, description, price, tags, createdAt, updatedAt필드를 가집니다.
-model product {
-  id          BigInt    @id @default(autoincrement())
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  nickname     String
+  image        String?
+  password     String
+  refreshToken String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  articles     Article[]
+  products     Product[]
+  comments     Comment[]
+  likes        Like[]
+}
+
+model Article {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
   name        String
-  description String?
+  description String
   price       Int
-  tags        String[]  @default([])
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  comments    product_comment[]
-
-  image_id    BigInt?   @unique
-  image       product_image? @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Cascade) // 이미지 삭제 시 FK만 null로}
+  tags        String[]
+  images      String[]
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       Like[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-model product_image {
-  id          BigInt    @id @default(autoincrement())
-  name        String    @unique
-  path        String // 서버에 저장된 상대 경로
-  size        Int // 파일 크기 (바이트)
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  
-  // product를 역참조하는 필드 (외래 키를 product 모델이 소유)
-  product     product?
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  articleId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// Article 스키마를 작성해 주세요.
-//id, title, content, createdAt, updatedAt 필드를 가집니다.
-model article {
-  id          BigInt    @id @default(autoincrement())
-  title       String
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  comments    article_comment[]
-}
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  articleId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
-model product_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt @db.Timestamptz(6)
-  
-  product_id  BigInt
-  product     product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
-}
-
-model article_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt @db.Timestamptz(6)
-  
-  article_id  BigInt
-  article     article   @relation(fields: [article_id], references: [id], onDelete: Cascade)
+  @@unique([userId, productId])
+  @@unique([userId, articleId])
 }
