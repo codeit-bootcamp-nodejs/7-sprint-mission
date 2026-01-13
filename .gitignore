@@ -11,3 +11,4 @@ tests/
 public/*
 !public/.gitkeep
 
+build/
