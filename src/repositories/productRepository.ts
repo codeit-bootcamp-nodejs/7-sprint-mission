@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prismaClient';
+import { Prisma } from '@prisma/client';
 import { CreateProductBody, UpdateProductBody } from '../structs/productsStruct';
 
 export const productRepository = {
@@ -10,7 +11,7 @@ export const productRepository = {
   },
 
   async findList(skip: number, take: number, orderBy: 'recent' | undefined, keyword?: string, userId?: number, isLikedFilter: boolean = false) {
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     if (keyword) {
       where.OR = [{ name: { contains: keyword } }, { description: { contains: keyword } }];
     }
@@ -31,7 +32,7 @@ export const productRepository = {
   },
 
   async count(keyword?: string, userId?: number, isLikedFilter: boolean = false) {
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     if (keyword) {
       where.OR = [{ name: { contains: keyword } }, { description: { contains: keyword } }];
     }
