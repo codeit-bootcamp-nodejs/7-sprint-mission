@@ -6,9 +6,10 @@ import {
   UpdateUserBodyStruct,
 } from "../structs/userStructs.js";
 import bcrypt from "bcrypt";
+import { Request, Response } from "express";
 
-export async function getMe(req, res) {
-  const userId = req.user.id;
+export async function getMe(req: Request, res: Response) {
+  const userId = (req as any).user.id;
   const user = await prismaClient.user.findUnique({
     where: { id: userId },
     select: {
@@ -25,10 +26,10 @@ export async function getMe(req, res) {
   res.send(user);
 }
 
-export async function updateMe(req, res) {
+export async function updateMe(req: Request, res: Response) {
   const data = create(req.body, UpdateUserBodyStruct);
   const updatedUser = await prismaClient.user.update({
-    where: { id: req.user.id },
+    where: { id: (req as any).user.id },
     data,
     select: {
       id: true,
@@ -40,9 +41,9 @@ export async function updateMe(req, res) {
   res.send(updatedUser);
 }
 
-export async function updatePassword(req, res) {
+export async function updatePassword(req: Request, res: Response) {
   const { password, newPassword } = create(req.body, ChangePasswordBodyStruct);
-  const userId = req.user.id;
+  const userId = (req as any).user.id;
 
   const user = await prismaClient.user.findUnique({
     where: { id: userId },
@@ -66,9 +67,9 @@ export async function updatePassword(req, res) {
   return res.status(204).send();
 }
 
-export const getMyProducts = async (req, res) => {
+export const getMyProducts = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.id;
+    const userId = (req as any).user.id;
     const myProducts = await prismaClient.product.findMany({
       where: { userId },
       orderBy: {

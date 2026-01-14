@@ -1,8 +1,9 @@
 import { prismaClient } from "../lib/prismaClient.js";
+import { Request, Response } from "express";
 
-export async function toggleProductLike(req, res) {
+export async function toggleProductLike(req: Request, res: Response) {
   try {
-    const userId = req.user.id;
+    const userId = (req as any).user.id;
     const { productId } = req.params;
 
     const existingLike = await prismaClient.productLike.findUnique({
@@ -33,9 +34,9 @@ export async function toggleProductLike(req, res) {
   }
 }
 
-export async function toggleArticleLike(req, res) {
+export async function toggleArticleLike(req: Request, res: Response) {
   try {
-    const userId = req.user.id;
+    const userId = (req as any).user.id;
     const { articleId } = req.params;
 
     const existingLike = await prismaClient.articleLike.findUnique({
@@ -66,9 +67,9 @@ export async function toggleArticleLike(req, res) {
   }
 }
 
-export async function getLikedProducts(req, res) {
+export async function getLikedProducts(req: Request, res: Response) {
   try {
-    const userId = Number(req.user.id);
+    const userId = (req as any).user.id;
 
     const likedProducts = await prismaClient.productLike.findMany({
       where: { userId },
