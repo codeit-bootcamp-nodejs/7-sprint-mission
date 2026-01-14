@@ -11,7 +11,7 @@ export const userService = {
     return userWithoutPassword;
   },
 
-  async updatePassword(userId: number, currentPassword: string, data: UpdatePasswordBody, userPasswordHash: string) {
+  async updatePassword(userId: number, data: UpdatePasswordBody, userPasswordHash: string) {
     const isPasswordValid = await bcrypt.compare(data.oldPassword, userPasswordHash);
     if (!isPasswordValid) throw new BadRequestError('비밀번호가 일치하지 않습니다.');
 

@@ -9,11 +9,13 @@ import {
 import { articleService } from '../services/articleService';
 import { GetCommentListParamsStruct, CreateCommentBodyStruct } from '../structs/commentsStruct';
 import {commentService} from '../services/commentService';
+import { AuthenticatedRequest } from '../types/express';
 
 export async function createArticle(req: Request, res: Response) {
-  const data = create(req.body, CreateArticleBodyStruct);
+  const {user, body} = req as AuthenticatedRequest;
+  const data = create(body, CreateArticleBodyStruct);
 
-  const article = await articleService.createArticle(req.user!.id, data);
+  const article = await articleService.createArticle(user.id, data);
 
   return res.status(201).send(article);
 }
@@ -26,15 +28,17 @@ export async function getArticle(req: Request, res: Response) {
 }
 
 export async function updateArticle(req: Request, res: Response) {
-  const { id } = create(req.params, IdParamsStruct);
-  const data = create(req.body, UpdateArticleBodyStruct);
-  const updatedArticle = await articleService.updateArticle(id, req.user!.id, data);
+  const {user, body, params} = req as AuthenticatedRequest;
+  const { id } = create(params, IdParamsStruct);
+  const data = create(body, UpdateArticleBodyStruct);
+  const updatedArticle = await articleService.updateArticle(user.id, id, data);
   return res.send(updatedArticle);
 }
 
 export async function deleteArticle(req: Request, res: Response) {
-  const { id } = create(req.params, IdParamsStruct);
-  await articleService.deleteArticle(id, req.user!.id);
+  const {user, params} = req as AuthenticatedRequest;
+  const { id } = create(params, IdParamsStruct);
+  await articleService.deleteArticle(id, user.id);
   return res.status(204).send();
 }
 
@@ -45,9 +49,10 @@ export async function getArticleList(req: Request, res: Response) {
 }
 
 export async function createComment(req: Request, res: Response) {
-  const { id: articleId } = create(req.params, IdParamsStruct);
-  const data = create(req.body, CreateCommentBodyStruct);
-  const comment = await commentService.createComment(req.user!.id, articleId, data, 'article');
+  const {user, body, params} = req as AuthenticatedRequest;
+  const { id: articleId } = create(params, IdParamsStruct);
+  const data = create(body, CreateCommentBodyStruct);
+  const comment = await commentService.createComment(user.id, articleId, data, 'article');
   return res.status(201).send(comment);
 }
 
@@ -59,8 +64,9 @@ export async function getCommentList(req: Request, res: Response) {
 }
 
 export async function articleLike(req: Request, res: Response) {
-  const { id: articleId } = create(req.params, IdParamsStruct);
-  const result = await articleService.toggleLike(req.user!.id, articleId);
+  const {user, params} = req as AuthenticatedRequest;
+  const { id: articleId } = create(params, IdParamsStruct);
+  const result = await articleService.toggleLike(user.id, articleId);
 
   if (result.isLiked) {
     return res.status(201).send();
