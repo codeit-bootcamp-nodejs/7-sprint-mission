@@ -1,32 +1,31 @@
 {
-<<<<<<< HEAD
   "name": "7-sprint-mission",
   "version": "1.0.0",
   "type": "module",
-  "dependencies": {
-    "axios": "^1.13.2"
-=======
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.0.0",
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
+    "nodemon": "^3.0.3",
     "prisma": "^7.0.0",
     "ts-node": "^10.9.2"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
-  },
-  "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
->>>>>>> sprint3
   }
 }
