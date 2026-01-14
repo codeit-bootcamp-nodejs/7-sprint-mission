@@ -1,32 +1,19 @@
 {
   "type": "module",
-<<<<<<< HEAD
-  "devDependencies": {
-    "eslint": "^9.38.0"
-  },
-  "dependencies": {
-    "axios": "^1.13.2",
-    "express": "^5.1.0",
-    "lodash": "^4.17.21"
-=======
   "scripts": {
-    "start": "node app.js",
-    "build": "npm install && npx prisma db push && npx prisma generate"
-  },
-  "dependencies": {
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "start": "node ./src/main.js"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@types/pg": "^8.15.6",
-    "prisma": "^7.0.0",
-    "ts-node": "^10.9.2"
->>>>>>> 27d6636 (feat:add cors)
+    "prettier": "^3.3.2",
+    "prisma": "^5.16.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.16.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "superstruct": "^2.0.2",
+    "uuid": "^11.0.5"
   }
 }

@@ -29,3 +29,11 @@ Thumbs.db
 # VS Code 설정
 .vscode
 /generated/prisma
+
+
+#PR 업로드시 제외
+.github/PULL_REQUEST_TEMPLATE.md
+.devcontainer/devcontainer.json
+tests/test.http
+tests/test.png
+public/.gitkeep
