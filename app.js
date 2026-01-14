@@ -1,47 +1,33 @@
-import express from "express";
-import articleRouter from "./routes/articles.route.js";
-import productRouter from "./routes/products.route.js";
-import uploadRouter from "./routes/upload.route.js";
-import dotenv from "dotenv";
-import cors from "cors";
-import errorHandler from "./middlewares/errorHandler.js";
-import path from "path";
-import { fileURLToPath } from "url";
-
-dotenv.config();
+import 'dotenv/config';
+import express from 'express';
+import path from 'path';
+import articleRouter from './src/router/article.router.js';
+import productRouter from './src/router/product.router.js';
+import { errorHandler } from './src/middlewares/errorHandler.js';
+import commentRouter from './src/router/comment.router.js';
+import authRouter from './src/router/auth.router.js';
+import userRouter from './src/router/user.router.js';
+import cors from 'cors';
+import 'dotenv/config';
 
 const app = express();
 
-const bigIntToStringOrBypass = (_, value) => {
-  if (typeof value === "bigint") {
-    return value.toString();
-  }
-  return value;
-};
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(cors());
 app.use(express.json());
-app.set("json replacer", bigIntToStringOrBypass);
+app.use(cors());
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use("/api/upload", uploadRouter); // 이미지 업로드 라우트
-
-app.use("/api/articles", articleRouter);
-app.use("/api/products", productRouter);
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "API Server",
-    endpoints: ["/articles", "/products", "/upload"],
-  });
-});
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/article', articleRouter);
+app.use('/product', productRouter);
+app.use('/comment', commentRouter);
+app.use('/auth', authRouter);
+app.use('/users', userRouter);
 
 app.use(errorHandler);
 
-const apiPort = process.env.API_PORT || 3000;
-app.listen(apiPort, () => {
-  console.log(`Server running on port ${apiPort}`);
+const PORT = 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
+
+export default app;
