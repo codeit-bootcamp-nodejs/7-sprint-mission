@@ -1,6 +1,7 @@
 {
   "type": "module",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "dependencies": {
     "axios": "^1.13.2",
     "lodash": "^4.17.21",
@@ -28,5 +29,25 @@
     "prisma": "^7.0.0",
     "ts-node": "^10.9.2"
 >>>>>>> e9586be (sprint3 upload3)
+=======
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.2",
+    "prisma": "^5.16.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.16.2",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^1.4.5-lts.1",
+    "superstruct": "^2.0.2",
+    "uuid": "^11.0.5"
+>>>>>>> b2323bb (sprint4 git upload)
   }
 }
