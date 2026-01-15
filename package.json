@@ -6,9 +6,11 @@
     "start": "node dist/main.js"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
     "@types/node": "^25.0.8",
     "nodemon": "^3.1.11",
     "prettier": "^3.3.2",

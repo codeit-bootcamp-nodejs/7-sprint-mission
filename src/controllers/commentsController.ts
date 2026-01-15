@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { create } from 'superstruct';
 import { prismaClient } from '../lib/prismaClient';
 import { UpdateCommentBodyStruct } from '../structs/commentsStruct';
@@ -6,7 +7,7 @@ import { IdParamsStruct } from '../structs/commonStructs';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 
-export async function updateComment(req, res) {
+export async function updateComment(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -25,13 +26,15 @@ export async function updateComment(req, res) {
 
   const updatedComment = await prismaClient.comment.update({
     where: { id },
-    data: { content },
+    data: {
+      ...(content !== undefined ? { content } : {}),
+    },
   });
 
   return res.send(updatedComment);
 }
 
-export async function deleteComment(req, res) {
+export async function deleteComment(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }

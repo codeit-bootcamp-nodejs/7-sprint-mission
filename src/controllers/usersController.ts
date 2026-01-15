@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
 import { prismaClient } from '../lib/prismaClient';
@@ -10,37 +11,40 @@ import {
 import NotFoundError from '../lib/errors/NotFoundError';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
 
-export async function getMe(req, res) {
+export async function getMe(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
 
   const user = await prismaClient.user.findUnique({ where: { id: req.user.id } });
   if (!user) {
-    throw new NotFoundError('user', req.user.id);
+    throw new NotFoundError('user', req.user.id.toString());
   }
 
   const { password: _, ...userWithoutPassword } = user;
   return res.send(userWithoutPassword);
 }
 
-export async function updateMe(req, res) {
+export async function updateMe(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
 
-  const data = create(req.body, UpdateMeBodyStruct);
+  const { nickname, image } = create(req.body, UpdateMeBodyStruct);
 
   const updatedUser = await prismaClient.user.update({
     where: { id: req.user.id },
-    data,
+    data: {
+      ...(nickname !== undefined && { nickname }),
+      ...(image !== undefined && { image }),
+    },
   });
 
   const { password: _, ...userWithoutPassword } = updatedUser;
   return res.status(200).send(userWithoutPassword);
 }
 
-export async function updateMyPassword(req, res) {
+export async function updateMyPassword(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -49,7 +53,7 @@ export async function updateMyPassword(req, res) {
 
   const user = await prismaClient.user.findUnique({ where: { id: req.user.id } });
   if (!user) {
-    throw new NotFoundError('user', req.user.id);
+    throw new NotFoundError('user', req.user.id.toString());
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -68,7 +72,7 @@ export async function updateMyPassword(req, res) {
   return res.status(200).send();
 }
 
-export async function getMyProductList(req, res) {
+export async function getMyProductList(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -80,12 +84,14 @@ export async function getMyProductList(req, res) {
         OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
       }
     : {};
+
   const totalCount = await prismaClient.product.count({
     where: {
       ...where,
       userId: req.user.id,
     },
   });
+
   const products = await prismaClient.product.findMany({
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -95,24 +101,24 @@ export async function getMyProductList(req, res) {
       userId: req.user.id,
     },
     include: {
-      favorites: true,
+      likes: true,
     },
   });
 
-  const productsWithFavorites = products.map((product) => ({
+  const productsWithLikes = products.map((product) => ({
     ...product,
-    favorites: undefined,
-    favoriteCount: product.favorites.length,
-    isFavorited: product.favorites.some((favorite) => favorite.userId === req.user.id),
+    likes: undefined,
+    favoriteCount: product.likes.length,
+    isFavorited: product.likes.some((like) => like.userId === req.user!.id),
   }));
 
   return res.send({
-    list: productsWithFavorites,
+    list: productsWithLikes,
     totalCount,
   });
 }
 
-export async function getMyFavoriteList(req, res) {
+export async function getMyFavoriteList(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -124,42 +130,44 @@ export async function getMyFavoriteList(req, res) {
         OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
       }
     : {};
+
   const totalCount = await prismaClient.product.count({
     where: {
       ...where,
-      favorites: {
+      likes: {
         some: {
           userId: req.user.id,
         },
       },
     },
   });
+
   const products = await prismaClient.product.findMany({
     skip: (page - 1) * pageSize,
     take: pageSize,
     orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
     where: {
       ...where,
-      favorites: {
+      likes: {
         some: {
           userId: req.user.id,
         },
       },
     },
     include: {
-      favorites: true,
+      likes: true,
     },
   });
 
-  const productsWithFavorites = products.map((product) => ({
+  const productsWithLikes = products.map((product) => ({
     ...product,
-    favorites: undefined,
-    favoriteCount: product.favorites.length,
+    likes: undefined,
+    favoriteCount: product.likes.length,
     isFavorited: true,
   }));
 
   return res.send({
-    list: productsWithFavorites,
+    list: productsWithLikes,
     totalCount,
   });
 }

@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { create } from 'superstruct';
 import { prismaClient } from '../lib/prismaClient';
 import NotFoundError from '../lib/errors/NotFoundError';
@@ -12,7 +13,7 @@ import UnauthorizedError from '../lib/errors/UnauthorizedError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import BadRequestError from '../lib/errors/BadRequestError';
 
-export async function createArticle(req, res) {
+export async function createArticle(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -29,7 +30,7 @@ export async function createArticle(req, res) {
   return res.status(201).send(article);
 }
 
-export async function getArticle(req, res) {
+export async function getArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
   const article = await prismaClient.article.findUnique({
@@ -42,17 +43,19 @@ export async function getArticle(req, res) {
     throw new NotFoundError('article', id);
   }
 
+  const currentUser = req.user;
+
   const articleWithLikes = {
     ...article,
     likes: undefined,
     likeCount: article.likes.length,
-    isLiked: req.user ? article.likes.some((like) => like.userId === req.user.id) : undefined,
+    isLiked: currentUser ? article.likes.some((like) => like.userId === currentUser.id) : undefined,
   };
 
   return res.send(articleWithLikes);
 }
 
-export async function updateArticle(req, res) {
+export async function updateArticle(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -69,11 +72,20 @@ export async function updateArticle(req, res) {
     throw new ForbiddenError('Should be the owner of the article');
   }
 
-  const updatedArticle = await prismaClient.article.update({ where: { id }, data });
+  const updateData: any = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.content !== undefined) updateData.content = data.content;
+  if (data.image !== undefined) updateData.image = data.image;
+
+  const updatedArticle = await prismaClient.article.update({
+    where: { id },
+    data: updateData,
+  });
+
   return res.send(updatedArticle);
 }
 
-export async function deleteArticle(req, res) {
+export async function deleteArticle(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -93,12 +105,10 @@ export async function deleteArticle(req, res) {
   return res.status(204).send();
 }
 
-export async function getArticleList(req, res) {
+export async function getArticleList(req: Request, res: Response) {
   const { page, pageSize, orderBy, keyword } = create(req.query, GetArticleListParamsStruct);
 
-  const where = {
-    title: keyword ? { contains: keyword } : undefined,
-  };
+  const where = keyword ? { title: { contains: keyword } } : {};
 
   const totalCount = await prismaClient.article.count({ where });
   const articles = await prismaClient.article.findMany({
@@ -115,7 +125,7 @@ export async function getArticleList(req, res) {
     ...article,
     likes: undefined,
     likeCount: article.likes.length,
-    isLiked: req.user ? article.likes.some((like) => like.userId === req.user.id) : undefined,
+    isLiked: req.user ? article.likes.some((like) => like.userId === req.user?.id) : undefined,
   }));
 
   return res.send({
@@ -124,7 +134,7 @@ export async function getArticleList(req, res) {
   });
 }
 
-export async function createComment(req, res) {
+export async function createComment(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -148,7 +158,7 @@ export async function createComment(req, res) {
   return res.status(201).send(createdComment);
 }
 
-export async function getCommentList(req, res) {
+export async function getCommentList(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
 
@@ -158,11 +168,12 @@ export async function getCommentList(req, res) {
   }
 
   const commentsWithCursor = await prismaClient.comment.findMany({
-    cursor: cursor ? { id: cursor } : undefined,
-    take: limit + 1,
     where: { articleId },
     orderBy: { createdAt: 'desc' },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor } } : {}),
   });
+
   const comments = commentsWithCursor.slice(0, limit);
   const cursorComment = commentsWithCursor[commentsWithCursor.length - 1];
   const nextCursor = cursorComment ? cursorComment.id : null;
@@ -173,7 +184,7 @@ export async function getCommentList(req, res) {
   });
 }
 
-export async function createLike(req, res) {
+export async function createLike(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -196,7 +207,7 @@ export async function createLike(req, res) {
   return res.status(201).send();
 }
 
-export async function deleteLike(req, res) {
+export async function deleteLike(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }

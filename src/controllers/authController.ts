@@ -1,16 +1,13 @@
+import * as bcrypt from 'bcrypt';
+import type { Request, Response } from 'express';
 import { create } from 'superstruct';
-import bcrypt from 'bcrypt';
 import { prismaClient } from '../lib/prismaClient';
 import { generateTokens, verifyRefreshToken } from '../lib/token';
-import {
-  ACCESS_TOKEN_COOKIE_NAME,
-  REFRESH_TOKEN_COOKIE_NAME,
-  NODE_ENV,
-} from '../lib/constants';
+import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME, NODE_ENV } from '../lib/constants';
 import { LoginBodyStruct, RegisterBodyStruct } from '../structs/authStructs';
 import BadRequestError from '../lib/errors/BadRequestError';
 
-export async function register(req, res) {
+export async function register(req: Request, res: Response) {
   const { email, nickname, password } = create(req.body, RegisterBodyStruct);
 
   const salt = await bcrypt.genSalt(10);
@@ -26,10 +23,10 @@ export async function register(req, res) {
   });
 
   const { password: _, ...userWithoutPassword } = user;
-  res.status(201).on(userWithoutPassword);
+  res.status(201).send(userWithoutPassword);
 }
 
-export async function login(req, res) {
+export async function login(req: Request, res: Response) {
   const { email, password } = create(req.body, LoginBodyStruct);
 
   const user = await prismaClient.user.findUnique({ where: { email } });
@@ -47,12 +44,12 @@ export async function login(req, res) {
   res.status(200).send();
 }
 
-export async function logout(req, res) {
+export async function logout(req: Request, res: Response) {
   clearTokenCookies(res);
   res.status(200).send();
 }
 
-export async function refreshToken(req, res) {
+export async function refreshToken(req: Request, res: Response) {
   const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
   if (!refreshToken) {
     throw new BadRequestError('Invalid refresh token');
@@ -70,7 +67,7 @@ export async function refreshToken(req, res) {
   res.status(200).send();
 }
 
-function setTokenCookies(res, accessToken, refreshToken) {
+function setTokenCookies(res: Response, accessToken: string, refreshToken: string) {
   res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, {
     httpOnly: true,
     secure: NODE_ENV === 'production',
@@ -84,7 +81,7 @@ function setTokenCookies(res, accessToken, refreshToken) {
   });
 }
 
-function clearTokenCookies(res) {
+function clearTokenCookies(res: Response) {
   res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
   res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
 }
