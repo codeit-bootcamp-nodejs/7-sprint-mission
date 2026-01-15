@@ -3,7 +3,6 @@ import { PageParamsStruct } from './commonStructs';
 
 export const UpdateMeBodyStruct = partial(
   object({
-    email: string(),
     nickname: string(),
     image: nullable(string()),
   }),
@@ -16,4 +15,4 @@ export const UpdatePasswordBodyStruct = object({
 
 export const GetMyProductListParamsStruct = PageParamsStruct;
 
-export const GetMyFavoriteListParamsStruct = PageParamsStruct;
+export const GetMyLikeListParamsStruct = PageParamsStruct;

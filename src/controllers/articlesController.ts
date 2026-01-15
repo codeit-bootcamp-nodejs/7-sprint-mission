@@ -176,9 +176,8 @@ export async function getCommentList(req: Request, res: Response) {
   });
 
   const comments = commentsWithCursor.slice(0, limit);
-  const cursorComment = comments[comments.length - 1];
-  const nextCursor = commentsWithCursor.length > limit && cursorComment ? cursorComment.id : null;
-
+  const nextCursor =
+    commentsWithCursor.length > limit ? comments[comments.length - 1]?.id ?? null : null;
   return res.send({
     list: comments,
     nextCursor,

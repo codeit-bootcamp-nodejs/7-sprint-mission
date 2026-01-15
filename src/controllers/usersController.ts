@@ -6,7 +6,7 @@ import {
   UpdateMeBodyStruct,
   UpdatePasswordBodyStruct,
   GetMyProductListParamsStruct,
-  GetMyFavoriteListParamsStruct,
+  GetMyLikeListParamsStruct,
 } from '../structs/usersStructs';
 import NotFoundError from '../lib/errors/NotFoundError';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
@@ -79,61 +79,13 @@ export async function getMyProductList(req: Request, res: Response) {
 
   const { page, pageSize, orderBy, keyword } = create(req.query, GetMyProductListParamsStruct);
 
-  const where = keyword
-    ? {
-        OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-      }
-    : {};
-
-  const totalCount = await prismaClient.product.count({
-    where: {
-      ...where,
-      userId: req.user.id,
-    },
-  });
-
-  const products = await prismaClient.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    where: {
-      ...where,
-      userId: req.user.id,
-    },
-    include: {
-      likes: true,
-    },
-  });
-
-  const productsWithLikes = products.map((product) => ({
-    ...product,
-    likes: undefined,
-    favoriteCount: product.likes.length,
-    isFavorited: product.likes.some((like) => like.userId === req.user!.id),
-  }));
-
-  return res.send({
-    list: productsWithLikes,
-    totalCount,
-  });
-}
-
-export async function getMyFavoriteList(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
-  const { page, pageSize, orderBy, keyword } = create(req.query, GetMyFavoriteListParamsStruct);
-
   const where = {
+    userId: req.user.id,
     ...(keyword
-      ? { OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }] }
+      ? {
+          OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
+        }
       : {}),
-    likes: {
-      some: {
-        userId: req.user.id,
-      },
-    },
   };
 
   const totalCount = await prismaClient.product.count({ where });
@@ -151,8 +103,52 @@ export async function getMyFavoriteList(req: Request, res: Response) {
   const productsWithLikes = products.map((product) => ({
     ...product,
     likes: undefined,
-    favoriteCount: product.likes.length,
-    isFavorited: true,
+    likeCount: product.likes.length,
+    isLiked: product.likes.some((like) => like.userId === req.user!.id),
+  }));
+
+  return res.send({
+    list: productsWithLikes,
+    totalCount,
+  });
+}
+
+// 함수명을 getMyLikeList로 수정했습니다.
+export async function getMyLikeList(req: Request, res: Response) {
+  if (!req.user) {
+    throw new UnauthorizedError('Unauthorized');
+  }
+
+  const { page, pageSize, orderBy, keyword } = create(req.query, GetMyLikeListParamsStruct);
+
+  const where = {
+    likes: {
+      some: {
+        userId: req.user.id,
+      },
+    },
+    ...(keyword
+      ? { OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }] }
+      : {}),
+  };
+
+  const totalCount = await prismaClient.product.count({ where });
+
+  const products = await prismaClient.product.findMany({
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
+    where,
+    include: {
+      likes: true,
+    },
+  });
+
+  const productsWithLikes = products.map((product) => ({
+    ...product,
+    likes: undefined,
+    likeCount: product.likes.length,
+    isLiked: true,
   }));
 
   return res.send({

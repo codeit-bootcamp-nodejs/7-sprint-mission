@@ -35,21 +35,21 @@ export async function getProduct(req: Request, res: Response) {
 
   const product = await prismaClient.product.findUnique({
     where: { id: Number(id) },
-    include: { likes: true }, // 스키마 필드명에 맞춰 likes로 수정
+    include: { likes: true },
   });
 
   if (!product) {
     throw new NotFoundError('product', id.toString());
   }
 
-  const productWithFavorites = {
+  const productWithLikes = {
     ...product,
     likes: undefined,
-    favoriteCount: product.likes.length,
-    isFavorited: req.user ? product.likes.some((like) => like.userId === req.user?.id) : false,
+    likeCount: product.likes.length,
+    isLiked: req.user ? product.likes.some((like) => like.userId === req.user?.id) : false,
   };
 
-  return res.send(productWithFavorites);
+  return res.send(productWithLikes);
 }
 
 export async function updateProduct(req: Request, res: Response) {
@@ -130,15 +130,15 @@ export async function getProductList(req: Request, res: Response) {
     },
   });
 
-  const productsWithFavorites = products.map((product) => ({
+  const productsWithLikes = products.map((product) => ({
     ...product,
     likes: undefined,
-    favoriteCount: product.likes.length,
-    isFavorited: req.user ? product.likes.some((like) => like.userId === req.user?.id) : false,
+    likeCount: product.likes.length,
+    isLiked: req.user ? product.likes.some((like) => like.userId === req.user?.id) : false,
   }));
 
   return res.send({
-    list: productsWithFavorites,
+    list: productsWithLikes,
     totalCount,
   });
 }
@@ -176,23 +176,23 @@ export async function getCommentList(req: Request, res: Response) {
     throw new NotFoundError('product', productId.toString());
   }
 
-  const commentsWithCursorComment = await prismaClient.comment.findMany({
-    ...(cursor && { cursor: { id: Number(cursor) } }),
-    take: limit + 1,
+  const commentsWithCursor = await prismaClient.comment.findMany({
     where: { productId: Number(productId) },
+    orderBy: { createdAt: 'desc' },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: Number(cursor) } } : {}),
   });
 
-  const comments = commentsWithCursorComment.slice(0, limit);
-  const cursorComment = commentsWithCursorComment[comments.length - 1];
-  const nextCursor = cursorComment ? cursorComment.id : null;
-
+  const comments = commentsWithCursor.slice(0, limit);
+  const nextCursor =
+    commentsWithCursor.length > limit ? comments[comments.length - 1]?.id ?? null : null;
   return res.send({
     list: comments,
     nextCursor,
   });
 }
 
-export async function createFavorite(req: Request, res: Response) {
+export async function createLike(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
@@ -206,11 +206,11 @@ export async function createFavorite(req: Request, res: Response) {
     throw new NotFoundError('product', productId.toString());
   }
 
-  const existingFavorite = await prismaClient.like.findFirst({
+  const existingLike = await prismaClient.like.findFirst({
     where: { productId: Number(productId), userId: req.user.id },
   });
-  if (existingFavorite) {
-    throw new BadRequestError('Already favorited');
+  if (existingLike) {
+    throw new BadRequestError('Already liked');
   }
 
   await prismaClient.like.create({
@@ -219,20 +219,20 @@ export async function createFavorite(req: Request, res: Response) {
   return res.status(201).send();
 }
 
-export async function deleteFavorite(req: Request, res: Response) {
+export async function deleteLike(req: Request, res: Response) {
   if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
 
   const { id: productId } = create(req.params, IdParamsStruct);
 
-  const existingFavorite = await prismaClient.like.findFirst({
+  const existingLike = await prismaClient.like.findFirst({
     where: { productId: Number(productId), userId: req.user.id },
   });
-  if (!existingFavorite) {
-    throw new BadRequestError('Not favorited');
+  if (!existingLike) {
+    throw new BadRequestError('Not liked');
   }
 
-  await prismaClient.like.delete({ where: { id: existingFavorite.id } });
+  await prismaClient.like.delete({ where: { id: existingLike.id } });
   return res.status(204).send();
 }
