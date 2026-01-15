@@ -1,6 +1,6 @@
 import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { upload, uploadImage } from '../controllers/imagesController.js';
+import { withAsync } from '../lib/withAsync';
+import { upload, uploadImage } from '../controllers/imagesController';
 
 const imagesRouter = express.Router();
 

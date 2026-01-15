@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    /* 기본 경로 설정 */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* 환경 설정 */
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler", // 최신 번들러 스타일 유지
+    "lib": ["ESNext"],
+    "types": ["node"],
+
+    /* 모듈 및 상호운용성 */
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* 엄격한 타입 검사 */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+
+    /* 기타 설정 */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowJs": true,
+    "checkJs": false,
+    "moduleDetection": "force",
+    "jsx": "react-jsx"
+  },
+  
+  /* ts-node 사용 시 확장자 없이 import 가능하게 하는 설정 */
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true
+  },
+
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

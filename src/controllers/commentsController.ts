@@ -1,10 +1,10 @@
 import { create } from 'superstruct';
-import { prismaClient } from '../lib/prismaClient.js';
-import { UpdateCommentBodyStruct } from '../structs/commentsStruct.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
-import UnauthorizedError from '../lib/errors/UnauthorizedError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
+import { prismaClient } from '../lib/prismaClient';
+import { UpdateCommentBodyStruct } from '../structs/commentsStruct';
+import NotFoundError from '../lib/errors/NotFoundError';
+import { IdParamsStruct } from '../structs/commonStructs';
+import UnauthorizedError from '../lib/errors/UnauthorizedError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
 
 export async function updateComment(req, res) {
   if (!req.user) {

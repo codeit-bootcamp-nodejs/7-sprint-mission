@@ -1,14 +1,14 @@
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
-import { prismaClient } from '../lib/prismaClient.js';
-import { generateTokens, verifyRefreshToken } from '../lib/token.js';
+import { prismaClient } from '../lib/prismaClient';
+import { generateTokens, verifyRefreshToken } from '../lib/token';
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
   NODE_ENV,
-} from '../lib/constants.js';
-import { LoginBodyStruct, RegisterBodyStruct } from '../structs/authStructs.js';
-import BadRequestError from '../lib/errors/BadRequestError.js';
+} from '../lib/constants';
+import { LoginBodyStruct, RegisterBodyStruct } from '../structs/authStructs';
+import BadRequestError from '../lib/errors/BadRequestError';
 
 export async function register(req, res) {
   const { email, nickname, password } = create(req.body, RegisterBodyStruct);
@@ -26,7 +26,7 @@ export async function register(req, res) {
   });
 
   const { password: _, ...userWithoutPassword } = user;
-  res.status(201).json(userWithoutPassword);
+  res.status(201).on(userWithoutPassword);
 }
 
 export async function login(req, res) {

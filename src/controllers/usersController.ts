@@ -1,14 +1,14 @@
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
-import { prismaClient } from '../lib/prismaClient.js';
+import { prismaClient } from '../lib/prismaClient';
 import {
   UpdateMeBodyStruct,
   UpdatePasswordBodyStruct,
   GetMyProductListParamsStruct,
   GetMyFavoriteListParamsStruct,
-} from '../structs/usersStructs.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import UnauthorizedError from '../lib/errors/UnauthorizedError.js';
+} from '../structs/usersStructs';
+import NotFoundError from '../lib/errors/NotFoundError';
+import UnauthorizedError from '../lib/errors/UnauthorizedError';
 
 export async function getMe(req, res) {
   if (!req.user) {

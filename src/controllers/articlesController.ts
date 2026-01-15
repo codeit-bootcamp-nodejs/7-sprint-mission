@@ -1,16 +1,16 @@
 import { create } from 'superstruct';
-import { prismaClient } from '../lib/prismaClient.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import { prismaClient } from '../lib/prismaClient';
+import NotFoundError from '../lib/errors/NotFoundError';
+import { IdParamsStruct } from '../structs/commonStructs';
 import {
   CreateArticleBodyStruct,
   UpdateArticleBodyStruct,
   GetArticleListParamsStruct,
-} from '../structs/articlesStructs.js';
-import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct.js';
-import UnauthorizedError from '../lib/errors/UnauthorizedError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
-import BadRequestError from '../lib/errors/BadRequestError.js';
+} from '../structs/articlesStructs';
+import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct';
+import UnauthorizedError from '../lib/errors/UnauthorizedError';
+import ForbiddenError from '../lib/errors/ForbiddenError';
+import BadRequestError from '../lib/errors/BadRequestError';
 
 export async function createArticle(req, res) {
   if (!req.user) {
