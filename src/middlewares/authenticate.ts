@@ -18,14 +18,10 @@ function authenticate(options: AuthenticateOptions = { optional: false }) {
     }
 
     try {
-      const payload = verifyAccessToken(accessToken);
-
-      if (!payload || typeof payload === 'string' || !payload.userId) {
-        throw new Error('Invalid token');
-      }
+      const { userId } = verifyAccessToken(accessToken);
 
       const user = await prismaClient.user.findUnique({
-        where: { id: Number(payload.userId) },
+        where: { id: userId },
       });
 
       if (!user) {

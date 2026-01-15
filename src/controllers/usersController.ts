@@ -125,35 +125,24 @@ export async function getMyFavoriteList(req: Request, res: Response) {
 
   const { page, pageSize, orderBy, keyword } = create(req.query, GetMyFavoriteListParamsStruct);
 
-  const where = keyword
-    ? {
-        OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-      }
-    : {};
-
-  const totalCount = await prismaClient.product.count({
-    where: {
-      ...where,
-      likes: {
-        some: {
-          userId: req.user.id,
-        },
+  const where = {
+    ...(keyword
+      ? { OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }] }
+      : {}),
+    likes: {
+      some: {
+        userId: req.user.id,
       },
     },
-  });
+  };
+
+  const totalCount = await prismaClient.product.count({ where });
 
   const products = await prismaClient.product.findMany({
     skip: (page - 1) * pageSize,
     take: pageSize,
     orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    where: {
-      ...where,
-      likes: {
-        some: {
-          userId: req.user.id,
-        },
-      },
-    },
+    where,
     include: {
       likes: true,
     },

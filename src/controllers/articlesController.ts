@@ -34,13 +34,13 @@ export async function getArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
   const article = await prismaClient.article.findUnique({
-    where: { id },
+    where: { id: Number(id) },
     include: {
       likes: true,
     },
   });
   if (!article) {
-    throw new NotFoundError('article', id);
+    throw new NotFoundError('article', id.toString());
   }
 
   const currentUser = req.user;
@@ -63,23 +63,22 @@ export async function updateArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const data = create(req.body, UpdateArticleBodyStruct);
 
-  const existingArticle = await prismaClient.article.findUnique({ where: { id } });
+  const existingArticle = await prismaClient.article.findUnique({ where: { id: Number(id) } });
   if (!existingArticle) {
-    throw new NotFoundError('article', id);
+    throw new NotFoundError('article', id.toString());
   }
 
   if (existingArticle.userId !== req.user.id) {
     throw new ForbiddenError('Should be the owner of the article');
   }
 
-  const updateData: any = {};
-  if (data.title !== undefined) updateData.title = data.title;
-  if (data.content !== undefined) updateData.content = data.content;
-  if (data.image !== undefined) updateData.image = data.image;
-
   const updatedArticle = await prismaClient.article.update({
-    where: { id },
-    data: updateData,
+    where: { id: Number(id) },
+    data: {
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.content !== undefined && { content: data.content }),
+      ...(data.image !== undefined && { image: data.image }),
+    },
   });
 
   return res.send(updatedArticle);
@@ -92,16 +91,16 @@ export async function deleteArticle(req: Request, res: Response) {
 
   const { id } = create(req.params, IdParamsStruct);
 
-  const existingArticle = await prismaClient.article.findUnique({ where: { id } });
+  const existingArticle = await prismaClient.article.findUnique({ where: { id: Number(id) } });
   if (!existingArticle) {
-    throw new NotFoundError('article', id);
+    throw new NotFoundError('article', id.toString());
   }
 
   if (existingArticle.userId !== req.user.id) {
     throw new ForbiddenError('Should be the owner of the article');
   }
 
-  await prismaClient.article.delete({ where: { id } });
+  await prismaClient.article.delete({ where: { id: Number(id) } });
   return res.status(204).send();
 }
 
@@ -142,14 +141,16 @@ export async function createComment(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, CreateCommentBodyStruct);
 
-  const existingArticle = await prismaClient.article.findUnique({ where: { id: articleId } });
+  const existingArticle = await prismaClient.article.findUnique({
+    where: { id: Number(articleId) },
+  });
   if (!existingArticle) {
-    throw new NotFoundError('article', articleId);
+    throw new NotFoundError('article', articleId.toString());
   }
 
   const createdComment = await prismaClient.comment.create({
     data: {
-      articleId,
+      articleId: Number(articleId),
       content,
       userId: req.user.id,
     },
@@ -162,21 +163,21 @@ export async function getCommentList(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
 
-  const article = await prismaClient.article.findUnique({ where: { id: articleId } });
+  const article = await prismaClient.article.findUnique({ where: { id: Number(articleId) } });
   if (!article) {
-    throw new NotFoundError('article', articleId);
+    throw new NotFoundError('article', articleId.toString());
   }
 
   const commentsWithCursor = await prismaClient.comment.findMany({
-    where: { articleId },
+    where: { articleId: Number(articleId) },
     orderBy: { createdAt: 'desc' },
     take: limit + 1,
-    ...(cursor ? { cursor: { id: cursor } } : {}),
+    ...(cursor ? { cursor: { id: Number(cursor) } } : {}),
   });
 
   const comments = commentsWithCursor.slice(0, limit);
-  const cursorComment = commentsWithCursor[commentsWithCursor.length - 1];
-  const nextCursor = cursorComment ? cursorComment.id : null;
+  const cursorComment = comments[comments.length - 1];
+  const nextCursor = commentsWithCursor.length > limit && cursorComment ? cursorComment.id : null;
 
   return res.send({
     list: comments,
@@ -191,19 +192,21 @@ export async function createLike(req: Request, res: Response) {
 
   const { id: articleId } = create(req.params, IdParamsStruct);
 
-  const existingArticle = await prismaClient.article.findUnique({ where: { id: articleId } });
+  const existingArticle = await prismaClient.article.findUnique({
+    where: { id: Number(articleId) },
+  });
   if (!existingArticle) {
-    throw new NotFoundError('article', articleId);
+    throw new NotFoundError('article', articleId.toString());
   }
 
   const existingLike = await prismaClient.like.findFirst({
-    where: { articleId, userId: req.user.id },
+    where: { articleId: Number(articleId), userId: req.user.id },
   });
   if (existingLike) {
     throw new BadRequestError('Already liked');
   }
 
-  await prismaClient.like.create({ data: { articleId, userId: req.user.id } });
+  await prismaClient.like.create({ data: { articleId: Number(articleId), userId: req.user.id } });
   return res.status(201).send();
 }
 
@@ -214,13 +217,15 @@ export async function deleteLike(req: Request, res: Response) {
 
   const { id: articleId } = create(req.params, IdParamsStruct);
 
-  const existingArticle = await prismaClient.article.findUnique({ where: { id: articleId } });
+  const existingArticle = await prismaClient.article.findUnique({
+    where: { id: Number(articleId) },
+  });
   if (!existingArticle) {
-    throw new NotFoundError('article', articleId);
+    throw new NotFoundError('article', articleId.toString());
   }
 
   const existingLike = await prismaClient.like.findFirst({
-    where: { articleId, userId: req.user.id },
+    where: { articleId: Number(articleId), userId: req.user.id },
   });
   if (!existingLike) {
     throw new BadRequestError('Not liked');

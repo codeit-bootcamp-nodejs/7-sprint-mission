@@ -15,9 +15,9 @@ export async function updateComment(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, UpdateCommentBodyStruct);
 
-  const existingComment = await prismaClient.comment.findUnique({ where: { id } });
+  const existingComment = await prismaClient.comment.findUnique({ where: { id: Number(id) } });
   if (!existingComment) {
-    throw new NotFoundError('comment', id);
+    throw new NotFoundError('comment', id.toString());
   }
 
   if (existingComment.userId !== req.user.id) {
@@ -25,7 +25,7 @@ export async function updateComment(req: Request, res: Response) {
   }
 
   const updatedComment = await prismaClient.comment.update({
-    where: { id },
+    where: { id: Number(id) },
     data: {
       ...(content !== undefined ? { content } : {}),
     },
@@ -41,15 +41,15 @@ export async function deleteComment(req: Request, res: Response) {
 
   const { id } = create(req.params, IdParamsStruct);
 
-  const existingComment = await prismaClient.comment.findUnique({ where: { id } });
+  const existingComment = await prismaClient.comment.findUnique({ where: { id: Number(id) } });
   if (!existingComment) {
-    throw new NotFoundError('comment', id);
+    throw new NotFoundError('comment', id.toString());
   }
 
   if (existingComment.userId !== req.user.id) {
     throw new ForbiddenError('Should be the owner of the comment');
   }
 
-  await prismaClient.comment.delete({ where: { id } });
+  await prismaClient.comment.delete({ where: { id: Number(id) } });
   return res.status(204).send();
 }

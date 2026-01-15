@@ -1,7 +1,7 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import { JWT_ACCESS_TOKEN_SECRET, JWT_REFRESH_TOKEN_SECRET } from './constants';
 
-interface UserPayload extends JwtPayload {
+export interface UserPayload extends JwtPayload {
   id: number;
 }
 
