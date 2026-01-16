@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./build",
+
+    "types": ["node"],
+
+    "module": "esnext",
+    "target": "esnext",
+
+    "allowJs": false,
+    "esModuleInterop": true,
+
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "strict": true,
+    "skipLibCheck": true,
+
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "typeRoots": ["./node_modules/@types", "./src/type"],
+    "moduleResolution": "bundler" // 또는 'node'
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "build"]
+}
