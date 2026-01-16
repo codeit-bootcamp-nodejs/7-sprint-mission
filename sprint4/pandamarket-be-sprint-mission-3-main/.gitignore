@@ -1,0 +1,26 @@
+# Local files
+.vscode/
+node_modules/
+.env*
+!.env.example
+
+# Uploaded files
+public/*
+!public/.gitkeep
+
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
+
+/src/generated/prisma
