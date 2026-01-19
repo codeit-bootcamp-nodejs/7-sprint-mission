@@ -76,7 +76,6 @@ export const getMyProducts = async (req: Request, res: Response) => {
         createdAt: "desc",
       },
     });
-
     res.status(200).json({
       success: true,
       message: "내가 등록한 상품을 가져왔습니다.",
