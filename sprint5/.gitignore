@@ -1,0 +1,16 @@
+# Local files
+.vscode/
+node_modules/
+.env*
+!.env.example
+
+# Uploaded files
+public/*
+!public/.gitkeep
+
+
+/pandamarket-be-sprint-mission-4-main/src/generated/prisma
+
+/pandamarket-be-sprint-mission-4-main/src/generated/prisma
+
+/src/generated/prisma
