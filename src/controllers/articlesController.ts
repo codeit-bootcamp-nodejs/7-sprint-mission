@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { create } from "superstruct";
 import { prismaClient } from "../lib/prismaClient.js";
 import NotFoundError from "../lib/errors/NotFoundError.js";
@@ -12,57 +13,59 @@ import {
   GetCommentListParamsStruct,
 } from "../structs/commentsStructs.js";
 
-export async function createArticle(req, res) {
+export async function createArticle(req: Request, res: Response) {
   const data = create(req.body, CreateArticleBodyStruct);
 
   const article = await prismaClient.article.create({
     data: {
       ...data,
-      userId: req.user.id,
+      userId: Number((req as any).user.id),
     },
   });
 
   return res.status(201).send(article);
 }
 
-export async function getArticle(req, res) {
+export async function getArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
-  const article = await prismaClient.article.findUnique({ where: { id } });
+  const article = await prismaClient.article.findUnique({
+    where: { id: Number(id) },
+  });
   if (!article) {
-    throw new NotFoundError("article", id);
+    throw new NotFoundError("article", id.toString());
   }
 
   return res.send(article);
 }
 
-export async function updateArticle(req, res) {
+export async function updateArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
   const data = create(req.body, UpdateArticleBodyStruct);
 
-  const article = await prismaClient.article.findUnuque({
-    where: { id },
+  const article = await prismaClient.article.findUnique({
+    where: { id: Number(id) },
   });
   if (!article) {
-    throw new NotFoundError("article", id);
+    throw new NotFoundError("article", id.toString());
   }
-  if (article.userId !== req.user.id) {
+  if (article.userId !== (req as any).user.id) {
     return res.status(403).json({ message: "자기 게시글만 수정가능" });
   }
   const updated = await prismaClient.article.update({ where: { id }, data });
   return res.send(updated);
 }
 
-export async function deleteArticle(req, res) {
+export async function deleteArticle(req: Request, res: Response) {
   const { id } = create(req.params, IdParamsStruct);
 
   const existingArticle = await prismaClient.article.findUnique({
-    where: { id },
+    where: { id: Number(id) },
   });
   if (!existingArticle) {
-    throw new NotFoundError("article", id);
+    throw new NotFoundError("article", id.toString());
   }
-  if (existingArticle.userId !== req.user.id) {
+  if (existingArticle.userId !== (req as any).user.id) {
     return res.status(403).json({ message: "자기 게시글만 삭제가능" });
   }
   await prismaClient.article.delete({ where: { id } });
@@ -70,7 +73,7 @@ export async function deleteArticle(req, res) {
   return res.status(204).send();
 }
 
-export async function getArticleList(req, res) {
+export async function getArticleList(req: Request, res: Response) {
   const { page, pageSize, orderBy, keyword } = create(
     req.query,
     GetArticleListParamsStruct
@@ -94,20 +97,21 @@ export async function getArticleList(req, res) {
   });
 }
 
-export async function createComment(req, res) {
+export async function createComment(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { content } = create(req.body, CreateCommentBodyStruct);
 
   const existingArticle = await prismaClient.article.findUnique({
-    where: { id: articleId },
+    where: { id: Number(articleId) },
   });
   if (!existingArticle) {
-    throw new NotFoundError("article", articleId);
+    throw new NotFoundError("article", String(articleId));
   }
 
   const comment = await prismaClient.comment.create({
     data: {
-      articleId,
+      id: Number(articleId),
+      userId: Number((req as any).user.id),
       content,
     },
   });
@@ -115,15 +119,15 @@ export async function createComment(req, res) {
   return res.status(201).send(comment);
 }
 
-export async function getCommentList(req, res) {
+export async function getCommentList(req: Request, res: Response) {
   const { id: articleId } = create(req.params, IdParamsStruct);
   const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
 
   const article = await prismaClient.article.findUnique({
-    where: { id: articleId },
+    where: { id: Number(articleId) },
   });
   if (!article) {
-    throw new NotFoundError("article", articleId);
+    throw new NotFoundError("article", String(articleId));
   }
 
   const commentsWithCursor = await prismaClient.comment.findMany({

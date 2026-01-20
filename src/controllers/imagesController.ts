@@ -3,6 +3,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { PUBLIC_PATH, STATIC_PATH } from "../lib/constants.js";
 import BadRequestError from "../lib/errors/BadRequestError.js";
+import { Request, Response } from "express";
 
 const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/jpg"];
 const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
@@ -23,7 +24,7 @@ export const upload = multer({
     fileSize: FILE_SIZE_LIMIT,
   },
 
-  fileFilter: function (req, file, cb) {
+  fileFilter: function (req: Request, file, cb) {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       const err = new BadRequestError("Only png, jpeg, and jpg are allowed");
       return cb(err);
@@ -33,9 +34,13 @@ export const upload = multer({
   },
 });
 
-export async function uploadImage(req, res) {
+export async function uploadImage(req: Request, res: Response) {
   const host = req.get("host");
-  const filePath = path.join(host, STATIC_PATH, req.file.filename);
+
+  if (!host) {
+    return res.status(404).send({ message: "호스트 못찾겠어" });
+  }
+  const filePath = path.join(host, STATIC_PATH, (req as any).file.filename);
   const url = `http://${filePath}`;
   return res.send({ url });
 }

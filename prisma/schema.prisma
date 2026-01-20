@@ -6,15 +6,10 @@
 
 generator client {
   provider = "prisma-client-js"
-<<<<<<< HEAD
-=======
-  output   = "../generated/prisma"
->>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
 }
 
 datasource db {
   provider = "postgresql"
-<<<<<<< HEAD
   //url      = env("DATABASE_URL")
 }
 model User {
@@ -26,6 +21,7 @@ password          String
 createdAt         DateTime  @default(now())
 updatedAt         DateTime  @updatedAt
 Comments Comment[]
+Articles Article[]
 Products Product[]
 refreshToken String?  @unique
 productLikes ProductLike[]
@@ -41,6 +37,8 @@ model Article {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   articleLikes ArticleLike[]
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
 }
 
 model Product {
@@ -88,54 +86,3 @@ user    User    @relation(fields: [userId], references: id, onDelete: Cascade)
 article Article @relation(fields: [articleId], references: id, onDelete: Cascade)
 @@unique([userId,articleId])  
 }
-=======
-}
-
-model product {
-  id         BigInt       @id @default(autoincrement())
-  name       String
-  description String?
-  price       Int
-  tags      String[]   @default([])
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-  comments    product_comment[]
-  image_id    BigInt?   @unique
-  image       product_image? @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-}
-model product_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  product_id  BigInt 
-  product     product   @relation(fields: [product_id], references: [id] ,onDelete: Cascade)
-}
-model product_image {
-  id          BigInt    @id @default(autoincrement())
-  name        String    @unique
-  path        String
-  size        Int
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  product     product?
-}
-
-model article {
-  id           BigInt       @id @default(autoincrement())
-  title        String
-  content      String    
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-   comments    article_comment[]
-}
-
-model article_comment {
-  id          BigInt    @id @default(autoincrement())
-  content     String
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
-  article_id  BigInt 
-  article     article   @relation(fields: [article_id], references: [id],onDelete: Cascade)
-}
-
->>>>>>> aee8a1156530dd97bb8998cf463bbb41024edf46
