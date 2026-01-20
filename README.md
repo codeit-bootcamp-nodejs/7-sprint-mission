@@ -1,3 +1,4 @@
+
 # Sprint4 Backend API
 
 Express + Prisma 기반의 백엔드 API 서버입니다. 회원 인증, 상품/게시글 CRUD, 댓글, 좋아요, 이미지 업로드 기능을 제공합니다.
@@ -74,9 +75,9 @@ Express + Prisma 기반의 백엔드 API 서버입니다. 회원 인증, 상품/
 
 ## 이미지 업로드
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| POST   | /images  | 이미지 업로드     |
+| Method | Endpoint       | Description |
+|--------|----------------|-------------|
+| POST   | /images/upload | 이미지 업로드     |
 
 * 지원 포맷: `png`, `jpg`, `jpeg`
 * 최대 크기: 5MB
@@ -128,9 +129,3 @@ npm run test
 - 테스트 실행 시 실제 API 엔드포인트를 대상으로 요청/응답을 검증합니다.
 - Prisma 사용하여 테스트 전후로 데이터베이스 상태를 정리합니다.
 - 인증이 필요한 API 테스트용 유저를 생성하고 로그인 후 쿠키를 활용해 검증합니다.
-
----
-
-## 비고
-
-* API 서버 프로젝트입니다.
