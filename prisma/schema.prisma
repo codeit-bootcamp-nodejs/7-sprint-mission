@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,32 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
-  nickname     String
-  image        String?
-  password     String
-  refreshToken String?   @db.Text
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  articles     Article[]
-  products     Product[]
-  comments     Comment[]
-  likes        Like[]
-}
-
 model Article {
   id        Int       @id @default(autoincrement())
   title     String
   content   String
   image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   userId    Int
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
   likes     Like[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 }
 
 model Product {
@@ -43,37 +27,52 @@ model Product {
   price       Int
   tags        String[]
   images      String[]
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comments    Comment[]
-  likes       Like[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  userId      Int
+  comments    Comment[]
+  likes       Like[]
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId Int?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   articleId Int?
-  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  userId    Int
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  nickname     String
+  image        String?
+  password     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  refreshToken String?
+  articles     Article[]
+  comments     Comment[]
+  likes        Like[]
+  products     Product[]
 }
 
 model Like {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId Int?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   articleId Int?
-  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade) // 👈 'Product'에서 'product'로 변경
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, productId])
   @@unique([userId, articleId])
+  @@unique([userId, productId])
 }
