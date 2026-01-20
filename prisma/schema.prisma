@@ -8,75 +8,59 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
-  nickname     String        @unique
-  image        String?
-  password     String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  products     Product[]
-  articles     Article[]
-  comments     Comment[]
-  productLikes ProductLike[]
-  articleLikes ArticleLike[]
+  id             BigInt           @id @default(autoincrement()) @db.BigInt
+  email          String           @unique
+  nickname       String           @unique
+  image          String?
+  password       String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  products       Product[]
+  articles       Article[]
+  productLikes   ProductLike[]
+  articleLikes   ArticleLike[]
+  productComment ProductComment[]
+  articleComment ArticleComment[]
 }
 
 model Article {
-  id           Int           @id @default(autoincrement())
-  title        String
-  content      String
-  image        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userId       Int
-  comments     Comment[]
-  user         User          @relation(fields: [userId], references: [id])
-  articleLikes ArticleLike[]
+  id              BigInt           @id @default(autoincrement()) @db.BigInt
+  title           String
+  content         String
+  image           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userId          BigInt           @db.BigInt
+  user            User             @relation(fields: [userId], references: [id])
+  articleLikes    ArticleLike[]
+  articleComments ArticleComment[]
 
   @@index([createdAt])
   @@index([userId, createdAt])
 }
 
 model Product {
-  id           Int           @id @default(autoincrement())
-  name         String
-  description  String
-  price        Int
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  userId       Int
-  tags         String[]
-  images       String[]
-  comments     Comment[]
-  user         User          @relation(fields: [userId], references: [id])
-  productLikes ProductLike[]
+  id              BigInt           @id @default(autoincrement()) @db.BigInt
+  name            String
+  description     String
+  price           Int
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userId          BigInt           @db.BigInt
+  tags            String[]
+  images          String[]
+  user            User             @relation(fields: [userId], references: [id])
+  productLikes    ProductLike[]
+  productComments ProductComment[]
 
   @@index([createdAt])
   @@index([userId, createdAt])
 }
 
-model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  productId Int?
-  articleId Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-
-  @@index([productId, createdAt])
-  @@index([articleId, createdAt])
-  @@index([userId, createdAt])
-}
-
 model ProductLike {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  userId    BigInt   @db.BigInt
+  productId BigInt   @db.BigInt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -88,9 +72,9 @@ model ProductLike {
 }
 
 model ArticleLike {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  articleId Int
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  userId    BigInt   @db.BigInt
+  articleId BigInt   @db.BigInt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -99,4 +83,32 @@ model ArticleLike {
   @@unique([userId, articleId])
   @@index([userId, createdAt])
   @@index([articleId, createdAt])
+}
+
+model ProductComment {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  content   String
+  productId BigInt   @db.BigInt
+  userId    BigInt   @db.BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model ArticleComment {
+  id        BigInt   @id @default(autoincrement()) @db.BigInt
+  content   String
+  articleId BigInt   @db.BigInt
+  userId    BigInt   @db.BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt])
+  @@index([userId, createdAt])
 }
