@@ -7,7 +7,7 @@ declare global {
       PORT: string;
       JWT_ACCESS_TOKEN_SECRET: string;
       JWT_REFRESH_TOKEN_SECRET: string;
-      NODE_ENV: 'development' | 'production';
+      NODE_ENV: 'development' | 'production' | 'test';
     }
   }
 }

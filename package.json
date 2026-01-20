@@ -5,19 +5,27 @@
     "deploy": "prisma migrate deploy",
     "generate": "prisma generate",
     "start": "node ./build/main.js",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/main.ts"
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/main.ts",
+    "test": "cross-env NODE_ENV=TEST NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
+    "test:watch": "npm test -- --watch"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.7",
+    "@types/supertest": "^6.0.3",
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.11",
     "prettier": "^3.3.2",
     "prisma": "^5.16.2",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

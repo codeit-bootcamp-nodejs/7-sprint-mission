@@ -2,10 +2,10 @@ import UnauthorizedError from '../lib/errors/UnauthorizedError.js';
 import { prismaClient } from '../lib/prismaClient.js';
 import { generateAccessToken, verifyRefreshToken } from '../lib/token.js';
 import { Request, Response } from 'express';
-import { NODE_ENV } from '../lib/constants.js';
+import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME, NODE_ENV } from '../lib/constants.js';
 
 export async function refreshAccessToken(req: Request, res: Response) {
-  const refreshToken = req.cookies['refreshToken'];
+  const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
   if (!refreshToken) {
     throw new UnauthorizedError('리프레시 토큰이 없습니다. 다시 로그인 해주세요.');
   }
@@ -25,11 +25,11 @@ export async function refreshAccessToken(req: Request, res: Response) {
     };
 
     const newAccessToken = generateAccessToken(user.id);
-    res.cookie('accessToken', newAccessToken, {
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, newAccessToken, {
       ...cookieOptions,
       maxAge: 1 * 60 * 60 * 1000,
     });
-    return res.status(200).json({ mesagge: ' 엑세스 토큰이 갱신되었습니다.' });
+    return res.status(200).json({ message: '엑세스 토큰이 갱신되었습니다.' });
   } catch (error) {
     throw new UnauthorizedError('리프레시 토큰이 만료되었습니다.');
   }

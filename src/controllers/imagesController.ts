@@ -44,5 +44,5 @@ export async function uploadImage(req: Request, res: Response) {
   }
   const filePath = path.join(host, STATIC_PATH, req.file.filename);
   const url = `http://${filePath}`;
-  return res.send({ url });
+  return res.status(201).json({ url });
 }

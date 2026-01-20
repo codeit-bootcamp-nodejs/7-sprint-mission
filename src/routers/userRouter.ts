@@ -13,13 +13,12 @@ const usersRouter = express.Router();
 
 usersRouter
   .route('/me')
-  .get(authMiddleware, authMiddleware, withAsync(getUserMe))
-  .patch(authMiddleware, authMiddleware, withAsync(updateUserMe));
+  .get(authMiddleware, withAsync(getUserMe))
+  .patch(authMiddleware, withAsync(updateUserMe));
 
-usersRouter
-  .route('/me/password')
-  .post(authMiddleware, authMiddleware, withAsync(changePassword))
-  .get(authMiddleware, authMiddleware, withAsync(getMyProducts));
+usersRouter.post('/me/password', authMiddleware, withAsync(changePassword));
+
+usersRouter.get('/me/products', authMiddleware, withAsync(getMyProducts));
 
 usersRouter.get('/me/favorites', authMiddleware, withAsync(getMyFavoriteProducts));
 export default usersRouter;

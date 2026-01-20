@@ -1,7 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 import { PORT, PUBLIC_PATH, STATIC_PATH } from './lib/constants.js';
 import articlesRouter from './routers/articlesRouter.js';
@@ -28,9 +28,10 @@ app.use('/users', usersRouter);
 
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
-
-app.listen(PORT, () => {
-  console.log(`서버 실행 중 ${PORT}`);
-});
-
+console.log('현재 NODE_ENV:', process.env.NODE_ENV);
+if (process.env.NODE_ENV?.toLowerCase() !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`서버 실행 중 ${PORT}`);
+  });
+}
 export default app;

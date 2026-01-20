@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prismaClient } from '../lib/prismaClient.js';
 import { verifyAccessToken } from '../lib/token.js';
 import { User } from '@prisma/client';
+import { ACCESS_TOKEN_COOKIE_NAME } from '../lib/constants.js';
 
 export interface AuthenticatedRequest extends Request {
   user?: User;
@@ -10,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
 
 export async function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const accessToken = req.cookies['accessToken'];
+    const accessToken = req.cookies[ACCESS_TOKEN_COOKIE_NAME];
 
     if (!accessToken) {
       throw new UnauthorizedError('액세스 토큰이 존재하지 않습니다.');
@@ -37,7 +38,7 @@ export async function authMiddleware(req: AuthenticatedRequest, res: Response, n
 
 export async function optionalAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const accessToken = req.cookies['accessToken'];
+    const accessToken = req.cookies[ACCESS_TOKEN_COOKIE_NAME];
     if (!accessToken) {
       return next();
     }
