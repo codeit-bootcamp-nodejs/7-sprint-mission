@@ -1,0 +1,22 @@
+{
+  "include": ["src", "types"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+
+    "allowJs": true,
+    "esModuleInterop": true,
+
+    "types": ["node", "express", "cookie-parser"],
+
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  }
+}
