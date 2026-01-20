@@ -25,6 +25,7 @@ app.use('/images', imagesRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 
+
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
