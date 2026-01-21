@@ -1,6 +1,13 @@
-node_modules
-# Keep environment variables out of version control
-.env
-.claude
-uploads/*
-!uploads/.gitkeep
+# Local files
+.vscode/
+node_modules/
+.env*
+!.env.example
+
+# Uploaded files
+public/*
+!public/.gitkeep
+
+.claude/
+dist
+.claude/settings.local.json
