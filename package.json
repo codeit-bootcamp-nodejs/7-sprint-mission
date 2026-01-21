@@ -1,0 +1,21 @@
+{
+  "name": "7-sprint-mission-docker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "prisma": "^7.2.0"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

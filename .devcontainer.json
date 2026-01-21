@@ -1,0 +1,14 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers/features/postgres:1": {
+            "version": "latest",
+            "databaseName": "postgres",
+            "adminPassword": "postgres"
+        }
+        
+    },
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    "updateContentCommand": "sudo chmod 666 /var/run/docker.sock || true"
+}
