@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon --watch app.ts --watch src --watch utils --watch prisma --ext ts,js,json,prisma --exec \"TS_NODE_FILES=true node --loader ts-node/esm app.ts\"",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.1.0",
@@ -19,11 +21,17 @@
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "nodemon": "^3.0.3",
     "prisma": "^7.0.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

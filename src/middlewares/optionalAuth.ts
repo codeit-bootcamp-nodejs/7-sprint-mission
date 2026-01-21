@@ -1,6 +1,11 @@
+import type { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../../utils/token.js";
 
-export const optionalAuth = (req, res, next) => {
+export const optionalAuth = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
   const header = req.headers.authorization;
 
   if (!header?.startsWith("Bearer ")) return next();
@@ -9,7 +14,7 @@ export const optionalAuth = (req, res, next) => {
 
   try {
     const payload = verifyAccessToken(token);
-    req.user = { id: BigInt(payload.userId) };
+    req.user = { userId: payload.userId };
   } catch {
   }
 

@@ -21,6 +21,13 @@ export class UnauthorizedError extends HttpError {
   }
 }
 
+// 403 Forbidden
+export class ForbiddenError extends HttpError {
+  constructor(message = "권한이 없습니다.") {
+    super(message, 403);
+  }
+}
+
 // 404 Not Found
 export class NotFoundError extends HttpError {
   constructor(message = "요청한 리소스를 찾을 수 없습니다.") {

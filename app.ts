@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import express from "express";
+import express, { type Request, type Response } from "express";
 import cors from "cors";
 import path from "path";
 
@@ -16,7 +16,7 @@ import { errorMiddleware } from "./src/middlewares/error.js";
 
 const app = express();
 
-app.set("json replacer", (_, value) =>
+app.set("json replacer", (_key: string, value: unknown) =>
   typeof value === "bigint" ? value.toString() : value
 );
 
@@ -33,9 +33,9 @@ app.use("/api/comments", commentRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/auth", authRouter);
 app.use("/api", likeRouter);
-app.use("/api/users", userRouter); 
+app.use("/api/users", userRouter);
 
-app.get("/", (req, res) => {
+app.get("/", (_req: Request, res: Response) => {
   res.json({
     message: "API Server",
     endpoints: [
@@ -44,8 +44,8 @@ app.get("/", (req, res) => {
       "/api/articles",
       "/api/products",
       "/api/comments",
-      "/api/upload/image",
-    ],
+      "/api/upload/image"
+    ]
   });
 });
 
@@ -56,5 +56,3 @@ const PORT = Number(process.env.API_PORT) || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-

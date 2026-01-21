@@ -1,0 +1,6 @@
+{
+  "watch": ["app.ts", "src", "utils", "prisma"],
+  "ext": "ts,js,json,prisma",
+  "ignore": ["dist", "node_modules", "uploads"],
+  "exec": "node --loader ts-node/esm app.ts"
+}
