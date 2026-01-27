@@ -1,0 +1,253 @@
+paths:
+    # 1. 게시글 목록 조회 및 작성
+    /articles:
+        get:
+            tags:
+                - Articles
+            summary: 게시글 목록 조회
+            parameters:
+                - in: query
+                  name: page
+                  schema: { type: integer, default: 1 }
+                  description: 페이지 번호
+                - in: query
+                  name: pageSize
+                  schema: { type: integer, default: 10 }
+                  description: 한 페이지에 보여줄 개수
+                - in: query
+                  name: orderBy
+                  schema: { type: string, enum: [recent, id] }
+                  description: '정렬 기준 (recent: 최신순)'
+                - in: query
+                  name: keyword
+                  schema: { type: string }
+                  description: 제목 검색 키워드
+            responses:
+                200:
+                    description: 게시글 목록 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    list:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id: { type: integer, example: 1 }
+                                                title:
+                                                    { type: string, example: '안녕하세요 반가워요' }
+                                                content:
+                                                    { type: string, example: '본문 내용입니다...' }
+                                                image:
+                                                    {
+                                                        type: string,
+                                                        nullable: true,
+                                                        example: 'https://example.com/img.png',
+                                                    }
+                                                userId: { type: integer, example: 5 }
+                                                createdAt: { type: string, format: date-time }
+                                                updatedAt: { type: string, format: date-time }
+                                            totalCount: { type: integer, example: 124 }
+
+        post:
+            tags:
+                - Articles
+            summary: 게시글 작성
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [title, content]
+                            properties:
+                                title: { type: string, example: '새로운 게시글 제목' }
+                                content: { type: string, example: '게시글 상세 내용입니다.' }
+                                image: { type: string, example: 'https://example.com/upload.png' }
+            responses:
+                201:
+                    description: 게시글 작성 성공
+                401:
+                    description: 인증 실패
+
+    # 2. 내가 좋아요 한 게시글 목록
+    /articles/like/list:
+        get:
+            tags:
+                - Articles
+            summary: 내가 좋아요 한 게시글 목록 조회
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: 좋아요 한 게시글 배열 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        id: { type: integer, example: 10 }
+                                        title: { type: string, example: '좋아요 누른 글' }
+                                        content: { type: string }
+                                        image: { type: string, nullable: true }
+                                        createdAt: { type: string, format: date-time }
+
+    # 3. 게시글 상세 조회, 수정, 삭제
+    /articles/{id}:
+        parameters:
+            - in: path
+              name: id
+              required: true
+              schema: { type: integer }
+        get:
+            tags:
+                - Articles
+            summary: 게시글 상세 조회
+            responses:
+                200:
+                    description: 게시글 상세 정보 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                id: { type: integer, example: 1 }
+                                title: { type: string, example: '게시글 제목' }
+                                content: { type: string, example: '상세 본문 내용...' }
+                                image: { type: string, nullable: true }
+                                userId: { type: integer, example: 5 }
+                                createdAt: { type: string, format: date-time }
+
+                404:
+                    description: 게시글을 찾을 수 없음
+
+        patch:
+            tags:
+                - Articles
+            summary: 게시글 수정
+            security:
+                - bearerAuth: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                title: { type: string, example: '수정된 제목' }
+                                content: { type: string, example: '수정된 내용입니다.' }
+                                image: { type: string, example: 'https://example.com/new-img.png' }
+            responses:
+                200:
+                    description: 수정 성공
+                403:
+                    description: 본인 게시글이 아님
+                404:
+                    description: 게시글 없음
+
+        delete:
+            tags:
+                - Articles
+            summary: 게시글 삭제
+            security:
+                - bearerAuth: []
+            responses:
+                204:
+                    description: 삭제 성공
+                403:
+                    description: 본인 게시글이 아님
+
+    # 4. 게시글 좋아요 토글
+    /articles/{id}/like:
+        post:
+            tags:
+                - Articles
+            summary: 게시글 좋아요/취소 토글
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema: { type: integer }
+            responses:
+                200:
+                    description: 토글 결과 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    isLiked:
+                                        {
+                                            type: boolean,
+                                            example: false,
+                                            description: '좋아요 상태',
+                                        }
+
+    # 5. 댓글 작성 및 목록 조회
+    /articles/{id}/comments:
+        parameters:
+            - in: path
+              name: id
+              required: true
+              schema: { type: integer }
+        get:
+            tags:
+                - Comments
+            summary: '게시글 댓글 목록 조회'
+            parameters:
+                - in: query
+                  name: cursor
+                  schema: { type: integer }
+                  description: 마지막으로 받은 댓글 ID
+                - in: query
+                  name: limit
+                  schema: { type: integer, default: 10 }
+                  description: 가져올 개수
+            responses:
+                200:
+                    description: 댓글 목록 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    list:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id: { type: integer, example: 1 }
+                                                content:
+                                                    {
+                                                        type: string,
+                                                        example: '정말 유익한 글이네요!',
+                                                    }
+                                                userId: { type: integer, example: 3 }
+                                                createdAt: { type: string, format: date-time }
+                                            nextCursor:
+                                                { type: integer, nullable: true, example: 15 }
+        post:
+            tags:
+                - Comments
+            summary: 댓글 작성
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [content]
+                            properties:
+                                content: { type: string, example: '댓글 내용입니다.' }
+            responses:
+                201:
+                    description: 댓글 작성 성공

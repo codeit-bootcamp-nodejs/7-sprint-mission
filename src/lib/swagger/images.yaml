@@ -1,0 +1,39 @@
+paths:
+    /images/upload:
+        post:
+            tags:
+                - Images
+            summary: 이미지 업로드
+            description: |
+                이미지 파일을 업로드하고 서버에 저장된 이미지의 접근 URL을 반환받습니다.
+                * **허용 확장자**: .png, .jpeg, .jpg
+                * **용량 제한**: 최대 5MB
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                image:
+                                    type: string
+                                    format: binary
+                                    description: 업로드할 이미지 파일
+            responses:
+                201:
+                    description: 업로드 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    url:
+                                        type: string
+                                        example: 'http://localhost:3000/static/abc-123.png'
+                                        description: 업로드된 이미지의 접근 URL
+                400:
+                    description: |
+                        잘못된 요청:
+                        - 이미지 파일이 없는 경우
+                        - 허용되지 않은 파일 형식인 경우
+                        - 파일 크기가 5MB를 초과한 경우

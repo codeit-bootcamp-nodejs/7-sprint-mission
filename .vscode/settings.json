@@ -1,0 +1,84 @@
+{
+    // ---------------------------
+    // GitHub Copilot
+    // ---------------------------
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "scminput": false
+    },
+    // Dev Container/Remote에서 Copilot은 UI(로컬)에서 실행되게
+    "remote.extensionKind": {
+        "github.copilot": ["ui"]
+    },
+
+    // ---------------------------
+    // Editor 기본 동작
+    // ---------------------------
+    "editor.quickSuggestions": {
+        "other": true,
+        "strings": true,
+        "comments": false
+    },
+    "editor.suggest.preview": true,
+    "editor.suggestSelection": "first",
+
+    // Tab 수락 흐름(인라인 제안/자동완성)
+    "editor.tabCompletion": "on",
+    "editor.acceptSuggestionOnEnter": "off",
+
+    // 저장 시 포맷 + ESLint 자동 수정
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+
+    // ---------------------------
+    // Prettier
+    // ---------------------------
+    // 기본 포매터를 Prettier로
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    // (선택) 저장 시에만 포맷되게 하고 싶다면 아래 주석 해제
+    // "editor.formatOnPaste": false,
+    // "editor.formatOnType": false,
+
+    // 언어별로 확실히 Prettier 지정(충돌 방지)
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+    // ---------------------------
+    // ESLint
+    // ---------------------------
+    // ESLint가 검사할 언어들
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "json",
+        "jsonc"
+    ],
+
+    // 모노레포/워크스페이스에서 경로 자동 인식(Prisma/ts-devcontainer 같은 구조에 도움)
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+
+    // Prettier가 포맷, ESLint는 규칙/자동수정 담당으로 역할 분리(충돌 방지)
+    "eslint.format.enable": false,
+
+    // ---------------------------
+    // 기타(선택)
+    // ---------------------------
+    "files.eol": "\n",
+    "[prisma]": {
+        "editor.defaultFormatter": "Prisma.prisma"
+    }
+}

@@ -1,0 +1,34 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+  "name": "Node.js & TypeScript",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+
+  // Prettier 패키지를 컨테이너에 '글로벌'로 설치합니다.
+  "postCreateCommand": "npm install -g prettier",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // VS Code Prettier 확장 (esbenp.prettier-vscode)
+        "esbenp.prettier-vscode",
+        // ESLint: 코드 문법 및 잠재적 에러 체크
+        "dbaeumer.vscode-eslint",
+        // Jest Runner: 테스트 코드를 버튼 하나로 실행
+        "firsttris.vscode-jest-runner"
+      ],
+      "settings": {
+        // 파일을 저장할 때 자동 포맷팅 활성화
+        "editor.formatOnSave": true,
+        // 기본 포맷터로 Prettier 설정
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+        // 추가된 설정: Prettier 확장이 로컬이 아닌 글로벌 모듈을 찾도록 지시
+        "prettier.resolveGlobalModules": true,
+        // [추가] ESLint 자동 수정 설정
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+      }
+    }
+  }
+}

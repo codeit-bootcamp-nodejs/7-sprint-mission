@@ -1,0 +1,201 @@
+paths:
+    # 1. 회원가입
+    /auth/register:
+        post:
+            tags:
+                - Auths
+            summary: 회원가입
+            description: 새로운 유저를 등록합니다. 비밀번호는 해싱되어 저장됩니다.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [email, nickname, password]
+                            properties:
+                                email:
+                                    { type: string, format: email, example: 'user335@example.com' }
+                                nickname: { type: string, example: '코드마스터335' }
+                                password: { type: string, minLength: 8, example: 'password1234' }
+            responses:
+                201:
+                    description: 회원가입 성공
+                400:
+                    description: 유효성 검사 실패
+
+    # 2. 로그인
+    /auth/login:
+        post:
+            tags:
+                - Auths
+            summary: 로그인
+            description: 이메일과 비밀번호로 로그인하고 Access/Refresh Token을 쿠키로 발급받습니다.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    format: email
+                                    example: 'user123@example.com'
+                                password:
+                                    type: string
+                                    example: 'password1234'
+                            required: [email, password]
+            responses:
+                200:
+                    description: '로그인 성공'
+                401:
+                    description: '로그인 실패 (비밀번호 불일치 등)'
+
+    # 3. 로그아웃
+    /auth/logout:
+        post:
+            tags:
+                - Auths
+            summary: 로그아웃
+            description: 브라우저에 저장된 인증 쿠키를 삭제합니다.
+            responses:
+                200:
+                    description: 로그아웃 성공
+
+    # 4. 내 정보 조회 및 수정
+    /auth/me:
+        get:
+            tags:
+                - Users
+            summary: 내 프로필 조회
+            description: 현재 로그인한 유저의 정보를 가져옵니다.
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: 유저 정보를 반환받습니다.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    id: { type: integer, example: 1 }
+                                    email: { type: string, example: 'user@example.com' }
+                                    nickname: { type: string, example: '코드마스터' }
+                                    image:
+                                        {
+                                            type: string,
+                                            nullable: true,
+                                            example: 'https://example.com/profile.png',
+                                        }
+                                    createdAt:
+                                        {
+                                            type: string,
+                                            format: date-time,
+                                            example: '2024-05-20T10:00:00Z',
+                                        }
+
+                401:
+                    description: 인증되지 않은 사용자
+        patch:
+            tags:
+                - Users
+            summary: 내 정보 수정
+            description: 닉네임이나 프로필 이미지를 수정합니다.
+            security:
+                - bearerAuth: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                nickname: { type: string, example: '변경된닉네임' }
+                                email:
+                                    {
+                                        type: string,
+                                        format: email,
+                                        example: 'new_email@example.com',
+                                    }
+            responses:
+                200:
+                    description: 수정 성공
+                401:
+                    description: 인증 실패
+
+    # 5. 비밀번호 변경
+    /auth/me/password:
+        patch:
+            tags:
+                - Users
+            summary: 비밀번호 변경
+            description: 현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: [currentPassword, newPassword]
+                            properties:
+                                currentPassword: { type: string, example: 'oldpassword1234' }
+                                newPassword:
+                                    { type: string, minLength: 8, example: 'newpassword5678' }
+            responses:
+                200:
+                    description: 변경 성공
+                400:
+                    description: 현재 비밀번호 불일치
+
+    # 6. 내가 등록한 상품 조회
+    /me/products:
+        get:
+            tags:
+                - Users
+            summary: 내가 등록한 상품 목록 조회
+            description: 내가 등록한 상품들을 최신순으로 가져옵니다.
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: 상품 목록 반환
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id: { type: integer, example: 101 }
+                                                name:
+                                                    {
+                                                        type: string,
+                                                        example: '빈티지 기계식 키보드',
+                                                    }
+                                                price: { type: integer, example: 85000 }
+                                                createdAt:
+                                                    {
+                                                        type: string,
+                                                        format: date-time,
+                                                        example: '2024-05-20T10:00:00Z',
+                                                    }
+    # 7. 토큰 재발급
+    /auth/refresh:
+        post:
+            tags:
+                - Auths
+            summary: 토큰 재발급 (Refresh)
+            description: Refresh Token을 사용하여 Access Token을 갱신합니다. (쿠키 사용)
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: 토큰 재발급 성공
+                401:
+                    description: 유효하지 않은 Refresh Token
