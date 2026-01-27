@@ -1,0 +1,20 @@
+# --- OS & IDE ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.env
+
+# --- Docker & DB ---
+pgdata/
+postgres_data/
+
+# --- Temporary files ---
+*.log
+tmp/
+dist/
+devcontainer.json
