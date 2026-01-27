@@ -1,21 +1,21 @@
 {
-  "type": "module",
+  "name": "7-sprint-mission-docker",
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "build": "npm install && npx prisma db push && npx prisma generate"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "prisma": "^7.2.0"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
-    "cors": "^2.8.5",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "pg": "^8.16.3"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@types/pg": "^8.15.6",
-    "prisma": "^7.0.0",
-    "ts-node": "^10.9.2"
+    "jsonwebtoken": "^9.0.3"
   }
 }
