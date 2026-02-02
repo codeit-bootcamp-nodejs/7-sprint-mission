@@ -1,0 +1,83 @@
+-- 1. 유저 테이블
+CREATE TABLE _TDAUser (
+    UserId SERIAL PRIMARY KEY,
+    Email VARCHAR(255) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    UserName VARCHAR(50) NOT NULL,
+    CreateAt TIMESTAMP DEFAULT NOW()
+);
+
+-- 2. 태그 마스터 테이블
+CREATE TABLE _TDATag (
+    TagId SERIAL PRIMARY KEY,
+    TagName VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- 3. 상품 테이블
+CREATE TABLE _TDAItem (
+    ItemId SERIAL PRIMARY KEY,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    ItemName VARCHAR(255) NOT NULL,
+    ItemImage TEXT,
+    ItemRemark TEXT,
+    Price INTEGER NOT NULL DEFAULT 0,
+    IsClosed BOOLEAN DEFAULT FALSE,
+    IsCompleted BOOLEAN DEFAULT FALSE,
+    UpdateAt TIMESTAMP DEFAULT NOW()
+);
+
+-- 4. 상품 문의(댓글) 테이블
+CREATE TABLE _TDAItemComment (
+    ItemId INTEGER REFERENCES _TDAItem(ItemId) ON DELETE CASCADE,
+    Serl SERIAL,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    CommentText TEXT NOT NULL,
+    CreateAt TIMESTAMP DEFAULT NOW(),
+    UpdateAt TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (ItemId, Serl)
+);
+
+-- 5. 상품 찜하기 테이블
+CREATE TABLE _TDAItemFavorite (
+    ItemId INTEGER REFERENCES _TDAItem(ItemId) ON DELETE CASCADE,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    CreateAt TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (ItemId, UserId)
+);
+
+-- 6. 상품 태그 연결 테이블
+CREATE TABLE _TDAItemTag (
+    ItemId INTEGER REFERENCES _TDAItem(ItemId) ON DELETE CASCADE,
+    TagId INTEGER REFERENCES _TDATag(TagId) ON DELETE CASCADE,
+    PRIMARY KEY (ItemId, TagId)
+);
+
+-- 7. 게시판 테이블
+CREATE TABLE _TDABoard (
+    BoardId SERIAL PRIMARY KEY,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    BoardTitle VARCHAR(255) NOT NULL,
+    BoardContents TEXT NOT NULL,
+    BoardImage TEXT,
+    CreateAt TIMESTAMP DEFAULT NOW(),
+    UpdateAt TIMESTAMP DEFAULT NOW()
+);
+
+-- 8. 게시판 댓글 테이블
+CREATE TABLE _TDABoardComment (
+    BoardId INTEGER REFERENCES _TDABoard(BoardId) ON DELETE CASCADE,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    Serl SERIAL,
+    CommentContents TEXT NOT NULL,
+    CreateAt TIMESTAMP DEFAULT NOW(),
+    UpdateAt TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (BoardId, Serl)
+);
+
+-- 9. 게시판 좋아요 테이블
+CREATE TABLE _TDABoardLike (
+    BoardId INTEGER REFERENCES _TDABoard(BoardId) ON DELETE CASCADE,
+    UserId INTEGER REFERENCES _TDAUser(UserId) ON DELETE CASCADE,
+    CreateAt TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (BoardId, UserId)
+);
