@@ -16,6 +16,8 @@ export const commentService = {
     if (targetType === 'article') {
     const article = await articleRepository.findById(targetId);
     if (!article) throw new NotFoundError('article', targetId);
+    targetOwnerId = article.userId;
+    articleTitle = article.title;
     } else if (targetType === 'product') {
       const product = await productRepository.findById(targetId);
       if (!product) throw new NotFoundError('product', targetId);

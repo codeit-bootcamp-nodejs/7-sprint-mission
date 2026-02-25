@@ -18,7 +18,6 @@ export function initSocket(server: HttpServer) {
       const payload = verifyToken(token as string);
       if (payload) {
         userSockets.set(payload.id, socket.id);
-        console.log(`User ${payload.id} connected with socket ${socket.id}`);
       }
     }
 
