@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
 import { prismaClient } from '../lib/prismaClient';
@@ -9,7 +10,6 @@ import {
 } from '../structs/usersStructs';
 import NotFoundError from '../lib/errors/NotFoundError';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
-import { Request, Response } from 'express';
 
 export async function getMe(req: Request, res: Response) {
   if (!req.user) {
@@ -22,7 +22,7 @@ export async function getMe(req: Request, res: Response) {
   }
 
   const { password: _, ...userWithoutPassword } = user;
-  return res.send(userWithoutPassword);
+  res.send(userWithoutPassword);
 }
 
 export async function updateMe(req: Request, res: Response) {
@@ -38,7 +38,7 @@ export async function updateMe(req: Request, res: Response) {
   });
 
   const { password: _, ...userWithoutPassword } = updatedUser;
-  return res.status(200).send(userWithoutPassword);
+  res.status(200).send(userWithoutPassword);
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
@@ -66,7 +66,7 @@ export async function updateMyPassword(req: Request, res: Response) {
     data: { password: hashedPassword },
   });
 
-  return res.status(200).send();
+  res.status(200).send();
 }
 
 export async function getMyProductList(req: Request, res: Response) {
@@ -104,10 +104,10 @@ export async function getMyProductList(req: Request, res: Response) {
     ...product,
     favorites: undefined,
     favoriteCount: product.favorites.length,
-    isFavorited: product.favorites.some((favorite) => favorite.userId === req.user?.id),
+    isFavorited: product.favorites.some((favorite) => favorite.userId === req.user.id),
   }));
 
-  return res.send({
+  res.send({
     list: productsWithFavorites,
     totalCount,
   });
@@ -159,7 +159,7 @@ export async function getMyFavoriteList(req: Request, res: Response) {
     isFavorited: true,
   }));
 
-  return res.send({
+  res.send({
     list: productsWithFavorites,
     totalCount,
   });

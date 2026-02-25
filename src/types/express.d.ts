@@ -1,11 +1,9 @@
-import { User } from '@prisma/client';
-import 'express';
+import Express from 'express';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: User;
-    cookies: Record<string, string>;
+declare global {
+  namespace Express {
+    interface Request {
+      user: User;
+    }
   }
 }
-
-export {};

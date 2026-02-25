@@ -1,13 +1,9 @@
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
 import bcrypt from 'bcrypt';
-import { Request, Response } from 'express';
 import { prismaClient } from '../lib/prismaClient';
 import { generateTokens, verifyRefreshToken } from '../lib/token';
-import {
-  ACCESS_TOKEN_COOKIE_NAME,
-  REFRESH_TOKEN_COOKIE_NAME,
-  NODE_ENV,
-} from '../lib/constants';
+import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME, NODE_ENV } from '../lib/constants';
 import { LoginBodyStruct, RegisterBodyStruct } from '../structs/authStructs';
 import BadRequestError from '../lib/errors/BadRequestError';
 

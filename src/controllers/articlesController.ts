@@ -1,6 +1,6 @@
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
 import { prismaClient } from '../lib/prismaClient';
-import { Request, Response } from 'express';
 import NotFoundError from '../lib/errors/NotFoundError';
 import { IdParamsStruct } from '../structs/commonStructs';
 import {
@@ -27,7 +27,7 @@ export async function createArticle(req: Request, res: Response) {
     },
   });
 
-  return res.status(201).send(article);
+  res.status(201).send(article);
 }
 
 export async function getArticle(req: Request, res: Response) {
@@ -43,17 +43,14 @@ export async function getArticle(req: Request, res: Response) {
     throw new NotFoundError('article', id);
   }
 
-if (!req.user) {
-  throw new UnauthorizedError();
-}
   const articleWithLikes = {
     ...article,
     likes: undefined,
     likeCount: article.likes.length,
-    isLiked: req.user ? article.likes.some((like) => like.userId === req.user?.id) : undefined,
+    isLiked: req.user ? article.likes.some((like) => like.userId === req.user.id) : undefined,
   };
 
-  return res.send(articleWithLikes);
+  res.send(articleWithLikes);
 }
 
 export async function updateArticle(req: Request, res: Response) {
@@ -74,7 +71,7 @@ export async function updateArticle(req: Request, res: Response) {
   }
 
   const updatedArticle = await prismaClient.article.update({ where: { id }, data });
-  return res.send(updatedArticle);
+  res.send(updatedArticle);
 }
 
 export async function deleteArticle(req: Request, res: Response) {
@@ -94,7 +91,7 @@ export async function deleteArticle(req: Request, res: Response) {
   }
 
   await prismaClient.article.delete({ where: { id } });
-  return res.status(204).send();
+  res.status(204).send();
 }
 
 export async function getArticleList(req: Request, res: Response) {
@@ -119,10 +116,10 @@ export async function getArticleList(req: Request, res: Response) {
     ...article,
     likes: undefined,
     likeCount: article.likes.length,
-    isLiked: req.user ? article.likes.some((like) => like.userId === req.user?.id) : undefined,
+    isLiked: req.user ? article.likes.some((like) => like.userId === req.user.id) : undefined,
   }));
 
-  return res.send({
+  res.send({
     list: articlesWithLikes,
     totalCount,
   });
@@ -149,7 +146,7 @@ export async function createComment(req: Request, res: Response) {
     },
   });
 
-  return res.status(201).send(createdComment);
+  res.status(201).send(createdComment);
 }
 
 export async function getCommentList(req: Request, res: Response) {
@@ -171,7 +168,7 @@ export async function getCommentList(req: Request, res: Response) {
   const cursorComment = commentsWithCursor[commentsWithCursor.length - 1];
   const nextCursor = cursorComment ? cursorComment.id : null;
 
-  return res.send({
+  res.send({
     list: comments,
     nextCursor,
   });
@@ -197,7 +194,7 @@ export async function createLike(req: Request, res: Response) {
   }
 
   await prismaClient.like.create({ data: { articleId, userId: req.user.id } });
-  return res.status(201).send();
+  res.status(201).send();
 }
 
 export async function deleteLike(req: Request, res: Response) {
@@ -220,5 +217,5 @@ export async function deleteLike(req: Request, res: Response) {
   }
 
   await prismaClient.like.delete({ where: { id: existingLike.id } });
-  return res.status(204).send();
+  res.status(204).send();
 }
