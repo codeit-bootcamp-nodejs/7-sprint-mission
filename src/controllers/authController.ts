@@ -41,7 +41,7 @@ export async function login(req: Request, res: Response) {
 
   const { accessToken, refreshToken } = generateTokens(user.id);
   setTokenCookies(res, accessToken, refreshToken);
-  res.status(200).send();
+  res.status(200).send(accessToken);
 }
 
 export async function logout(req: Request, res: Response) {

@@ -12,6 +12,7 @@ import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import BadRequestError from '../lib/errors/BadRequestError';
+import { getIO } from '../socket';
 
 export async function createProduct(req: Request, res: Response) {
   if (!req.user) {
@@ -54,14 +55,18 @@ export async function getProduct(req: Request, res: Response) {
 }
 
 export async function updateProduct(req: Request, res: Response) {
-  if (!req.user) {
+ if (!req.user) {
     throw new UnauthorizedError('Unauthorized');
   }
 
   const { id } = create(req.params, IdParamsStruct);
-  const { name, description, price, tags, images } = create(req.body, UpdateProductBodyStruct);
+  const { name, description, price, tags, images } =
+    create(req.body, UpdateProductBodyStruct);
 
-  const existingProduct = await prismaClient.product.findUnique({ where: { id } });
+  const existingProduct = await prismaClient.product.findUnique({
+    where: { id },
+  });
+
   if (!existingProduct) {
     throw new NotFoundError('product', id);
   }
@@ -70,10 +75,35 @@ export async function updateProduct(req: Request, res: Response) {
     throw new ForbiddenError('Should be the owner of the product');
   }
 
+  const priceChanged = existingProduct.price !== price;
+
   const updatedProduct = await prismaClient.product.update({
     where: { id },
     data: { name, description, price, tags, images },
   });
+
+  if (priceChanged) {
+    const favorites = await prismaClient.favorite.findMany({
+      where: { productId: id },
+    });
+
+    for (const favorite of favorites) {
+      const notification = await prismaClient.notification.create({
+        data: {
+          userId: favorite.userId,
+          type: 'PRICE_CHANGED',
+          payload: {
+            productId: id,
+            newPrice: price,
+          },
+        },
+      });
+
+      getIO()
+      .to(String(favorite.userId))
+      .emit('new-notification', notification);
+    }
+  }
 
   res.send(updatedProduct);
 }

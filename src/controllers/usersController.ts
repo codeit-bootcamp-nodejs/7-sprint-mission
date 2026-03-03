@@ -10,6 +10,7 @@ import {
 } from '../structs/usersStructs';
 import NotFoundError from '../lib/errors/NotFoundError';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
+import { getMyNotificationParamsStruct, UpdateNotificationReadStruct } from '../structs/notificationStructs';
 
 export async function getMe(req: Request, res: Response) {
   if (!req.user) {
@@ -163,4 +164,74 @@ export async function getMyFavoriteList(req: Request, res: Response) {
     list: productsWithFavorites,
     totalCount,
   });
+}
+
+export async function getMyNotifications(req: Request, res:Response) {
+  if (!req.user) {
+    throw new UnauthorizedError('Unauthorized');
+  }
+
+  const userId = req.user.id;
+
+  const {cursor, limit} = create(
+    req.query,
+    getMyNotificationParamsStruct
+  );
+
+  const whereCondition = {
+    userId,
+    ...(cursor && { id: { lt: cursor } }),
+  };
+
+  const notifications = await prismaClient.notification.findMany({
+    where: whereCondition,
+    orderBy: { id: 'desc' },
+    take: limit,
+  });
+
+  const totalCount = await prismaClient.notification.count({
+    where: { userId }
+  })
+
+  const unreadCount = await prismaClient.notification.count({
+    where: { 
+      userId,
+      read: false,
+    },
+  });
+
+  const nextCursor = 
+  notifications.length === limit
+  ? notifications[notifications.length - 1].id
+  : null;
+
+  res.send({
+    list: notifications,
+    nextCursor,
+    unreadCount,
+    totalCount,
+  })
+}
+
+export async function markNotificationsAsRead(req: Request, res:Response) {
+  if(!req.user) {
+    throw new UnauthorizedError('Unauthorized');
+  }
+
+  const { notificationIds } = create(
+    req.body,
+    UpdateNotificationReadStruct
+  );
+
+  await prismaClient.notification.updateMany({
+    where: {
+      id: { in: notificationIds },
+      userId: req.user.id,
+    },
+    data: {
+      read: true,
+    },
+  });
+
+  res.status(200).send();
 }

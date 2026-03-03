@@ -12,6 +12,7 @@ import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import BadRequestError from '../lib/errors/BadRequestError';
+import { getIO } from '../socket';
 
 export async function createArticle(req: Request, res: Response) {
   if (!req.user) {
@@ -145,6 +146,23 @@ export async function createComment(req: Request, res: Response) {
       userId: req.user.id,
     },
   });
+
+  if(existingArticle.userId !== req.user.id) {
+    const notification = await prismaClient.notification.create({
+      data: {
+        userId: existingArticle.userId,
+        type: 'NEW_COMMENT',
+        payload: {
+          articleId,
+          commentId: createdComment.id,
+        },
+      },
+    });
+
+    getIO()
+    .to(String(existingArticle.userId))
+    .emit('new-notification', notification);
+  }
 
   res.status(201).send(createdComment);
 }
