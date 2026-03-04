@@ -4,21 +4,34 @@ import { productRepository } from '../repositories/productRepository';
 import NotFoundError from '../lib/errors/NotFoundError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import { CreateCommentBody, UpdateCommentBody } from '../structs/commentsStruct';
+import { notificationService } from './notificationService';
 
 type TargetType = 'article' | 'product';
 
 export const commentService = {
   async createComment(userId: number, targetId: number, data: CreateCommentBody, targetType: TargetType) {
+    let targetOwnerId: number | undefined;
+    let articleTitle: string | undefined;
+
     if (targetType === 'article') {
     const article = await articleRepository.findById(targetId);
     if (!article) throw new NotFoundError('article', targetId);
+    targetOwnerId = article.userId;
+    articleTitle = article.title;
     } else if (targetType === 'product') {
       const product = await productRepository.findById(targetId);
       if (!product) throw new NotFoundError('product', targetId);
     }
     const target = targetType === 'article' ? { articleId: targetId } : { productId: targetId };
+    const comment = await commentRepository.create(userId, target, data);
+    
+    if (targetType === 'article' && targetOwnerId && targetOwnerId !== userId) {
+      const content = `작성하신 게시글 "${articleTitle}"에 새로운 댓글이 달렸습니다.`;
+      notificationService.createAndSend(targetOwnerId, content, 'NEW_COMMENT', targetId)
+        .catch(err => console.error('댓글 알림 전송 실패:', err));
+    }
 
-    return commentRepository.create(userId, target, data);
+    return comment;
   },
 
   async getComments(targetId: number, targetType: TargetType, cursor?: number, limit: number = 10) {

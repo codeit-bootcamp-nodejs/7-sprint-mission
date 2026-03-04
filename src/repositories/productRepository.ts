@@ -77,4 +77,11 @@ export const productRepository = {
   async removeLike(id: number) {
     return prisma.productLike.delete({ where: { id } });
   },
+
+  async findLikers(productId: number) {
+    return prisma.productLike.findMany({
+      where: { productId },
+      select: { userId: true },
+    });
+  },
 };

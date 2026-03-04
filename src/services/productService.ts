@@ -3,6 +3,7 @@ import NotFoundError from '../lib/errors/NotFoundError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
 import { CreateProductBody, UpdateProductBody } from '../structs/productsStruct';
 import { User } from '@prisma/client';
+import { notificationService } from './notificationService';
 
 export const productService = {
   async getProduct(id: number, user?: User) {
@@ -36,6 +37,17 @@ export const productService = {
 
     if (product.userId !== userId) {
       throw new ForbiddenError('You are not allowed to update this product');
+    }
+
+    if (data.price !== undefined && data.price !== product.price) {
+      const likers = await productRepository.findLikers(productId);
+      const content = `${product.name}의 가격이 ${product.price}원에서 ${data.price}원으로 변경되었습니다.`;
+
+      Promise.all(
+        likers.map((liker) =>
+          notificationService.createAndSend(liker.userId, content, 'PRICE_CHANGE', productId)
+        )
+      ).catch(err => console.error('가격 변동 알림 전송 실패', err));
     }
     return productRepository.update(productId, data);
   },
