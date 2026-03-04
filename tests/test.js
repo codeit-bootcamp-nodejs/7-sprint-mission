@@ -14,7 +14,7 @@ async function bulkArticleCreate() {
   }
 }
 
-async function bulkArticleCommentCreate(articleId:number) {
+async function bulkArticleCommentCreate(articleId) {
   for (let i = 1; i <= 100; i++) {
     await fetch(`http://localhost:3000/articles/${articleId}/comments`, {
       method: 'POST',
@@ -46,7 +46,7 @@ async function bulkProductCreate() {
   }
 }
 
-async function bulkProductCommentCreate(productId:number) {
+async function bulkProductCommentCreate(productId) {
   for (let i = 1; i <= 100; i++) {
     await fetch(`http://localhost:3000/products/${productId}/comments`, {
       method: 'POST',

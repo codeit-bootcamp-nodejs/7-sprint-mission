@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import { createServer } from 'http';
+import { initSocket } from './socket';
 import { PORT, PUBLIC_PATH, STATIC_PATH } from './lib/constants';
 import articlesRouter from './routers/articlesRouter';
 import productsRouter from './routers/productsRouter';
@@ -28,6 +30,10 @@ app.use('/users', usersRouter);
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
+const server = createServer(app);
+
+initSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });

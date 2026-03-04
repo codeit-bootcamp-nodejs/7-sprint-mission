@@ -6,6 +6,8 @@ import {
   updateMyPassword,
   getMyProductList,
   getMyFavoriteList,
+  getMyNotifications,
+  markNotificationsAsRead
 } from '../controllers/usersController';
 import authenticate from '../middlewares/authenticate';
 
@@ -16,5 +18,7 @@ usersRouter.patch('/me', authenticate(), withAsync(updateMe));
 usersRouter.patch('/me/password', authenticate(), withAsync(updateMyPassword));
 usersRouter.get('/me/products', authenticate(), withAsync(getMyProductList));
 usersRouter.get('/me/favorites', authenticate(), withAsync(getMyFavoriteList));
+usersRouter.get('/me/notifications', authenticate(), withAsync(getMyNotifications));
+usersRouter.patch('/me/notifications/read', authenticate(), withAsync(markNotificationsAsRead));
 
 export default usersRouter;

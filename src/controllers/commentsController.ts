@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
 import { prismaClient } from '../lib/prismaClient';
 import { UpdateCommentBodyStruct } from '../structs/commentsStruct';
@@ -5,7 +6,6 @@ import NotFoundError from '../lib/errors/NotFoundError';
 import { IdParamsStruct } from '../structs/commonStructs';
 import UnauthorizedError from '../lib/errors/UnauthorizedError';
 import ForbiddenError from '../lib/errors/ForbiddenError';
-import { Request, Response } from 'express';
 
 export async function updateComment(req: Request, res: Response) {
   if (!req.user) {
@@ -29,7 +29,7 @@ export async function updateComment(req: Request, res: Response) {
     data: { content },
   });
 
-  return res.send(updatedComment);
+  res.send(updatedComment);
 }
 
 export async function deleteComment(req: Request, res: Response) {
@@ -49,5 +49,5 @@ export async function deleteComment(req: Request, res: Response) {
   }
 
   await prismaClient.comment.delete({ where: { id } });
-  return res.status(204).send();
+  res.status(204).send();
 }
