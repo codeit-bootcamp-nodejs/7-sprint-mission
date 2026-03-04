@@ -64,6 +64,7 @@ model User {
   article   Article[]
   product   Product[]
   comment   Comment[]
+  nodifications Notification[]
   likedProducts ProductLike[]
   likeArticles ArticleLike[]
   refreshTokens RefreshToken[]
@@ -101,4 +102,30 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Type {
+  ARTICLE_COMMENT
+  PRODUCT_COMMENT
+  PRICE_DROP
+}
+
+enum TargetType {
+  ARTICLE
+  PRODUCT
+  COMMENT
+}
+
+model Notification {
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt
+  type      Type
+  targetId  BigInt?
+  targetType TargetType?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index ([userId, isRead])
 }

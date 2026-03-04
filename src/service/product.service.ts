@@ -13,6 +13,7 @@ import {
   getProductListRepo,
   updateProductRepo,
 } from '../repository/product.repository';
+import { eventEmitter } from '../event';
 
 const validateOwner = async (productId: bigint, userId: bigint) => {
   const product = await findDetailProduct(productId);
@@ -70,6 +71,16 @@ export const updateProductService = async (
 
   const updatedEntity = await updateProductRepo(productId, dto);
 
+  if (dto.price !== undefined) {
+    eventEmitter.emit('productPriceChanged', {
+      product: {
+        productId: updatedEntity.id,
+        name: updatedEntity.name,
+        price: updatedEntity.price,
+      },
+    });
+  }
+
   return ProductDetail.fromEntity(updatedEntity);
 };
 
@@ -90,6 +101,10 @@ export const createProductCommentService = async (
   if (!product) throw new NotFoundError('해당 상품을 찾을 수 없습니다.');
 
   const comment = await createProductCommentRepo(userId, productId, content);
+
+  if (product.userId !== userId) {
+    eventEmitter.emit('productCommentCreated', { product, productId });
+  }
 
   return Comment.fromEntity(comment);
 };

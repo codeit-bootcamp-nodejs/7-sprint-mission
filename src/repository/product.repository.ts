@@ -1,4 +1,4 @@
-import prisma from '../prisma/prisma';
+import prisma from '../../prisma/prisma';
 import type { Prisma } from '@prisma/client';
 import type { CreateProductDto, UpdateProductDto } from '../types/product.type';
 import { cursorPaginationOption } from '../utils/cursorPagination';

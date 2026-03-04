@@ -1,4 +1,4 @@
-import prisma from '../prisma/prisma';
+import prisma from '../../prisma/prisma';
 import { ValidationError } from '../errors/validationError';
 import type { Request, Response, NextFunction } from 'express';
 

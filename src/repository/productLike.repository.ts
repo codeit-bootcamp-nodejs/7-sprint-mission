@@ -1,4 +1,4 @@
-import prisma from '../prisma/prisma';
+import prisma from '../../prisma/prisma';
 
 //상품 좋아요 확인
 export const isProductLikedByUser = async (userId: bigint, productId: bigint) => {

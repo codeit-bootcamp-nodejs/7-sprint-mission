@@ -14,6 +14,7 @@ import {
   getArticleCommentsRepository,
   updateArticleRepository,
 } from '../repository/article.repository';
+import { eventEmitter } from '../event';
 
 // 게시글 존재 여부, 유저 검증 로직
 const validateOwner = async (articleId: bigint, userId: bigint): Promise<void> => {
@@ -94,6 +95,11 @@ export const createArticleCommentService = async (
   if (!article) throw new NotFoundError('게시글을 찾을 수 없습니다.');
 
   const comment = await createArticleCommnetRepository(articleId, userId, dto);
+
+  // 댓글 작성 시 게시글 작성자에게 알림 전송
+  if (article.userId !== userId) {
+    eventEmitter.emit('articleCommentCreated', { article, articleId });
+  }
 
   return Comment.fromEntity(comment);
 };

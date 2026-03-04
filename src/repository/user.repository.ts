@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import prisma from '../prisma/prisma';
+import prisma from '../../prisma/prisma';
 import type { UpdateUserDto } from '../types/user.type';
 
 //유저 조회

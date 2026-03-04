@@ -1,4 +1,4 @@
-import prisma from '../prisma/prisma';
+import prisma from '../../prisma/prisma';
 
 // 게시글 좋아요 했는지 안했는지 확인 로직
 export const findArticleLike = async (articleId: bigint, userId: bigint) => {
