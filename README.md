@@ -37,8 +37,10 @@ npm test
 # 테스트 커버리지 확인
 npm test -- --coverage
 ```
+<img width="349" height="232" alt="스크린샷 2026-03-06 104441" src="https://github.com/user-attachments/assets/5c8cd82e-5e8b-4420-8135-19263c7cdafe" />
 
 ---
+
 
 ## 💡 주요 구현 사항 및 트러블슈팅
 ### 1. 앱 진입점 분리 (App vs Main)
