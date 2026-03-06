@@ -1,0 +1,15 @@
+# Local files
+.vscode/
+node_modules/
+.env*
+!.env.example
+build/
+*.log
+# Uploaded files
+public/*
+!public/.gitkeep
+
+.gitignore
+.prettierrc
+eslint.config.mjs
+migrations/
