@@ -1,38 +1,49 @@
-[v] class 키워드를 이용한 Product / ElectronicProduct 클래스 정의
-[v] Product 프로퍼티(name, description, price, tags, images, favoriteCount) 및 favorite() 메소드 구현
-[v] ElectronicProduct가 Product를 상속하며 manufacturer 프로퍼티 추가
-[v] Article 클래스 정의 및 like() 메소드 구현
-[v] Article 클래스에 createdAt(생성일자) 프로퍼티 추가 및 constructor에서 현재 시간 저장
-[v] 각 클래스 마다 constructor 작성
-[v] 추상화/캡슐화/상속/다형성을 고려하여 코드를 작성해 주세요.
+판다마켓 실시간 알람 스프린트 미션 8 
 
-Article API 요청 함수 구현 (.then/.catch)
-[v] getArticleList() : GET 메소드 사용 (page, pageSize, keyword 쿼리 파라미터 이용)
-[v] getArticle() : GET 메소드 사용
-[v] createArticle() : POST 메소드 사용 (title, content, image request body 포함)
-[v] patchArticle() : PATCH 메소드 사용
-[v] deleteArticle() : DELETE 메소드 사용
-[v] fetch 혹은 axios 이용
-[v] 응답의 상태 코드가 2XX가 아닐 경우, 에러 메시지를 콘솔에 출력해 주세요.
-[x] .then() 메소드를 이용하여 비동기 처리를 해주세요.
-[v] .catch() 를 이용하여 오류 처리를 해주세요.
-[v] ProductService.js 파일에 Product API 관련 함수들을 작성해 주세요.
+기능 : 사용자 알람 관리 (조회 ㅡ 읽음 처리)
+      실시간 알람 전송 (가격변동 , 댓글 )
+아키텍처 및 설계 
+전체 구조도 : 클라이언트 ㅡ Express 서버 ㅡ 데이터베이스 
+계층구조 : 
+Routes Layer (Rest API)
+Controller Layer (비지니스 로직)
+Socket.IO Layer (실시간)
+Data Layer (저장소 관리)
 
-Product API 요청 함수 구현 (async/await)
-[v] getProductList() : GET 메소드 사용 (page, pageSize, keyword 쿼리 파라미터를 이용해 주세요.)
-[v] getProduct() : GET 메소드를 사용해 주세요.
-[x] createProduct() : POST 메소드를 사용해 주세요. (name, description, price, tags, images request body 포함)
-[v] patchProduct() : PATCH 메소드를 사용해 주세요.
-[v] deleteProduct() : DELETE 메소드를 사용해 주세요.
-[v] async/await 을 이용하여 비동기 처리를 해주세요.
-[v] try/catch 를 이용하여 오류 처리를 해주세요.
-[v] getProductList()를 통해서 받아온 상품 리스트를 각각 인스턴스로 만들어 products 배열에 저장해 주세요.
-[v] 해시태그에 "전자제품"이 포함되어 있는 상품들은 ElectronicProduct 클래스를 사용해 인스턴스를 생성해 주세요.
-[x] 나머지 상품들은 모두 Product 클래스를 사용해 인스턴스를 생성해 주세요.
+프로젝트 구조 :
+scr/
+     type/ 데이터 타입 정의
+     schemas/ 유효성 검사 및 헬퍼
+     controllers/ 비지니스 로직
+     routes/ Rest API 엔드포인트
+     socket/ webSocket 이벤트 
+     utils/ 저장소 및 연결 관리
+     client/ 클라이언트 라이브러리 
 
-파일 구조 및 실행
-[v] ProductService.js 파일 분리 (Product API)
-[v] ArticleService.js 파일 분리 (Article API)
-[x] 이외의 코드들은 모두 main.js 파일에 작성 (import 활용)
-[v] 각 함수를 실행하는 코드를 작성하고, 제대로 동작하는지 확인해 주세요.
-**아직 완전하게 익힌게 아니라 자꾸 오류가 나와서 test.js를 분리했습니다.**
+
+데이터 흐름 
+알림 조회 : Rest API 로 HTTP 요청
+실시간 수신 : Socket.IO로 Websocket 양방향 통신
+읽음 처리 : Socket.IO 또는 Rest Api 선택 가능
+
+GET    /api/notifications               # 알림 목록
+GET    /api/notifications/unread-count  # 읽지 않은 개수
+POST   /api/notifications/:id/read      # 읽음 처리
+POST   /api/notifications/price-change  # 가격 변동 알림
+POST   /api/notifications/new-comment   # 댓글 알림
+
+websocket 이벤트 
+
+클라이언트 → 서버:
+join
+mark-as-read
+mark-all-as-read
+
+서버 → 클라이언트:
+ unread-count
+ unread-notifications
+ notification
+
+판다마켓 계속 하던건 컴퓨터 용량이 부족하여서 날아간거 같습니다 . 그래서 따로 socket io 부분만 진행 했습니다 . 
+처음이라서 막히는 부분이 많아 제미나이 학습 가이드 모드로 설명을 들어가면서 하나하나 구현해봤습니다 ... 
+
