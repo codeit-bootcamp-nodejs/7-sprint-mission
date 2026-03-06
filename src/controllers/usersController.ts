@@ -1,63 +1,92 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { assert } from 'superstruct';
-import { userService } from '../services/userService.js';
-import {
-  SignUpStruct,
-  SignInStruct,
-  UpdateUserStruct,
-  ChangePasswordStruct,
-} from '../structs/usersStruct.js';
+import { UpdateUserStruct, UpdatePasswordStruct } from '../structs/userStructs';
+import * as userService from '../services/userService';
+import * as notificationService from '../services/notificationService';
 
-export async function signUp(req: Request, res: Response): Promise<void> {
-  assert(req.body, SignUpStruct);
-  const { email, nickname, password } = req.body;
-
-  const result = await userService.signUp(email, nickname, password);
-  res.status(201).send(result);
+export async function getMe(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await userService.getMe(req.user!.id);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function signIn(req: Request, res: Response): Promise<void> {
-  assert(req.body, SignInStruct);
-  const { email, password } = req.body;
-
-  const result = await userService.signIn(email, password);
-  res.status(200).send(result);
+export async function updateMe(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, UpdateUserStruct);
+    const user = await userService.updateMe(req.user!.id, req.body);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function refreshAccessToken(req: Request, res: Response): Promise<void> {
-  const { refreshToken } = req.body;
-
-  const result = await userService.refreshAccessToken(refreshToken);
-  res.status(200).send(result);
+export async function updatePassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, UpdatePasswordStruct);
+    const user = await userService.updatePassword(
+      req.user!.id,
+      req.body.password,
+      req.body.newPassword
+    );
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getMe(req: Request, res: Response): Promise<void> {
-  const user = await userService.getMe(req.user!.userId);
-  res.status(200).send(user);
+export async function getMyProducts(req: Request, res: Response, next: NextFunction) {
+  try {
+    const page = parseInt(String(req.query.page ?? '1'));
+    const pageSize = parseInt(String(req.query.pageSize ?? '10'));
+    const result = await userService.getMyProducts({
+      userId: req.user!.id,
+      page,
+      pageSize,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function updateMe(req: Request, res: Response): Promise<void> {
-  assert(req.body, UpdateUserStruct);
-  const { nickname, image } = req.body;
-
-  const user = await userService.updateMe(req.user!.userId, nickname, image);
-  res.status(200).send(user);
+export async function getMyFavorites(req: Request, res: Response, next: NextFunction) {
+  try {
+    const page = parseInt(String(req.query.page ?? '1'));
+    const pageSize = parseInt(String(req.query.pageSize ?? '10'));
+    const result = await userService.getMyFavorites({
+      userId: req.user!.id,
+      page,
+      pageSize,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function changePassword(req: Request, res: Response): Promise<void> {
-  assert(req.body, ChangePasswordStruct);
-  const { currentPassword, newPassword } = req.body;
-
-  const result = await userService.changePassword(req.user!.userId, currentPassword, newPassword);
-  res.status(200).send(result);
+export async function getMyNotifications(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = parseInt(String(req.query.limit ?? '10'));
+    const cursor = req.query.cursor ? parseInt(String(req.query.cursor)) : undefined;
+    const result = await notificationService.getNotifications({
+      userId: req.user!.id,
+      limit,
+      cursor,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getMyProducts(req: Request, res: Response): Promise<void> {
-  const products = await userService.getMyProducts(req.user!.userId);
-  res.status(200).send(products);
-}
-
-export async function getFavoriteProducts(req: Request, res: Response): Promise<void> {
-  const products = await userService.getFavoriteProducts(req.user!.userId);
-  res.status(200).send(products);
+export async function getMyUnreadCount(req: Request, res: Response, next: NextFunction) {
+  try {
+    const count = await notificationService.getUnreadCount(req.user!.id);
+    res.json({ count });
+  } catch (err) {
+    next(err);
+  }
 }

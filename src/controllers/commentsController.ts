@@ -1,20 +1,27 @@
-import { Request, Response } from 'express';
-import { create } from 'superstruct';
-import { commentService } from '../services/commentService.js';
-import { UpdateCommentBodyStruct } from '../structs/commentsStruct.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
+import { Request, Response, NextFunction } from 'express';
+import { assert } from 'superstruct';
+import { UpdateCommentStruct } from '../structs/commentStructs';
+import * as commentService from '../services/commentService';
 
-export async function updateComment(req: Request, res: Response): Promise<void> {
-  const { id } = create(req.params, IdParamsStruct);
-  const { content } = create(req.body, UpdateCommentBodyStruct);
-
-  const updatedComment = await commentService.updateComment(id, req.user!.userId, content!);
-  res.send(updatedComment);
+export async function updateComment(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, UpdateCommentStruct);
+    const comment = await commentService.updateComment(
+      parseInt(req.params.id),
+      req.user!.id,
+      req.body.content
+    );
+    res.json(comment);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function deleteComment(req: Request, res: Response): Promise<void> {
-  const { id } = create(req.params, IdParamsStruct);
-
-  await commentService.deleteComment(id, req.user!.userId);
-  res.status(204).send();
+export async function deleteComment(req: Request, res: Response, next: NextFunction) {
+  try {
+    await commentService.deleteComment(parseInt(req.params.id), req.user!.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }

@@ -1,55 +1,67 @@
-import { prismaClient } from '../lib/prismaClient.js';
-import { Comment, Prisma } from '@prisma/client';
+import prisma from '../lib/prismaClient';
 
-export interface CommentListParams {
+const commentInclude = { user: true };
+
+export async function findCommentsByArticleId(params: {
+  articleId: number;
   cursor?: number;
   limit: number;
-  productId?: number;
-  articleId?: number;
+}) {
+  const { articleId, cursor, limit } = params;
+  return prisma.comment.findMany({
+    where: { articleId },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
+    include: commentInclude,
+  });
 }
 
-export const commentRepository = {
-  async findById(id: number): Promise<Comment | null> {
-    return prismaClient.comment.findUnique({
-      where: { id },
-    });
-  },
+export async function findCommentsByProductId(params: {
+  productId: number;
+  cursor?: number;
+  limit: number;
+}) {
+  const { productId, cursor, limit } = params;
+  return prisma.comment.findMany({
+    where: { productId },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
+    include: commentInclude,
+  });
+}
 
-  async findMany(params: CommentListParams) {
-    const { cursor, limit, productId, articleId } = params;
+export async function findCommentById(id: number) {
+  return prisma.comment.findUnique({ where: { id }, include: commentInclude });
+}
 
-    const where = productId ? { productId } : { articleId };
+export async function createArticleComment(data: {
+  content: string;
+  articleId: number;
+  userId: number;
+}) {
+  return prisma.comment.create({ data, include: commentInclude });
+}
 
-    const comments = await prismaClient.comment.findMany({
-      cursor: cursor ? { id: cursor } : undefined,
-      take: limit + 1,
-      where,
-      orderBy: { createdAt: 'desc' },
-    });
+export async function createProductComment(data: {
+  content: string;
+  productId: number;
+  userId: number;
+}) {
+  return prisma.comment.create({ data, include: commentInclude });
+}
 
-    const hasMore = comments.length > limit;
-    const result = hasMore ? comments.slice(0, limit) : comments;
-    const nextCursor = hasMore ? result[result.length - 1]?.id : null;
+export async function updateComment(id: number, content: string) {
+  return prisma.comment.update({
+    where: { id },
+    data: { content },
+    include: commentInclude,
+  });
+}
 
-    return { list: result, nextCursor };
-  },
-
-  async create(data: Prisma.CommentCreateInput): Promise<Comment> {
-    return prismaClient.comment.create({
-      data,
-    });
-  },
-
-  async update(id: number, data: Prisma.CommentUpdateInput): Promise<Comment> {
-    return prismaClient.comment.update({
-      where: { id },
-      data,
-    });
-  },
-
-  async delete(id: number): Promise<Comment> {
-    return prismaClient.comment.delete({
-      where: { id },
-    });
-  },
-};
+export async function deleteComment(id: number) {
+  return prisma.comment.delete({ where: { id } });
+}

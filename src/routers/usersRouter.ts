@@ -1,26 +1,17 @@
-import express from 'express';
-import {
-  signUp,
-  signIn,
-  refreshAccessToken,
-  getMe,
-  updateMe,
-  changePassword,
-  getMyProducts,
-  getFavoriteProducts,
-} from '../controllers/usersController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { withAsync } from '../lib/withAsync.js';
+import { Router } from 'express';
+import { authenticate } from '../middlewares/authMiddleware';
+import * as usersController from '../controllers/usersController';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/signup', withAsync(signUp));
-router.post('/signin', withAsync(signIn));
-router.post('/refresh', withAsync(refreshAccessToken));
-router.get('/me', authenticate, withAsync(getMe));
-router.patch('/me', authenticate, withAsync(updateMe));
-router.patch('/me/password', authenticate, withAsync(changePassword));
-router.get('/me/products', authenticate, withAsync(getMyProducts));
-router.get('/me/favorite-products', authenticate, withAsync(getFavoriteProducts));
+router.use(authenticate);
+
+router.get('/me', usersController.getMe);
+router.patch('/me', usersController.updateMe);
+router.patch('/me/password', usersController.updatePassword);
+router.get('/me/products', usersController.getMyProducts);
+router.get('/me/favorites', usersController.getMyFavorites);
+router.get('/me/notifications', usersController.getMyNotifications);
+router.get('/me/notifications/unread-count', usersController.getMyUnreadCount);
 
 export default router;

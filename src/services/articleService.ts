@@ -1,118 +1,107 @@
-import { articleRepository, ArticleListParams } from '../repositories/articleRepository.js';
-import { commentRepository } from '../repositories/commentRepository.js';
-import { likeRepository } from '../repositories/likeRepository.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
+import * as articleRepository from '../repositories/articleRepository';
+import { toArticleDto } from '../dto/articleDto';
 
-export interface CreateArticleData {
+export async function getArticles(params: {
+  orderBy?: string;
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+}) {
+  const orderBy = (params.orderBy === 'like' ? 'like' : 'recent') as 'recent' | 'like';
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? 10;
+
+  const { articles, totalCount } = await articleRepository.findArticles({
+    orderBy,
+    page,
+    pageSize,
+    keyword: params.keyword,
+  });
+
+  return { list: articles.map(toArticleDto), totalCount };
+}
+
+export async function getArticle(id: number) {
+  const article = await articleRepository.findArticleById(id);
+  if (!article) {
+    const error = new Error('게시글을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  return toArticleDto(article);
+}
+
+export async function createArticle(data: {
   title: string;
   content: string;
-  image: string | null;
+  image?: string;
   userId: number;
+}) {
+  const article = await articleRepository.createArticle(data);
+  return toArticleDto(article);
 }
 
-export interface UpdateArticleData {
-  title?: string;
-  content?: string;
-  image?: string | null;
+export async function updateArticle(
+  id: number,
+  userId: number,
+  data: { title?: string; content?: string; image?: string }
+) {
+  const article = await articleRepository.findArticleById(id);
+  if (!article) {
+    const error = new Error('게시글을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  if (article.userId !== userId) {
+    const error = new Error('권한이 없습니다');
+    (error as any).status = 403;
+    throw error;
+  }
+  const updated = await articleRepository.updateArticle(id, data);
+  return toArticleDto(updated);
 }
 
-export const articleService = {
-  async createArticle(data: CreateArticleData) {
-    return articleRepository.create({
-      title: data.title,
-      content: data.content,
-      image: data.image,
-      user: { connect: { id: data.userId } },
-    });
-  },
+export async function deleteArticle(id: number, userId: number) {
+  const article = await articleRepository.findArticleById(id);
+  if (!article) {
+    const error = new Error('게시글을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  if (article.userId !== userId) {
+    const error = new Error('권한이 없습니다');
+    (error as any).status = 403;
+    throw error;
+  }
+  await articleRepository.deleteArticle(id);
+}
 
-  async getArticle(id: number, userId?: number) {
-    const article = await articleRepository.findById(id);
-    if (!article) {
-      throw new NotFoundError('article', id);
-    }
+export async function likeArticle(articleId: number, userId: number) {
+  const article = await articleRepository.findArticleById(articleId);
+  if (!article) {
+    const error = new Error('게시글을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  const existing = await articleRepository.findLike(articleId, userId);
+  if (existing) {
+    const error = new Error('이미 좋아요한 게시글입니다');
+    (error as any).status = 409;
+    throw error;
+  }
+  await articleRepository.createLike(articleId, userId);
+  const updated = await articleRepository.findArticleById(articleId);
+  return toArticleDto(updated!);
+}
 
-    let isLiked = false;
-    if (userId) {
-      const like = await likeRepository.findArticleLike(userId, id);
-      isLiked = !!like;
-    }
-
-    const { _count, ...articleData } = article;
-    return {
-      ...articleData,
-      likeCount: _count.articleLikes,
-      isLiked,
-    };
-  },
-
-  async updateArticle(id: number, userId: number, data: UpdateArticleData) {
-    const existingArticle = await articleRepository.findByIdSimple(id);
-    if (!existingArticle) {
-      throw new NotFoundError('article', id);
-    }
-
-    if (existingArticle.userId !== userId) {
-      throw new ForbiddenError('You do not have permission to update this article');
-    }
-
-    return articleRepository.update(id, data);
-  },
-
-  async deleteArticle(id: number, userId: number) {
-    const existingArticle = await articleRepository.findByIdSimple(id);
-    if (!existingArticle) {
-      throw new NotFoundError('article', id);
-    }
-
-    if (existingArticle.userId !== userId) {
-      throw new ForbiddenError('You do not have permission to delete this article');
-    }
-
-    await articleRepository.delete(id);
-  },
-
-  async getArticleList(params: ArticleListParams) {
-    return articleRepository.findMany(params);
-  },
-
-  async createComment(articleId: number, userId: number, content: string) {
-    const existingArticle = await articleRepository.findByIdSimple(articleId);
-    if (!existingArticle) {
-      throw new NotFoundError('article', articleId);
-    }
-
-    return commentRepository.create({
-      content,
-      user: { connect: { id: userId } },
-      article: { connect: { id: articleId } },
-    });
-  },
-
-  async getCommentList(articleId: number, cursor: number, limit: number) {
-    const existingArticle = await articleRepository.findByIdSimple(articleId);
-    if (!existingArticle) {
-      throw new NotFoundError('article', articleId);
-    }
-
-    return commentRepository.findMany({ cursor, limit, articleId });
-  },
-
-  async toggleLike(articleId: number, userId: number) {
-    const existingArticle = await articleRepository.findByIdSimple(articleId);
-    if (!existingArticle) {
-      throw new NotFoundError('article', articleId);
-    }
-
-    const existingLike = await likeRepository.findArticleLike(userId, articleId);
-
-    if (existingLike) {
-      await likeRepository.deleteArticleLike(existingLike.id);
-      return { message: 'Like removed', isLiked: false };
-    } else {
-      await likeRepository.createArticleLike(userId, articleId);
-      return { message: 'Like added', isLiked: true };
-    }
-  },
-};
+export async function unlikeArticle(articleId: number, userId: number) {
+  const article = await articleRepository.findArticleById(articleId);
+  if (!article) {
+    const error = new Error('게시글을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  await articleRepository.deleteLike(articleId, userId);
+  const updated = await articleRepository.findArticleById(articleId);
+  return toArticleDto(updated!);
+}

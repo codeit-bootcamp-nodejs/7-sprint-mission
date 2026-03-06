@@ -1,6 +1,5 @@
 ### 모든 Article 가져오기
 GET http://localhost:3000/articles?orderBy=recent
-Accept: application/json
 
 ### 새로운 Article 만들기
 POST http://localhost:3000/articles
@@ -13,24 +12,30 @@ Content-Type: application/json
 }
 
 ### 특정 ID의 Article 가져오기
-GET http://localhost:3000/articles/101
-Accept: application/json
+GET http://localhost:3000/articles/1
 
 ### Article 업데이트하기
-PATCH http://localhost:3000/articles/12
+PATCH http://localhost:3000/articles/1
 Content-Type: application/json
 
 {
-    "title": "Article 12 업데이트",
+    "title": "Article 업데이트",
     "content": "이것은 업데이트된 내용입니다."
 }
 
 ### Article 삭제하기
-DELETE http://localhost:3000/articles/101
-Accept: application/json
+DELETE http://localhost:3000/articles/1
+
+### Article 좋아요 테스트
+POST http://localhost:3000/articles/1/likes
+
+### Article 좋아요 취소 테스트
+DELETE http://localhost:3000/articles/1/likes
+
+
 
 ### Article에 Comment 달기 테스트
-POST http://localhost:3000/articles/2/comments
+POST http://localhost:3000/articles/1/comments
 Content-Type: application/json
 
 {
@@ -38,11 +43,10 @@ Content-Type: application/json
 }
 
 ### Article의 Comment 가져오기 테스트
-GET http://localhost:3000/articles/2/comments?limit=200
-Accept: application/json
+GET http://localhost:3000/articles/1/comments?limit=4
 
 ### Comment 업데이트 테스트
-PATCH http://localhost:3000/comments/105
+PATCH http://localhost:3000/comments/1
 Content-Type: application/json
 
 {
@@ -51,7 +55,6 @@ Content-Type: application/json
 
 ### Comment 삭제 테스트
 DELETE http://localhost:3000/comments/1
-Accept: application/json
 
 ### 새로운 Product 만들기 테스트
 POST http://localhost:3000/products
@@ -67,30 +70,30 @@ Content-Type: application/json
 
 ### 모든 Product 가져오기 테스트
 GET http://localhost:3000/products
-Accept: application/json
 
 ### 특정 ID의 Product 가져오기 테스트
 GET http://localhost:3000/products/1
-Accept: application/json
 
 ### Product 업데이트하기 테스트
-PATCH http://localhost:3000/products/2
+PATCH http://localhost:3000/products/1
 Content-Type: application/json
 
 {
-    "name": "업데이트된 테스트 Product",
-    "description": "이것은 업데이트된 테스트 Product 설명입니다.",
-    "price": 150,
-    "tags": ["업데이트", "Product"],
-    "images": ["업데이트된_image1.png"]
+    "price": 110
 }
 
 ### Product 삭제하기 테스트
-DELETE http://localhost:3000/products/1
-Accept: application/json
+DELETE http://localhost:3000/products/2
+
+### Product 좋아요 테스트
+POST http://localhost:3000/products/1/favorites
+
+### Product 좋아요 취소 테스트
+DELETE http://localhost:3000/products/1/favorites
+
 
 ### Product에 Comment 달기 테스트
-POST http://localhost:3000/products/3/comments
+POST http://localhost:3000/products/1/comments
 Content-Type: application/json
 
 {
@@ -98,12 +101,15 @@ Content-Type: application/json
 }
 
 ### Product의 Comment 가져오기 테스트
-GET http://localhost:3000/products/3/comments
-Accept: application/json
+GET http://localhost:3000/products/1/comments?limit=5
+
+
+### Product의 Comment 가져오기 테스트 (Cursor)
+GET http://localhost:3000/products/1/comments?cursor=1&limit=5
 
 
 ### Comment 업데이트하기 테스트
-PATCH http://localhost:3000/comments/115
+PATCH http://localhost:3000/comments/2
 Content-Type: application/json
 
 {
@@ -111,8 +117,7 @@ Content-Type: application/json
 }
 
 ### Comment 삭제하기 테스트
-DELETE http://localhost:3000/comments/115
-Accept: application/json
+DELETE http://localhost:3000/comments/2
 
 ### 이미지 업로드 테스트
 POST http://localhost:3000/images/upload
@@ -124,3 +129,61 @@ Content-Type: image/png
 
 < ./test.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 회원가입 테스트
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+    "image": "https://example.com/image.jpg",
+    "email": "testuser2@example.com",
+    "nickname": "testuser2",
+    "password": "testpassword"
+}
+
+### 로그인 테스트
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "testuser@example.com",
+    "password": "testpassword"
+}
+
+### 로그아웃 테스트
+POST http://localhost:3000/auth/logout
+
+### 토큰 갱신 테스트
+POST http://localhost:3000/auth/refresh
+
+### 내 정보 가져오기 테스트
+GET http://localhost:3000/users/me
+
+### 내 정보 업데이트 테스트
+PATCH http://localhost:3000/users/me
+Content-Type: application/json
+
+{
+    "nickname": "testuser-edit"
+}
+
+### 내 비밀번호 업데이트 테스트
+PATCH http://localhost:3000/users/me/password
+Content-Type: application/json
+
+{
+    "password": "testpassword",
+    "newPassword": "newtestpassword"
+}
+
+### 내 상품 목록 가져오기 테스트
+GET http://localhost:3000/users/me/products?page=1&pageSize=5
+
+### 내 좋아요 목록 가져오기 테스트
+GET http://localhost:3000/users/me/favorites?page=1&pageSize=5
+
+### 내 알림 조회하기
+GET http://localhost:3000/users/me/notifications?limit=5&cursor=2
+
+### 내 알림 읽기
+PATCH http://localhost:3000/notifications/1/read

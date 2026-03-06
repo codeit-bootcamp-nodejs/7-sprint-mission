@@ -1,26 +1,17 @@
-import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import {
-  createArticle,
-  getArticleList,
-  getArticle,
-  updateArticle,
-  deleteArticle,
-  createComment,
-  getCommentList,
-  toggleArticleLike,
-} from '../controllers/articlesController.js';
-import { authenticate, optionalAuthenticate } from '../middleware/authMiddleware.js';
+import { Router } from 'express';
+import { authenticate } from '../middlewares/authMiddleware';
+import * as articlesController from '../controllers/articlesController';
 
-const articlesRouter = express.Router();
+const router = Router();
 
-articlesRouter.post('/', authenticate, withAsync(createArticle));
-articlesRouter.get('/', withAsync(getArticleList));
-articlesRouter.get('/:id', optionalAuthenticate, withAsync(getArticle));
-articlesRouter.patch('/:id', authenticate, withAsync(updateArticle));
-articlesRouter.delete('/:id', authenticate, withAsync(deleteArticle));
-articlesRouter.post('/:id/comments', authenticate, withAsync(createComment));
-articlesRouter.get('/:id/comments', withAsync(getCommentList));
-articlesRouter.post('/:id/like', authenticate, withAsync(toggleArticleLike));
+router.get('/', articlesController.getArticles);
+router.get('/:id', articlesController.getArticle);
+router.post('/', authenticate, articlesController.createArticle);
+router.patch('/:id', authenticate, articlesController.updateArticle);
+router.delete('/:id', authenticate, articlesController.deleteArticle);
+router.post('/:id/likes', authenticate, articlesController.likeArticle);
+router.delete('/:id/likes', authenticate, articlesController.unlikeArticle);
+router.get('/:id/comments', articlesController.getArticleComments);
+router.post('/:id/comments', authenticate, articlesController.createArticleComment);
 
-export default articlesRouter;
+export default router;

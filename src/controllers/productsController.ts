@@ -1,77 +1,118 @@
-import { Request, Response } from 'express';
-import { create } from 'superstruct';
-import { productService } from '../services/productService.js';
-import { IdParamsStruct } from '../structs/commonStructs.js';
-import {
-  CreateProductBodyStruct,
-  GetProductListParamsStruct,
-  UpdateProductBodyStruct,
-} from '../structs/productsStruct.js';
-import { CreateCommentBodyStruct, GetCommentListParamsStruct } from '../structs/commentsStruct.js';
+import { Request, Response, NextFunction } from 'express';
+import { assert } from 'superstruct';
+import { CreateProductStruct, UpdateProductStruct } from '../structs/productStructs';
+import { CreateCommentStruct } from '../structs/commentStructs';
+import * as productService from '../services/productService';
+import * as commentService from '../services/commentService';
 
-export async function createProduct(req: Request, res: Response): Promise<void> {
-  const { name, description, price, tags, images } = create(req.body, CreateProductBodyStruct);
-
-  const product = await productService.createProduct({
-    name,
-    description,
-    price,
-    tags,
-    images,
-    userId: req.user!.userId,
-  });
-
-  res.status(201).send(product);
+export async function getProducts(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await productService.getProducts({
+      orderBy: String(req.query.orderBy ?? 'recent'),
+      page: parseInt(String(req.query.page ?? '1')),
+      pageSize: parseInt(String(req.query.pageSize ?? '10')),
+      keyword: req.query.keyword ? String(req.query.keyword) : undefined,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getProduct(req: Request, res: Response): Promise<void> {
-  const { id } = create(req.params, IdParamsStruct);
-
-  const product = await productService.getProduct(id, req.user?.userId);
-  res.send(product);
+export async function getProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    const product = await productService.getProduct(parseInt(req.params.id));
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function updateProduct(req: Request, res: Response): Promise<void> {
-  const { id } = create(req.params, IdParamsStruct);
-  const data = create(req.body, UpdateProductBodyStruct);
-
-  const updatedProduct = await productService.updateProduct(id, req.user!.userId, data);
-  res.send(updatedProduct);
+export async function createProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, CreateProductStruct);
+    const product = await productService.createProduct({
+      ...req.body,
+      userId: req.user!.id,
+    });
+    res.status(201).json(product);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function deleteProduct(req: Request, res: Response): Promise<void> {
-  const { id } = create(req.params, IdParamsStruct);
-
-  await productService.deleteProduct(id, req.user!.userId);
-  res.status(204).send();
+export async function updateProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, UpdateProductStruct);
+    const product = await productService.updateProduct(
+      parseInt(req.params.id),
+      req.user!.id,
+      req.body
+    );
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getProductList(req: Request, res: Response): Promise<void> {
-  const { page, pageSize, orderBy, keyword } = create(req.query, GetProductListParamsStruct);
-
-  const result = await productService.getProductList({ page, pageSize, orderBy, keyword });
-  res.send(result);
+export async function deleteProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    await productService.deleteProduct(parseInt(req.params.id), req.user!.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function createComment(req: Request, res: Response): Promise<void> {
-  const { id: productId } = create(req.params, IdParamsStruct);
-  const { content } = create(req.body, CreateCommentBodyStruct);
-
-  const comment = await productService.createComment(productId, req.user!.userId, content);
-  res.status(201).send(comment);
+export async function favoriteProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    const product = await productService.favoriteProduct(
+      parseInt(req.params.id),
+      req.user!.id
+    );
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function getCommentList(req: Request, res: Response): Promise<void> {
-  const { id: productId } = create(req.params, IdParamsStruct);
-  const { cursor, limit } = create(req.query, GetCommentListParamsStruct);
-
-  const result = await productService.getCommentList(productId, cursor, limit);
-  res.send(result);
+export async function unfavoriteProduct(req: Request, res: Response, next: NextFunction) {
+  try {
+    const product = await productService.unfavoriteProduct(
+      parseInt(req.params.id),
+      req.user!.id
+    );
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
 }
 
-export async function toggleProductLike(req: Request, res: Response): Promise<void> {
-  const { id: productId } = create(req.params, IdParamsStruct);
+export async function getProductComments(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = parseInt(String(req.query.limit ?? '10'));
+    const cursor = req.query.cursor ? parseInt(String(req.query.cursor)) : undefined;
+    const result = await commentService.getProductComments({
+      productId: parseInt(req.params.id),
+      limit,
+      cursor,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
 
-  const result = await productService.toggleLike(productId, req.user!.userId);
-  res.status(200).send(result);
+export async function createProductComment(req: Request, res: Response, next: NextFunction) {
+  try {
+    assert(req.body, CreateCommentStruct);
+    const comment = await commentService.createProductComment({
+      content: req.body.content,
+      productId: parseInt(req.params.id),
+      userId: req.user!.id,
+    });
+    res.status(201).json(comment);
+  } catch (err) {
+    next(err);
+  }
 }
