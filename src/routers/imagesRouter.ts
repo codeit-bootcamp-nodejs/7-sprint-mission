@@ -1,9 +1,9 @@
-import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { upload, uploadImage } from '../controllers/imagesController.js';
+import { Router } from 'express';
+import { authenticate } from '../middlewares/authMiddleware';
+import { upload, uploadImage } from '../controllers/imagesController';
 
-const imagesRouter = express.Router();
+const router = Router();
 
-imagesRouter.post('/upload', upload.single('image'), withAsync(uploadImage));
+router.post('/upload', authenticate, upload.single('image'), uploadImage);
 
-export default imagesRouter;
+export default router;

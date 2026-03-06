@@ -1,26 +1,17 @@
-import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import {
-  createProduct,
-  getProduct,
-  updateProduct,
-  deleteProduct,
-  getProductList,
-  createComment,
-  getCommentList,
-  toggleProductLike,
-} from '../controllers/productsController.js';
-import { authenticate, optionalAuthenticate } from '../middleware/authMiddleware.js';
+import { Router } from 'express';
+import { authenticate } from '../middlewares/authMiddleware';
+import * as productsController from '../controllers/productsController';
 
-const productsRouter = express.Router();
+const router = Router();
 
-productsRouter.post('/', authenticate, withAsync(createProduct));
-productsRouter.get('/:id', optionalAuthenticate, withAsync(getProduct));
-productsRouter.patch('/:id', authenticate, withAsync(updateProduct));
-productsRouter.delete('/:id', authenticate, withAsync(deleteProduct));
-productsRouter.get('/', withAsync(getProductList));
-productsRouter.post('/:id/comments', authenticate, withAsync(createComment));
-productsRouter.get('/:id/comments', withAsync(getCommentList));
-productsRouter.post('/:id/like', authenticate, withAsync(toggleProductLike));
+router.get('/', productsController.getProducts);
+router.get('/:id', productsController.getProduct);
+router.post('/', authenticate, productsController.createProduct);
+router.patch('/:id', authenticate, productsController.updateProduct);
+router.delete('/:id', authenticate, productsController.deleteProduct);
+router.post('/:id/favorites', authenticate, productsController.favoriteProduct);
+router.delete('/:id/favorites', authenticate, productsController.unfavoriteProduct);
+router.get('/:id/comments', productsController.getProductComments);
+router.post('/:id/comments', authenticate, productsController.createProductComment);
 
-export default productsRouter;
+export default router;

@@ -1,11 +1,10 @@
-import express from 'express';
-import { withAsync } from '../lib/withAsync.js';
-import { updateComment, deleteComment } from '../controllers/commentsController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
+import { Router } from 'express';
+import { authenticate } from '../middlewares/authMiddleware';
+import * as commentsController from '../controllers/commentsController';
 
-const commentsRouter = express.Router();
+const router = Router();
 
-commentsRouter.patch('/:id', authenticate, withAsync(updateComment));
-commentsRouter.delete('/:id', authenticate, withAsync(deleteComment));
+router.patch('/:id', authenticate, commentsController.updateComment);
+router.delete('/:id', authenticate, commentsController.deleteComment);
 
-export default commentsRouter;
+export default router;

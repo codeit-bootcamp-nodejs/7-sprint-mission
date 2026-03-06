@@ -1,79 +1,96 @@
-import { prismaClient } from '../lib/prismaClient.js';
-import { Product, Prisma } from '@prisma/client';
+import prisma from '../lib/prismaClient';
+import { Prisma } from '@prisma/client';
 
-export interface ProductListParams {
+const productInclude = {
+  user: true,
+  _count: { select: { favorites: true, comments: true } },
+} satisfies Prisma.ProductInclude;
+
+export async function findProducts(params: {
+  orderBy: 'recent' | 'favorite';
   page: number;
   pageSize: number;
-  orderBy?: string;
   keyword?: string;
+}) {
+  const { orderBy, page, pageSize, keyword } = params;
+  const where: Prisma.ProductWhereInput = keyword
+    ? {
+        OR: [
+          { name: { contains: keyword, mode: 'insensitive' } },
+          { description: { contains: keyword, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+
+  const order: Prisma.ProductOrderByWithRelationInput =
+    orderBy === 'favorite'
+      ? { favorites: { _count: 'desc' } }
+      : { createdAt: 'desc' };
+
+  const [products, totalCount] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: order,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: productInclude,
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return { products, totalCount };
 }
 
-export const productRepository = {
-  async findById(id: number) {
-    return prismaClient.product.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: { id: true, nickname: true, image: true },
-        },
-        _count: {
-          select: { productLikes: true },
-        },
-      },
-    });
-  },
+export async function findProductById(id: number) {
+  return prisma.product.findUnique({
+    where: { id },
+    include: productInclude,
+  });
+}
 
-  async findByIdSimple(id: number): Promise<Product | null> {
-    return prismaClient.product.findUnique({
-      where: { id },
-    });
-  },
+export async function createProduct(data: {
+  name: string;
+  description: string;
+  price: number;
+  tags: string[];
+  images: string[];
+  userId: number;
+}) {
+  return prisma.product.create({ data, include: productInclude });
+}
 
-  async findMany(params: ProductListParams) {
-    const { page, pageSize, orderBy, keyword } = params;
+export async function updateProduct(
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    tags?: string[];
+    images?: string[];
+  }
+) {
+  return prisma.product.update({ where: { id }, data, include: productInclude });
+}
 
-    const where = keyword
-      ? {
-          OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-        }
-      : undefined;
+export async function deleteProduct(id: number) {
+  return prisma.product.delete({ where: { id } });
+}
 
-    const [totalCount, products] = await Promise.all([
-      prismaClient.product.count({ where }),
-      prismaClient.product.findMany({
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-        where,
-      }),
-    ]);
+export async function findFavorite(productId: number, userId: number) {
+  return prisma.favorite.findFirst({ where: { productId, userId } });
+}
 
-    return { list: products, totalCount };
-  },
+export async function createFavorite(productId: number, userId: number) {
+  return prisma.favorite.create({ data: { productId, userId } });
+}
 
-  async findByUserId(userId: number): Promise<Product[]> {
-    return prismaClient.product.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  },
+export async function deleteFavorite(productId: number, userId: number) {
+  return prisma.favorite.deleteMany({ where: { productId, userId } });
+}
 
-  async create(data: Prisma.ProductCreateInput): Promise<Product> {
-    return prismaClient.product.create({
-      data,
-    });
-  },
-
-  async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
-    return prismaClient.product.update({
-      where: { id },
-      data,
-    });
-  },
-
-  async delete(id: number): Promise<Product> {
-    return prismaClient.product.delete({
-      where: { id },
-    });
-  },
-};
+export async function findFavoriteUsersByProductId(productId: number) {
+  return prisma.favorite.findMany({
+    where: { productId },
+    select: { userId: true },
+  });
+}

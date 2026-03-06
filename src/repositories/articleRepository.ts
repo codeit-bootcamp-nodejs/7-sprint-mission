@@ -1,70 +1,79 @@
-import { prismaClient } from '../lib/prismaClient.js';
-import { Article, Prisma } from '@prisma/client';
+import prisma from '../lib/prismaClient';
+import { Prisma } from '@prisma/client';
 
-export interface ArticleListParams {
+const articleInclude = {
+  user: true,
+  _count: { select: { likes: true, comments: true } },
+} satisfies Prisma.ArticleInclude;
+
+export async function findArticles(params: {
+  orderBy: 'recent' | 'like';
   page: number;
   pageSize: number;
-  orderBy?: string;
   keyword?: string;
+}) {
+  const { orderBy, page, pageSize, keyword } = params;
+  const where: Prisma.ArticleWhereInput = keyword
+    ? {
+        OR: [
+          { title: { contains: keyword, mode: 'insensitive' } },
+          { content: { contains: keyword, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+
+  const order: Prisma.ArticleOrderByWithRelationInput =
+    orderBy === 'like' ? { likes: { _count: 'desc' } } : { createdAt: 'desc' };
+
+  const [articles, totalCount] = await Promise.all([
+    prisma.article.findMany({
+      where,
+      orderBy: order,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: articleInclude,
+    }),
+    prisma.article.count({ where }),
+  ]);
+
+  return { articles, totalCount };
 }
 
-export const articleRepository = {
-  async findById(id: number) {
-    return prismaClient.article.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: { id: true, nickname: true, image: true },
-        },
-        _count: {
-          select: { articleLikes: true },
-        },
-      },
-    });
-  },
+export async function findArticleById(id: number) {
+  return prisma.article.findUnique({
+    where: { id },
+    include: articleInclude,
+  });
+}
 
-  async findByIdSimple(id: number): Promise<Article | null> {
-    return prismaClient.article.findUnique({
-      where: { id },
-    });
-  },
+export async function createArticle(data: {
+  title: string;
+  content: string;
+  image?: string;
+  userId: number;
+}) {
+  return prisma.article.create({ data, include: articleInclude });
+}
 
-  async findMany(params: ArticleListParams) {
-    const { page, pageSize, orderBy, keyword } = params;
+export async function updateArticle(
+  id: number,
+  data: { title?: string; content?: string; image?: string }
+) {
+  return prisma.article.update({ where: { id }, data, include: articleInclude });
+}
 
-    const where = {
-      title: keyword ? { contains: keyword } : undefined,
-    };
+export async function deleteArticle(id: number) {
+  return prisma.article.delete({ where: { id } });
+}
 
-    const [totalCount, articles] = await Promise.all([
-      prismaClient.article.count({ where }),
-      prismaClient.article.findMany({
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: orderBy === 'recent' ? { createdAt: 'desc' } : { id: 'asc' },
-        where,
-      }),
-    ]);
+export async function findLike(articleId: number, userId: number) {
+  return prisma.like.findFirst({ where: { articleId, userId } });
+}
 
-    return { list: articles, totalCount };
-  },
+export async function createLike(articleId: number, userId: number) {
+  return prisma.like.create({ data: { articleId, userId } });
+}
 
-  async create(data: Prisma.ArticleCreateInput): Promise<Article> {
-    return prismaClient.article.create({
-      data,
-    });
-  },
-
-  async update(id: number, data: Prisma.ArticleUpdateInput): Promise<Article> {
-    return prismaClient.article.update({
-      where: { id },
-      data,
-    });
-  },
-
-  async delete(id: number): Promise<Article> {
-    return prismaClient.article.delete({
-      where: { id },
-    });
-  },
-};
+export async function deleteLike(articleId: number, userId: number) {
+  return prisma.like.deleteMany({ where: { articleId, userId } });
+}

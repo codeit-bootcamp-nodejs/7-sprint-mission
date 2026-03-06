@@ -1,124 +1,137 @@
-import { productRepository, ProductListParams } from '../repositories/productRepository.js';
-import { commentRepository } from '../repositories/commentRepository.js';
-import { likeRepository } from '../repositories/likeRepository.js';
-import NotFoundError from '../lib/errors/NotFoundError.js';
-import ForbiddenError from '../lib/errors/ForbiddenError.js';
+import * as productRepository from '../repositories/productRepository';
+import { toProductDto } from '../dto/productDto';
+import { sendPriceChangedNotification } from './notificationService';
 
-export interface CreateProductData {
+export async function getProducts(params: {
+  orderBy?: string;
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+}) {
+  const orderBy = (params.orderBy === 'favorite' ? 'favorite' : 'recent') as
+    | 'recent'
+    | 'favorite';
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? 10;
+
+  const { products, totalCount } = await productRepository.findProducts({
+    orderBy,
+    page,
+    pageSize,
+    keyword: params.keyword,
+  });
+
+  return { list: products.map(toProductDto), totalCount };
+}
+
+export async function getProduct(id: number) {
+  const product = await productRepository.findProductById(id);
+  if (!product) {
+    const error = new Error('상품을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  return toProductDto(product);
+}
+
+export async function createProduct(data: {
   name: string;
   description: string;
   price: number;
   tags: string[];
   images: string[];
   userId: number;
+}) {
+  const product = await productRepository.createProduct(data);
+  return toProductDto(product);
 }
 
-export interface UpdateProductData {
-  name?: string;
-  description?: string;
-  price?: number;
-  tags?: string[];
-  images?: string[];
+export async function updateProduct(
+  id: number,
+  userId: number,
+  data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    tags?: string[];
+    images?: string[];
+  }
+) {
+  const product = await productRepository.findProductById(id);
+  if (!product) {
+    const error = new Error('상품을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  if (product.userId !== userId) {
+    const error = new Error('권한이 없습니다');
+    (error as any).status = 403;
+    throw error;
+  }
+
+  const oldPrice = product.price;
+  const updated = await productRepository.updateProduct(id, data);
+
+  if (data.price !== undefined && data.price !== oldPrice) {
+    const favoriteUsers = await productRepository.findFavoriteUsersByProductId(id);
+    const userIds = favoriteUsers.map((f) => f.userId);
+    if (userIds.length > 0) {
+      sendPriceChangedNotification(
+        {
+          productId: id,
+          productName: updated.name,
+          oldPrice,
+          newPrice: data.price,
+        },
+        userIds
+      ).catch(console.error);
+    }
+  }
+
+  return toProductDto(updated);
 }
 
-export const productService = {
-  async createProduct(data: CreateProductData) {
-    return productRepository.create({
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      tags: data.tags,
-      images: data.images,
-      user: { connect: { id: data.userId } },
-    });
-  },
+export async function deleteProduct(id: number, userId: number) {
+  const product = await productRepository.findProductById(id);
+  if (!product) {
+    const error = new Error('상품을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  if (product.userId !== userId) {
+    const error = new Error('권한이 없습니다');
+    (error as any).status = 403;
+    throw error;
+  }
+  await productRepository.deleteProduct(id);
+}
 
-  async getProduct(id: number, userId?: number) {
-    const product = await productRepository.findById(id);
-    if (!product) {
-      throw new NotFoundError('product', id);
-    }
+export async function favoriteProduct(productId: number, userId: number) {
+  const product = await productRepository.findProductById(productId);
+  if (!product) {
+    const error = new Error('상품을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  const existing = await productRepository.findFavorite(productId, userId);
+  if (existing) {
+    const error = new Error('이미 찜한 상품입니다');
+    (error as any).status = 409;
+    throw error;
+  }
+  await productRepository.createFavorite(productId, userId);
+  const updated = await productRepository.findProductById(productId);
+  return toProductDto(updated!);
+}
 
-    let isLiked = false;
-    if (userId) {
-      const like = await likeRepository.findProductLike(userId, id);
-      isLiked = !!like;
-    }
-
-    const { _count, ...productData } = product;
-    return {
-      ...productData,
-      likeCount: _count.productLikes,
-      isLiked,
-    };
-  },
-
-  async updateProduct(id: number, userId: number, data: UpdateProductData) {
-    const existingProduct = await productRepository.findByIdSimple(id);
-    if (!existingProduct) {
-      throw new NotFoundError('product', id);
-    }
-
-    if (existingProduct.userId !== userId) {
-      throw new ForbiddenError('You do not have permission to update this product');
-    }
-
-    return productRepository.update(id, data);
-  },
-
-  async deleteProduct(id: number, userId: number) {
-    const existingProduct = await productRepository.findByIdSimple(id);
-    if (!existingProduct) {
-      throw new NotFoundError('product', id);
-    }
-
-    if (existingProduct.userId !== userId) {
-      throw new ForbiddenError('You do not have permission to delete this product');
-    }
-
-    await productRepository.delete(id);
-  },
-
-  async getProductList(params: ProductListParams) {
-    return productRepository.findMany(params);
-  },
-
-  async createComment(productId: number, userId: number, content: string) {
-    const existingProduct = await productRepository.findByIdSimple(productId);
-    if (!existingProduct) {
-      throw new NotFoundError('product', productId);
-    }
-
-    return commentRepository.create({
-      content,
-      user: { connect: { id: userId } },
-      product: { connect: { id: productId } },
-    });
-  },
-
-  async getCommentList(productId: number, cursor: number, limit: number) {
-    const existingProduct = await productRepository.findByIdSimple(productId);
-    if (!existingProduct) {
-      throw new NotFoundError('product', productId);
-    }
-
-    return commentRepository.findMany({ cursor, limit, productId });
-  },
-
-  async toggleLike(productId: number, userId: number) {
-    const existingProduct = await productRepository.findByIdSimple(productId);
-    if (!existingProduct) {
-      throw new NotFoundError('product', productId);
-    }
-
-    const existingLike = await likeRepository.findProductLike(userId, productId);
-
-    if (existingLike) {
-      await likeRepository.deleteProductLike(existingLike.id);
-      return { message: 'Like removed', isLiked: false };
-    } else {
-      await likeRepository.createProductLike(userId, productId);
-      return { message: 'Like added', isLiked: true };
-    }
-  },
-};
+export async function unfavoriteProduct(productId: number, userId: number) {
+  const product = await productRepository.findProductById(productId);
+  if (!product) {
+    const error = new Error('상품을 찾을 수 없습니다');
+    (error as any).status = 404;
+    throw error;
+  }
+  await productRepository.deleteFavorite(productId, userId);
+  const updated = await productRepository.findProductById(productId);
+  return toProductDto(updated!);
+}

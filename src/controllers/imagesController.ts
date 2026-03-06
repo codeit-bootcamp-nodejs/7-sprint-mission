@@ -1,42 +1,37 @@
-import { Request, Response } from 'express';
-import multer, { FileFilterCallback } from 'multer';
+import { Request, Response, NextFunction } from 'express';
+import multer from 'multer';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { PUBLIC_PATH, STATIC_PATH } from '../lib/constants.js';
-import BadRequestError from '../lib/errors/BadRequestError.js';
+import { PUBLIC_PATH, STATIC_PATH } from '../lib/constants';
 
-const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
-const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
-
-export const upload = multer({
-  storage: multer.diskStorage({
-    destination(_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
-      cb(null, PUBLIC_PATH);
-    },
-    filename(_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
-      const ext = path.extname(file.originalname);
-      const filename = `${uuidv4()}${ext}`;
-      cb(null, filename);
-    },
-  }),
-
-  limits: {
-    fileSize: FILE_SIZE_LIMIT,
-  },
-
-  fileFilter: function (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) {
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      const err = new BadRequestError('Only png, jpeg, and jpg are allowed');
-      return cb(err);
-    }
-
-    cb(null, true);
+const storage = multer.diskStorage({
+  destination: PUBLIC_PATH,
+  filename: (req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${unique}${path.extname(file.originalname)}`);
   },
 });
 
-export async function uploadImage(req: Request, res: Response): Promise<void> {
-  const host = req.get('host');
-  const filePath = path.join(host!, STATIC_PATH, req.file!.filename);
-  const url = `http://${filePath}`;
-  res.send({ url });
+export const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('이미지 파일만 업로드 가능합니다'));
+    }
+  },
+});
+
+export async function uploadImage(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.file) {
+      res.status(400).json({ message: '업로드된 파일이 없습니다' });
+      return;
+    }
+    const url = `${STATIC_PATH}/${req.file.filename}`;
+    res.status(201).json({ url });
+  } catch (err) {
+    next(err);
+  }
 }

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Socket.IO 알림 테스트</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; }
+    h1 { font-size: 1.4rem; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input { width: 100%; padding: 6px; box-sizing: border-box; margin-top: 4px; }
+    button { margin-top: 12px; padding: 8px 20px; cursor: pointer; }
+    #log { margin-top: 20px; background: #f4f4f4; padding: 12px; border-radius: 6px; min-height: 120px; max-height: 400px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
+    .badge { display: inline-block; background: #e53e3e; color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <h1>실시간 알림 테스트 (Socket.IO)</h1>
+
+  <label>Access Token</label>
+  <input id="token" type="text" placeholder="로그인 후 발급된 accessToken 입력" />
+
+  <button id="connectBtn">연결</button>
+  <button id="disconnectBtn" disabled>연결 해제</button>
+
+  <p>미읽은 알림: <span id="unreadBadge" class="badge">0</span></p>
+
+  <div id="log">연결 대기 중...</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = null;
+    let unreadCount = 0;
+
+    const logEl = document.getElementById('log');
+    const badge = document.getElementById('unreadBadge');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+
+    function appendLog(msg) {
+      logEl.textContent += '\n' + new Date().toLocaleTimeString() + ' ' + msg;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    connectBtn.addEventListener('click', () => {
+      const token = document.getElementById('token').value.trim();
+      if (!token) { alert('토큰을 입력하세요'); return; }
+
+      socket = io({ auth: { token } });
+
+      socket.on('connect', () => {
+        appendLog('[연결됨] socket id: ' + socket.id);
+        connectBtn.disabled = true;
+        disconnectBtn.disabled = false;
+      });
+
+      socket.on('disconnect', () => {
+        appendLog('[연결 해제됨]');
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+      });
+
+      socket.on('connect_error', (err) => {
+        appendLog('[연결 오류] ' + err.message);
+      });
+
+      socket.on('notification', (data) => {
+        unreadCount++;
+        badge.textContent = unreadCount;
+        appendLog('[알림 수신] ' + JSON.stringify(data, null, 2));
+      });
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+      if (socket) socket.disconnect();
+    });
+  </script>
+</body>
+</html>

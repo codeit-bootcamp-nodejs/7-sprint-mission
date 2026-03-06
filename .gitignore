@@ -3,11 +3,9 @@
 node_modules/
 .env*
 !.env.example
+build/
 
 # Uploaded files
 public/*
 !public/.gitkeep
-
-.claude/
-dist
-.claude/settings.local.json
+!public/socket-client-test.html
