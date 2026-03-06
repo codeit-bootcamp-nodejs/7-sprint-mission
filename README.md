@@ -1,141 +1,51 @@
-# Panda Market API
+# 🐼 판다마켓 백엔드 스프린트 미션 9
 
-## 환경 변수 설정
-`.env.example` 파일을 참고해서 필요한 환경 변수를 설정해 주세요.
+이번 스프린트에서는 **Jest**와 **Supertest**를 활용하여 서비스의 안정성을 검증하고, 테스트 주도 개발(TDD)의 기초가 되는 통합 테스트 및 단위 테스트 환경을 구축했습니다.
 
-## 설치
+---
 
-의존성 패키지를 설치합니다.
+## 🛠️ 테스트 환경 설정
+- **Test Runner:** Jest
+- **Library:** Supertest (API 통합 테스트), ts-jest (TypeScript 지원)
+- **Database:** Prisma (PostgreSQL)
+- **Coverage:** Jest 내장 커버리지 도구 활용
+
+
+
+---
+
+## ✅ 요구사항 이행 현황
+
+### 1. 기본 요구사항 (통합 테스트)
+- [x] **테스트 커버리지 설정:** `npm test -- --coverage`를 통한 리포트 생성 설정 완료
+- [x] **인증 불필요 상품 API:** 상품 목록 조회, 상세 조회 기능 검증
+- [x] **인증 불필요 게시글 API:** 자유게시판 목록 및 상세 조회 기능 검증
+- [x] **인증/인가 API:** 회원가입 및 로그인(JWT 발급) 프로세스 검증
+- [x] **인증 필요 상품 API:** 상품 등록, 수정, 삭제 시 권한 및 유효성 검증
+- [x] **인증 필요 게시글 API:** 게시글 작성, 수정, 삭제 및 댓글 기능 검증
+
+### 2. 심화 요구사항 (단위 테스트)
+- [x] **비즈니스 로직 유닛 테스트:** `productsService` 등 주요 서비스 로직에 대해 Mock, Spy를 활용한 독립적 검증 수행
+
+---
+
+## 📈 테스트 실행 및 결과 확인
 
 ```
-npm install
+# 모든 테스트 실행
+npm test
+# 테스트 커버리지 확인
+npm test -- --coverage
 ```
 
-Prisma와 데이터베이스를 준비합니다.
-```
-npx prisma generate
-npx prisma migrate dev
-```
+---
 
-## 실행
+## 💡 주요 구현 사항 및 트러블슈팅
+### 1. 앱 진입점 분리 (App vs Main)
+- 테스트 실행 시 서버가 중복 포트로 뜨는 문제를 방지하기 위해 app.ts(익스프레스 설정)와 main.ts(서버 실행)를 분리하여 테스트 효율성을 높였습니다.
 
-`npm dev`로 개발 모드로 실행할 수 있습니다.
+### 2. 데이터베이스 참조 무결성 해결
+- 테스트 종료 후 afterAll에서 데이터를 삭제할 때, 외래키(Foreign Key) 제약 조건으로 인해 발생하는 삭제 오류를 삭제 순서 조정 및 트랜잭션 처리를 통해 해결했습니다.
 
-## 코드 구현 설명
-
-### 엔드포인트 목록
-
-- articlesRouter
-  * `POST /articles`: 게시글 생성
-  * `GET /articles`: 게시글 목록 조회
-  * `GET /articles/:id`: 게시글 상세 조회
-  * `PATCH /articles/:id`: 게시글 수정
-  * `DELETE /articles/:id`: 게시글 삭제
-  * `POST /articles/:id/comments`: 게시글에 댓글 작성
-  * `GET /articles/:id/comments`: 게시글의 댓글 목록 조회
-  * `POST /articles/:id/likes`: 게시글 좋아요
-  * `DELETE /articles/:id/likes`: 게시글 좋아요 취소
-- productsRouter
-  * `POST /products`: 상품 등록
-  * `GET /products`: 상품 목록 조회
-  * `GET /products/:id`: 상품 상세 조회
-  * `PATCH /products/:id`: 상품 수정
-  * `DELETE /products/:id`: 상품 삭제
-  * `POST /products/:id/comments`: 상품에 댓글 작성
-  * `GET /products/:id/comments`: 상품의 댓글 목록 조회
-  * `POST /products/:id/favorites`: 상품 좋아요
-  * `DELETE /products/:id/favorites`: 상품 좋아요 취소
-- commentsRouter
-  * `PATCH /comments/:id`: 댓글 수정
-  * `DELETE /comments/:id`: 댓글 삭제
-- notificationsRouter
-  * `PATCH /notifications/:id/read`: 알림 읽음 처리
-- usersRouter
-  * `GET /users/me`: 내 정보 조회
-  * `PATCH /users/me`: 내 정보 수정
-  * `PATCH /users/me/password`: 내 비밀번호 변경
-  * `GET /users/me/products`: 내가 등록한 상품 목록 조회
-  * `GET /users/me/favorites`: 내가 좋아요한 상품 목록 조회
-  * `GET /users/me/notifications`: 내 알림 목록 조회
-- authRouter
-  * `POST /auth/register`: 회원가입
-  * `POST /auth/login`: 로그인
-  * `POST /auth/logout`: 로그아웃
-  * `POST /auth/refresh`: 토큰 재발급
-- imagesRouter
-  * `POST /images/upload`: 이미지 업로드
-
-
-
-### Notification 모델
-
-```ts
-interface Notification {
-  id: number;
-  userId: number;
-  read: boolean;
-  type: 'NEW_COMMENT' | 'PRICE_CHANGED';
-  payload: object;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-- 이벤트 타입과 페이로드를 포함하고 있습니다.
-- 페이로드는 `articleId`나 `productId`와 `price` 같은 해당 이벤트를 클라이언트가 처리하는데 필요한 데이터를 담고 있습니다.
-
-### NotificationsService
-- Notification을 생성, 수정하는 책임을 갖습니다.
-- Notification을 생성하면 SocketService에 해당 Notification을 전달합니다.
-
-### SocketService
-
-- Socket.IO 연결을 관리합니다.
-- 미들웨어에서 액세스 토큰을 확인하고 인증을 처리합니다.
-  - 인증에 성공하면 해당 소켓을 `userId`를 기준으로 room에 join시킵니다.
-  - 하나의 사용자가 여러 브라우저 탭 등에서 접속 가능하기 때문에, `userId` room에는 여러 소켓이 join할 수 있습니다.
-- `sendNotification()` 함수에서는 `userId`를 가지고 해당하는 room에 메시지를 보냅니다.
-
-
-### 전체적인 동작 순서
-
-알림이 발생하면(예: 댓글, 가격 변경 등)
-
-→ 해당 서비스가 NotificationsService에 Notification 생성 요청
-
-→ NotificationsService가 DB에 알림 저장
-
-→ 저장된 알림을 SocketService로 전달
-
-→ SocketService가 해당 사용자에게 실시간으로 알림 전송
-
-## Notification 테스트
-
-`/public/socket-client-test.html` 파일에 Socket.IO 클라이언트를 테스트할 수 있는 프론트엔드 코드가 구현되어 있습니다.
-`http://localhost:3000/public/socket-client-test.html`로 접속할 수 있습니다.
-
-### socket-client-test.html
-- JWT 토큰을 인풋에 입력하고 버튼을 누르면, Socket.IO 클라이언트로 `http://localhost:3000` 으로 접속합니다.
-- `notification`라는 이벤트를 메시지로 받으면 콘솔에 받은 메시지를 출력합니다.
-
-
-### 테스트 시나리오
-- 준비하기
-  - User 1 회원가입
-  - User 1으로 로그인
-  - socket-client-test.html에서 User 1으로 접속
-  - (테스트를 위해 액세스 토큰은 기록해 둡니다.)
-  - User 2 회원가입
-  - User 2로 로그인
-  - socket-client-test.html에서 User 2로 접속
-  - (테스트를 위해 액세스 토큰은 기록해 둡니다.)
-- 게시물 댓글 알림 테스트
-  - User 1이 게시물 등록
-  - User 2가 게시물 댓글 등록
-  - User 1의 소켓 클라이언트에서 메시지가 잘 오는지 확인
-  - User 2의 소켓 클라이언트에서는 오는 메시지가 없도록 확인
-- 상품 가격 알림 테스트
-  - User 1이 상품 등록
-  - User 2가 상품 좋아요
-  - User 1이 상품 가격 수정
-  - User 1의 소켓 클라이언트에서 메시지가 잘 오는지 확인
-  - User 2의 소켓 클라이언트에서는 오는 메시지가 없도록 확인
+### 3. Mocking을 활용한 서비스 테스트
+- 외부 의존성(Prisma Client 등)을 jest.mock으로 대체하여 데이터베이스 연결 없이도 순수 비즈니스 로직만을 빠르게 테스트할 수 있도록 구현했습니다.
