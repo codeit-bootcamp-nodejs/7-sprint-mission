@@ -24,3 +24,5 @@ README.md
 public
 
 package-lock.json
+
+coverage/
