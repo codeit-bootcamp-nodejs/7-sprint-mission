@@ -26,7 +26,7 @@ describe('Products Service 유닛 테스트', () => {
   };
 
   afterEach(() => {
-    jest.clearAllMocks(); 
+    jest.clearAllMocks();
   });
 
   describe('updateProduct 로직 검증', () => {
@@ -35,7 +35,7 @@ describe('Products Service 유닛 테스트', () => {
       (productsRepository.getProduct as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        productsService.updateProduct(mockProductId, { price: 20000, userId: mockUserId })
+        productsService.updateProduct(mockProductId, { price: 20000, userId: mockUserId }),
       ).rejects.toThrow(NotFoundError);
     });
 
@@ -44,35 +44,35 @@ describe('Products Service 유닛 테스트', () => {
       (productsRepository.getProduct as jest.Mock).mockResolvedValue(mockProduct);
 
       await expect(
-        productsService.updateProduct(mockProductId, { price: 20000, userId: 999 })
+        productsService.updateProduct(mockProductId, { price: 20000, userId: 999 }),
       ).rejects.toThrow(ForbiddenError);
     });
 
     test('가격이 변경되면 알림 생성 서비스가 호출되어야 한다 ', async () => {
-
       (productsRepository.getProduct as jest.Mock).mockResolvedValue(mockProduct);
-      
+
       const updatedProduct = { ...mockProduct, price: 5000 }; // 가격 변경
-      (productsRepository.updateProductWithFavorites as jest.Mock).mockResolvedValue(updatedProduct);
-      
+      (productsRepository.updateProductWithFavorites as jest.Mock).mockResolvedValue(
+        updatedProduct,
+      );
+
       const mockFavorites = [{ userId: 2 }, { userId: 3 }];
       (favoritesRepository.getFavoritesByProductId as jest.Mock).mockResolvedValue(mockFavorites);
 
-
       const createNotificationsSpy = jest.spyOn(notificationsService, 'createNotifications');
 
-
-      await productsService.updateProduct(mockProductId, { 
-        price: 5000, 
-        userId: mockUserId 
+      await productsService.updateProduct(mockProductId, {
+        price: 5000,
+        userId: mockUserId,
       });
 
-
       expect(createNotificationsSpy).toHaveBeenCalled();
-      expect(createNotificationsSpy).toHaveBeenCalledWith(expect.arrayContaining([
-        expect.objectContaining({ userId: 2 }),
-        expect.objectContaining({ userId: 3 })
-      ]));
+      expect(createNotificationsSpy).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ userId: 2 }),
+          expect.objectContaining({ userId: 3 }),
+        ]),
+      );
     });
   });
 });

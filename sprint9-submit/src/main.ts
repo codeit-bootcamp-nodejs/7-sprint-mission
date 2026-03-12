@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import cookieParser from 'cookie-parser';
-import { PORT, PUBLIC_PATH, STATIC_PATH } from './lib/constants';
+import { PUBLIC_PATH, STATIC_PATH } from './lib/constants';
 import articlesRouter from './routers/articlesRouter';
 import productsRouter from './routers/productsRouter';
 import commentsRouter from './routers/commentsRouter';

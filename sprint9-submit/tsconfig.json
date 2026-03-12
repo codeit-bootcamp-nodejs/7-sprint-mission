@@ -10,7 +10,8 @@
     "module": "CommonJS",
     "target": "esnext",
     "moduleResolution": "Node",
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "express"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -44,13 +45,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": [
-    "src",  
-    "src/tests"   
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "prisma.config.ts"
-  ]
+  "include": ["src/**/*", "src/tests"],
+  "exclude": ["node_modules", "dist", "prisma.config.ts"]
 }

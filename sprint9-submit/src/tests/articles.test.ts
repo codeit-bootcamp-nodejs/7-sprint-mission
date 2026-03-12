@@ -9,13 +9,13 @@ describe('게시글 API 통합 테스트', () => {
     email: 'article@test.com',
     nickname: '글작성자',
     password: 'password123',
-    image: null
+    image: null,
   };
 
   const articleData = {
     title: '  테스트 게시글 제목  ',
     content: '테스트 게시글 내용입니다.',
-    image: null 
+    image: null,
   };
 
   //테스트 전용 유저 생성 및 로그인
@@ -23,7 +23,7 @@ describe('게시글 API 통합 테스트', () => {
     await request(app).post('/auth/register').send(testUser);
     const loginRes = await request(app).post('/auth/login').send({
       email: testUser.email,
-      password: testUser.password
+      password: testUser.password,
     });
     authCookie = loginRes.get('Set-Cookie');
   });
