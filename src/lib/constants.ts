@@ -10,3 +10,9 @@ export const NODE_ENV = process.env.NODE_ENV || 'development';
 export const PORT = process.env.PORT || 3000;
 export const PUBLIC_PATH = './public';
 export const STATIC_PATH = '/public';
+export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`
+
+export const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || '';
+export const ASW_REGION = process.env.AWS_REGION || '';
+export const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || '';
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';

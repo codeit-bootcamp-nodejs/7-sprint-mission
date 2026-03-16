@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../app";
+import { prismaClient } from "../lib/prismaClient";
 
 describe("게시글 API 테스트", () => {
 
@@ -69,4 +70,19 @@ describe("게시글 API 테스트", () => {
     // 상세 조회 결과에 생성한 제목이 잘 들어있는지 확인
     expect(res.body.title).toBe("테스트 제목");
   });
+
+  test('게시글 단일 조회', async () => {
+    // 1. 게시글 생성
+    const article = await request(app).post("/articles")
+    .set('Cookie', cookie)
+    .send({
+      title: '테스트 제목',
+      content: '테스트 내용',
+      image: 'test.jpg',
+    });
+
+    expect(article.status).toBe(201);
+  
+    
+  })
 });
