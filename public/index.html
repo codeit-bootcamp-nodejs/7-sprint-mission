@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hoya Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+      .fade-in {
+        animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      body::-webkit-scrollbar {
+        display: none;
+      }
+      .prose img {
+        max-width: 100%;
+        border-radius: 12px;
+        margin: 20px auto;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .ql-editor {
+        min-height: 350px;
+        font-size: 16px;
+      }
+      .ql-editor img {
+        max-width: 80%;
+        border-radius: 8px;
+        margin: 15px auto;
+        display: block;
+      }
+      .bg-grid-pattern {
+        background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+
+      /* 🔥 상단 메뉴 핑크색 밑줄 효과 */
+      .nav-link {
+        position: relative;
+        color: #64748b;
+        font-weight: 700;
+        transition: color 0.3s;
+      }
+      .nav-link:hover {
+        color: #db2777; /* pink-600 */
+      }
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 3px;
+        bottom: -4px;
+        left: 0;
+        background-color: #fbcfe8; /* pink-200 */
+        transition: width 0.3s ease-in-out;
+        border-radius: 2px;
+      }
+      .nav-link:hover::after {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 font-sans text-slate-800">
+    <nav
+      class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 h-16 shadow-sm"
+    >
+      <div
+        class="container mx-auto px-6 h-full flex justify-between items-center"
+      >
+        <a
+          href="#"
+          onclick="location.reload()"
+          class="flex items-center gap-2 group"
+        >
+          <div
+            class="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform"
+          >
+            <i class="fa-solid fa-cube"></i>
+          </div>
+          <span class="text-xl font-bold tracking-tight text-slate-900"
+            >Hoya</span
+          >
+        </a>
+        <div class="hidden md:flex gap-8">
+          <button onclick="loadPage('home')" class="nav-link">홈</button>
+          <button onclick="loadPage('market')" class="nav-link">개발</button>
+          <button onclick="loadPage('game')" class="nav-link">게임</button>
+          <button onclick="loadPage('board')" class="nav-link">게시판</button>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            onclick="openWriteModal()"
+            class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg transition active:scale-95 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-pen"></i> 글쓰기
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <main
+      id="content-area"
+      class="container mx-auto px-4 py-8 min-h-[80vh]"
+    ></main>
+
+    <div
+      id="detail-view"
+      class="hidden fade-in container mx-auto px-4 py-8 max-w-4xl"
+    >
+      <button
+        onclick="backToList()"
+        class="mb-8 flex items-center gap-2 text-slate-400 hover:text-slate-800 font-bold transition group"
+      >
+        <div
+          class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:border-slate-400 transition"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        목록으로
+      </button>
+      <article
+        class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative"
+      >
+        <div class="p-8 sm:p-12 pb-0">
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              id="detail-badge"
+              class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600"
+              >Category</span
+            >
+            <span class="text-slate-300 text-xs">•</span>
+            <span id="detail-date" class="text-slate-400 text-xs font-medium"
+              >Date</span
+            >
+          </div>
+          <h1
+            id="detail-title"
+            class="text-3xl sm:text-5xl font-black text-slate-900 mb-8 leading-tight break-keep"
+          >
+            Title
+          </h1>
+          <div
+            class="flex items-center justify-between border-b border-slate-100 pb-8"
+          >
+            <div class="flex items-center gap-4">
+              <img
+                id="detail-avatar"
+                src=""
+                class="w-12 h-12 rounded-full border-2 border-white shadow-md bg-slate-100"
+              />
+              <div>
+                <p class="font-bold text-slate-800 text-sm">익명의 개발자</p>
+                <p class="text-xs text-slate-400 flex items-center gap-2">
+                  <span id="detail-views">조회 0</span>
+                  <span class="text-pink-500 font-bold"
+                    >♥ <span id="header-like-count">0</span></span
+                  >
+                </p>
+              </div>
+            </div>
+            <div id="detail-price-box" class="hidden text-right">
+              <p
+                class="text-3xl font-black text-pink-500 tracking-tight"
+                id="detail-price"
+              >
+                0원
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="px-8 sm:px-12 py-10">
+          <div id="detail-content" class="min-h-[200px]"></div>
+          <div id="detail-tags" class="flex gap-2 mt-12 flex-wrap"></div>
+        </div>
+        <div
+          class="px-8 sm:px-12 py-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center"
+        >
+          <button
+            onclick="toggleLike()"
+            id="btn-like"
+            class="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-pink-500 hover:border-pink-200 hover:bg-pink-50 transition shadow-sm group"
+          >
+            <i class="fa-regular fa-heart group-hover:hidden"></i
+            ><i
+              class="fa-solid fa-heart hidden group-hover:inline text-pink-500"
+            ></i
+            ><span class="font-bold"
+              >좋아요 <span id="btn-like-count">0</span></span
+            >
+          </button>
+          <button
+            id="btn-delete"
+            class="text-slate-400 hover:text-red-500 text-sm font-medium transition underline decoration-transparent hover:decoration-red-500 underline-offset-4"
+          >
+            삭제하기
+          </button>
+        </div>
+      </article>
+      <div class="mt-12 max-w-3xl mx-auto">
+        <h3
+          class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2"
+        >
+          댓글
+          <span
+            class="text-sm font-normal text-slate-400"
+            id="comment-count-label"
+            >0</span
+          >
+        </h3>
+        <form
+          id="comment-form"
+          class="bg-white p-2 rounded-2xl shadow-lg border border-slate-100 flex gap-2 items-center mb-10 sticky top-20 z-30"
+        >
+          <div class="relative group">
+            <input
+              type="file"
+              id="comment-file"
+              class="hidden"
+              accept="image/*"
+            />
+            <label
+              for="comment-file"
+              class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 cursor-pointer transition"
+              ><i
+                class="fa-regular fa-image text-lg group-hover:text-pink-500"
+              ></i
+            ></label>
+            <div
+              id="comment-file-dot"
+              class="hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"
+            ></div>
+          </div>
+          <input
+            type="text"
+            id="comment-input"
+            class="flex-1 bg-transparent px-2 py-3 outline-none text-sm placeholder-slate-400"
+            placeholder="댓글을 입력하세요..."
+            autocomplete="off"
+          />
+          <button
+            type="submit"
+            class="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-pink-600 transition shadow-md active:scale-90"
+          >
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
+        </form>
+        <div id="comment-list" class="space-y-6 pb-20"></div>
+      </div>
+    </div>
+
+    <div
+      id="write-modal"
+      class="fixed inset-0 bg-black/60 z-[100] hidden flex justify-center items-center backdrop-blur-sm transition-opacity p-4"
+    >
+      <div
+        class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl p-6 sm:p-8 transform scale-95 transition-transform duration-300 max-h-[95vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-slate-800">게시물 작성</h3>
+          <button
+            onclick="closeWriteModal()"
+            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="flex bg-gray-100 p-1.5 rounded-xl mb-6">
+          <button
+            onclick="setWriteMode('market')"
+            id="tab-write-market"
+            class="flex-1 py-2.5 text-sm font-bold rounded-lg bg-white shadow-sm text-pink-600 transition-all"
+          >
+            💻 개발 프로젝트
+          </button>
+          <button
+            onclick="setWriteMode('board')"
+            id="tab-write-board"
+            class="flex-1 py-2.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all"
+          >
+            📝 자유게시판
+          </button>
+        </div>
+        <form id="unified-form" class="space-y-4">
+          <input
+            type="text"
+            id="inp-title"
+            class="w-full p-4 bg-gray-50 border rounded-2xl outline-none font-bold text-lg"
+            placeholder="제목을 입력하세요"
+            required
+          />
+
+          <div id="market-extras" class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <input
+                type="number"
+                id="inp-price"
+                class="w-full p-3 bg-gray-50 border rounded-xl outline-none font-medium"
+                placeholder="비용 / 가치 (숫자)"
+              />
+              <input
+                type="text"
+                id="inp-tags"
+                class="w-full p-3 bg-gray-50 border rounded-xl outline-none font-medium"
+                placeholder="#태그 (콤마 구분)"
+              />
+            </div>
+            <label
+              class="block w-full p-3 border border-dashed border-gray-300 rounded-xl text-center text-gray-500 cursor-pointer hover:bg-gray-50 transition"
+              ><i class="fa-solid fa-camera mr-2"></i> 카드용 대표 이미지
+              (썸네일)
+              <input
+                type="file"
+                id="inp-market-file"
+                class="hidden"
+                accept="image/*"
+            /></label>
+          </div>
+
+          <div id="common-editor">
+            <div id="editor-container" class="bg-white"></div>
+            <p class="text-xs text-gray-400 mt-2">
+              * 툴바의 사진 아이콘을 눌러 본문에 사진을 자유롭게 추가하세요.
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-slate-900 hover:bg-pink-600 text-white font-bold py-4 rounded-xl shadow-lg mt-4 transition"
+          >
+            등록 완료
+          </button>
+        </form>
+      </div>
+    </div>
+    <input
+      type="file"
+      id="quill-image-input"
+      class="hidden"
+      accept="image/*"
+      multiple
+    />
+
+    <script>
+      const API = "";
+      let currentMode = "market";
+      let lastPage = "home";
+      let currentDetailId = null;
+      let currentDetailType = null;
+      let quill;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadPage("home");
+        initQuill();
+        document
+          .getElementById("comment-file")
+          .addEventListener("change", function () {
+            const dot = document.getElementById("comment-file-dot");
+            if (this.files.length > 0) dot.classList.remove("hidden");
+            else dot.classList.add("hidden");
+          });
+      });
+
+      async function loadPage(page) {
+        lastPage = page;
+        document.getElementById("detail-view").classList.add("hidden");
+        const container = document.getElementById("list-view");
+        if (container) container.classList.remove("hidden");
+
+        const mainContent = document.getElementById("content-area");
+        mainContent.innerHTML = "";
+
+        // ==============================================
+        // 🏠 [홈 화면] 버튼 색상 및 그라데이션 적용 (검은색 X)
+        // ==============================================
+        if (page === "home") {
+          mainContent.innerHTML = `
+                    <div class="relative bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 fade-in">
+                        <div class="absolute inset-0 bg-grid-pattern opacity-30"></div>
+                        <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-100 rounded-full blur-3xl opacity-50"></div>
+                        <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+
+                        <div class="relative z-10 text-center py-20 px-6">
+                            <span class="inline-block py-1 px-3 rounded-full bg-slate-100 text-slate-500 text-xs font-bold mb-6 tracking-wide">PORTFOLIO & COMMUNITY</span>
+                            <h2 class="text-5xl sm:text-7xl font-black mb-6 text-slate-900 tracking-tight leading-tight">
+                                Hoya의 <br class="sm:hidden">
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-pulse">개발 놀이터</span>
+                            </h2>
+                            <p class="text-lg sm:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
+                                내가 만든 프로젝트를 전시하고, <br class="hidden sm:block">사람들과 자유롭게 소통하는 공간입니다.
+                            </p>
+                            
+                            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                                <button onclick="loadPage('market')" class="group relative px-8 py-5 rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-white bg-gradient-to-r from-pink-500 to-purple-600">
+                                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                                    <span class="relative flex items-center gap-2 text-lg">
+                                        <i class="fa-solid fa-code"></i> 개발 구경하기
+                                    </span>
+                                </button>
+
+                                <button onclick="loadPage('game')" class="group relative px-8 py-5 rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-white bg-gradient-to-r from-violet-500 to-fuchsia-600">
+                                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                                    <span class="relative flex items-center gap-2 text-lg">
+                                        <i class="fa-solid fa-gamepad"></i> 미니 게임
+                                    </span>
+                                </button>
+                                
+                                <button onclick="loadPage('board')" class="group relative px-8 py-5 rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden text-white bg-gradient-to-r from-blue-500 to-cyan-500">
+                                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                                    <span class="relative flex items-center gap-2 text-lg">
+                                        <i class="fa-regular fa-comments"></i> 자유게시판
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 fade-in" style="animation-delay: 0.1s;">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
+                            <p class="text-3xl font-black text-slate-900">12+</p>
+                            <p class="text-xs text-slate-400 font-bold mt-1">PROJECTS</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
+                            <p class="text-3xl font-black text-slate-900">50+</p>
+                            <p class="text-xs text-slate-400 font-bold mt-1">POSTS</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
+                            <p class="text-3xl font-black text-slate-900">3</p>
+                            <p class="text-xs text-slate-400 font-bold mt-1">GAMES</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
+                            <p class="text-3xl font-black text-slate-900">∞</p>
+                            <p class="text-xs text-slate-400 font-bold mt-1">FUN</p>
+                        </div>
+                    </div>
+                `;
+        }
+
+        // ==============================================
+        // 🛒 [마켓 페이지]
+        // ==============================================
+        else if (page === "market") {
+          try {
+            const res = await fetch(`${API}/products`);
+            const rawData = await res.json();
+            const list = Array.isArray(rawData) ? rawData : rawData.data || [];
+
+            mainContent.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-slate-800 fade-in"><i class="fa-solid fa-code text-pink-500 mr-2"></i>개발 포트폴리오</h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 fade-in">${list
+              .map(
+                (p) => `
+                        <div onclick="openDetail('products', ${p.id})" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 relative group hover:-translate-y-1 transition cursor-pointer overflow-hidden hover:shadow-xl duration-300">
+                            <div class="relative overflow-hidden rounded-2xl mb-4 bg-gray-100 h-48">
+                                <img src="${p.image ? p.image : `https://picsum.photos/seed/${p.id}/400/300`}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            </div>
+                            <h3 class="font-bold text-lg truncate text-slate-800 px-1">${p.last_name}</h3>
+                            <div class="flex justify-between items-center mt-2 px-1">
+                                <p class="text-pink-500 font-black text-lg">${p.price.toLocaleString()} P</p>
+                                <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">More <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                            </div>
+                        </div>`
+              )
+              .join("")}</div>`;
+          } catch (e) {
+            mainContent.innerHTML = `<div class="text-center py-10 text-gray-500">데이터 로딩 실패</div>`;
+          }
+        }
+
+        // ==============================================
+        // 🎮 [게임 페이지]
+        // ==============================================
+        else if (page === "game") {
+          mainContent.innerHTML = `<div class="fade-in"><h2 class="text-2xl font-bold mb-6 text-slate-800"><i class="fa-solid fa-gamepad text-purple-500 mr-2"></i>미니 게임</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div onclick="playGame('snake')" class="bg-white p-8 rounded-3xl shadow-lg border hover:border-green-300 transition cursor-pointer text-center group hover:-translate-y-2"><div class="text-6xl mb-4 group-hover:scale-110 transition">🐍</div><h3 class="text-xl font-bold text-slate-800">스네이크</h3><p class="text-gray-400 mt-2 text-sm">Play Now!</p></div></div></div><div id="game-screen" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col justify-center items-center p-4"><button onclick="closeGame()" class="absolute top-6 right-6 text-white text-xl font-bold border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition">닫기 X</button><iframe id="game-frame" class="w-full max-w-lg h-[600px] bg-black border-4 border-gray-800 rounded-xl" frameborder="0"></iframe></div>`;
+        }
+
+        // ==============================================
+        // 📝 [자유게시판] (UI 업그레이드)
+        // ==============================================
+        else if (page === "board") {
+          try {
+            const res = await fetch(`${API}/articles`);
+            const rawData = await res.json();
+            const list = Array.isArray(rawData) ? rawData : rawData.data || [];
+
+            mainContent.innerHTML = `
+                        <h2 class="text-2xl font-bold mb-6 text-slate-800 fade-in"><i class="fa-solid fa-comments text-blue-500 mr-2"></i>자유게시판</h2>
+                        <div class="grid grid-cols-1 gap-5 max-w-4xl mx-auto fade-in">
+                            ${list
+                              .map((a) => {
+                                const safeContent = a.content || "";
+                                const tempDiv = document.createElement("div");
+                                tempDiv.innerHTML = safeContent;
+                                const imgTag = tempDiv.querySelector("img");
+                                const thumbnailUrl =
+                                  a.image || (imgTag ? imgTag.src : null);
+                                const plainText =
+                                  tempDiv.textContent ||
+                                  tempDiv.innerText ||
+                                  "";
+
+                                // 🔥 UI 업그레이드: 그림자, 테두리, 카드 형태 강화
+                                return `
+                                <div onclick="openDetail('articles', ${a.id})" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col sm:flex-row gap-6 h-auto sm:h-44">
+                                    ${
+                                      thumbnailUrl
+                                        ? `
+                                        <div class="w-full sm:w-56 h-32 sm:h-full shrink-0 rounded-2xl overflow-hidden bg-gray-100 relative shadow-inner">
+                                            <img src="${thumbnailUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition"></div>
+                                        </div>
+                                    `
+                                        : ""
+                                    }
+                                    <div class="flex-1 flex flex-col justify-between py-1">
+                                        <div>
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-full border border-blue-100">Community</span>
+                                                <span class="text-slate-400 text-xs">${new Date(a.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                            <h3 class="font-bold text-xl text-slate-800 mb-2 group-hover:text-blue-600 transition line-clamp-1">${a.title}</h3>
+                                            <p class="text-slate-500 text-sm line-clamp-2 leading-relaxed">${plainText}</p>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-xs text-slate-400 font-medium mt-4 pt-4 border-t border-slate-50">
+                                            <span class="flex items-center gap-1 hover:text-slate-600 transition"><i class="fa-regular fa-eye"></i> ${a.viewCount || 0}</span>
+                                            <span class="flex items-center gap-1 group-hover:text-pink-500 transition"><i class="fa-solid fa-heart"></i> ${a.likeCount || 0}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                `;
+                              })
+                              .join("")}
+                        </div>`;
+          } catch (e) {
+            mainContent.innerHTML = `<div class="text-center py-10 text-gray-500">게시판 로딩 실패</div>`;
+          }
+        }
+      }
+
+      async function openDetail(type, id) {
+        currentDetailType = type;
+        currentDetailId = id;
+        document.getElementById("content-area").innerHTML = "";
+        const detailView = document.getElementById("detail-view");
+        detailView.classList.remove("hidden");
+        document.getElementById("content-area").appendChild(detailView);
+        window.scrollTo(0, 0);
+        try {
+          const res = await fetch(`${API}/${type}/${id}`);
+          const data = await res.json();
+          const isMarket = type === "products";
+          document.getElementById("detail-badge").innerText = isMarket
+            ? "개발"
+            : "게시판";
+          document.getElementById("detail-badge").className =
+            `text-xs font-bold px-2 py-1 rounded mb-2 inline-block ${isMarket ? "bg-pink-100 text-pink-600" : "bg-blue-100 text-blue-600"}`;
+          document.getElementById("detail-title").innerText = isMarket
+            ? data.last_name
+            : data.title;
+          document.getElementById("detail-date").innerText = new Date(
+            data.created_at
+          ).toLocaleString();
+          document.getElementById("detail-views").innerText =
+            `조회 ${data.viewCount}`;
+          const likeCount = data.likeCount || 0;
+          document.getElementById("header-like-count").innerText = likeCount;
+          document.getElementById("btn-like-count").innerText = likeCount;
+          const priceBox = document.getElementById("detail-price-box");
+          const tagsDiv = document.getElementById("detail-tags");
+          if (isMarket) {
+            priceBox.classList.remove("hidden");
+            document.getElementById("detail-price").innerText =
+              `${data.price.toLocaleString()} point`;
+            tagsDiv.innerHTML = data.tags
+              .map(
+                (t) =>
+                  `<span class="bg-gray-100 px-2 py-1 rounded text-xs text-gray-500">#${t}</span>`
+              )
+              .join("");
+          } else {
+            priceBox.classList.add("hidden");
+            tagsDiv.innerHTML = "";
+          }
+          const contentDiv = document.getElementById("detail-content");
+          // ★ 중요: 마켓 상세 내용도 HTML(Quill 데이터)로 보여주도록 통일
+          if (isMarket) {
+            // 마켓의 경우: 대표이미지(data.image) + 본문(data.description - HTML)
+            let html = "";
+            if (data.image)
+              html += `<img src="${data.image}" class="w-full h-80 object-cover rounded-xl mb-6 shadow-sm">`;
+            html += `<div class="prose">${data.description}</div>`; // Quill 내용
+            contentDiv.innerHTML = html;
+          } else {
+            contentDiv.innerHTML = data.content;
+          }
+          document.getElementById("btn-delete").onclick = () =>
+            deleteItem(type, id);
+          fetchComments();
+        } catch (e) {
+          console.error(e);
+          backToList();
+        }
+      }
+      async function fetchComments() {
+        const list = document.getElementById("comment-list");
+        list.innerHTML =
+          '<div class="text-center text-gray-400 py-4">로딩중...</div>';
+        try {
+          const res = await fetch(
+            `${API}/comments/${currentDetailType}/${currentDetailId}`
+          );
+          const rawData = await res.json();
+          const data = Array.isArray(rawData) ? rawData : rawData.data || [];
+          document.getElementById("comment-count-label").innerText =
+            data.length;
+          if (data.length === 0) {
+            list.innerHTML =
+              '<div class="text-center text-gray-300 py-4">아직 댓글이 없어요. 첫 번째 주인공이 되어보세요! 🎈</div>';
+            return;
+          }
+          list.innerHTML = data
+            .map(
+              (c) =>
+                `<div class="flex gap-4 group"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xl shrink-0">😊</div><div class="flex-1"><div class="bg-white p-4 rounded-r-2xl rounded-bl-2xl shadow-sm border border-gray-100"><p class="text-slate-800 text-sm leading-relaxed">${c.content}</p>${c.image ? `<img src="${API}/${c.image}" class="mt-3 rounded-lg max-w-[200px] border border-slate-100 cursor-zoom-in" onclick="window.open(this.src)">` : ""}</div><span class="text-[10px] text-gray-400 mt-1 ml-2">${new Date(c.created_at).toLocaleString()}</span></div></div>`
+            )
+            .join("");
+        } catch (e) {
+          list.innerHTML = "로딩 실패";
+        }
+      }
+      async function toggleLike() {
+        const btn = document.getElementById("btn-like");
+        const icon = btn.querySelector(".fa-heart");
+        icon.classList.add("heart-beat");
+        setTimeout(() => icon.classList.remove("heart-beat"), 300);
+        try {
+          const res = await fetch(
+            `${API}/${currentDetailType}/${currentDetailId}/like`,
+            { method: "PATCH" }
+          );
+          const data = await res.json();
+          document.getElementById("header-like-count").innerText =
+            data.likeCount;
+          document.getElementById("btn-like-count").innerText = data.likeCount;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      document
+        .getElementById("comment-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const input = document.getElementById("comment-input");
+          const fileInput = document.getElementById("comment-file");
+          const formData = new FormData();
+          formData.append("content", input.value);
+          if (fileInput.files[0]) formData.append("image", fileInput.files[0]);
+          try {
+            const res = await fetch(
+              `${API}/comments/${currentDetailType}/${currentDetailId}`,
+              { method: "POST", body: formData }
+            );
+            if (res.ok) {
+              input.value = "";
+              fileInput.value = "";
+              document
+                .getElementById("comment-file-dot")
+                .classList.add("hidden");
+              fetchComments();
+            } else alert("실패!");
+          } catch (e) {
+            console.error(e);
+          }
+        });
+      function backToList() {
+        document.getElementById("detail-view").classList.add("hidden");
+        loadPage(lastPage);
+      }
+      async function deleteItem(type, id) {
+        if (!confirm("삭제하시겠습니까?")) return;
+        await fetch(`${API}/${type}/${id}`, { method: "DELETE" });
+        backToList();
+      }
+      function playGame(gameName) {
+        document.getElementById("game-screen").classList.remove("hidden");
+        document.getElementById("game-frame").src = `/games/${gameName}.html`;
+      }
+      function closeGame() {
+        document.getElementById("game-screen").classList.add("hidden");
+        document.getElementById("game-frame").src = "";
+      }
+      function initQuill() {
+        quill = new Quill("#editor-container", {
+          theme: "snow",
+          placeholder: "내용을 작성하세요...",
+          modules: {
+            toolbar: {
+              container: [
+                [{ header: [1, 2, false] }],
+                ["bold", "italic", "underline"],
+                ["image"],
+              ],
+              handlers: { image: imageHandler },
+            },
+          },
+        });
+      }
+      function imageHandler() {
+        const input = document.getElementById("quill-image-input");
+        input.click();
+        input.onchange = async () => {
+          if (!input.files || input.files.length === 0) return;
+          for (let i = 0; i < input.files.length; i++) {
+            const file = input.files[i];
+            const formData = new FormData();
+            formData.append("image", file);
+            try {
+              const res = await fetch(`${API}/articles/upload`, {
+                method: "POST",
+                body: formData,
+              });
+              const data = await res.json();
+              const range = quill.getSelection(true);
+              quill.insertEmbed(range.index, "image", data.url);
+              quill.setSelection(range.index + 1);
+            } catch (e) {
+              alert("업로드 실패");
+            }
+          }
+          input.value = "";
+        };
+      }
+
+      // ★ 통합 폼 제출 핸들러 수정 (마켓도 Quill 에디터 내용 사용)
+      document
+        .getElementById("unified-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const title = document.getElementById("inp-title").value;
+          // 공통: Quill 에디터의 내용을 가져옴
+          const contentHTML = quill.root.innerHTML;
+
+          if (currentMode === "market") {
+            const formData = new FormData();
+            formData.append("last_name", title);
+            // ★ 기존 텍스트에어리어 대신 Quill 내용(HTML) 전송
+            formData.append("description", contentHTML);
+            formData.append(
+              "price",
+              document.getElementById("inp-price").value
+            );
+            formData.append("tags", document.getElementById("inp-tags").value);
+            if (document.getElementById("inp-market-file").files[0])
+              formData.append(
+                "image",
+                document.getElementById("inp-market-file").files[0]
+              );
+            await sendData(`${API}/products`, "POST", formData, true);
+          } else {
+            await sendData(
+              `${API}/articles`,
+              "POST",
+              JSON.stringify({ title, content: contentHTML }),
+              false
+            );
+          }
+        });
+
+      async function sendData(url, method, body, isFile) {
+        const options = { method, body };
+        if (!isFile) options.headers = { "Content-Type": "application/json" };
+        const res = await fetch(url, options);
+        if (res.ok) {
+          closeWriteModal();
+          document.getElementById("unified-form").reset();
+          quill.setContents([]);
+          loadPage(currentMode);
+          alert("등록 완료!");
+        }
+      }
+      function openWriteModal() {
+        document.getElementById("write-modal").classList.remove("hidden");
+      }
+      function closeWriteModal() {
+        document.getElementById("write-modal").classList.add("hidden");
+      }
+
+      // ★ 모드 설정 함수: 에디터는 항상 보여주고, 마켓용 추가 필드만 토글
+      function setWriteMode(mode) {
+        currentMode = mode;
+        if (mode === "market") {
+          document.getElementById("market-extras").classList.remove("hidden");
+          document
+            .getElementById("tab-write-market")
+            .classList.add("bg-white", "text-pink-600", "shadow-sm");
+          document
+            .getElementById("tab-write-board")
+            .classList.remove("bg-white", "text-blue-600", "shadow-sm");
+        } else {
+          document.getElementById("market-extras").classList.add("hidden");
+          document
+            .getElementById("tab-write-board")
+            .classList.add("bg-white", "text-blue-600", "shadow-sm");
+          document
+            .getElementById("tab-write-market")
+            .classList.remove("bg-white", "text-pink-600", "shadow-sm");
+        }
+      }
+      document.getElementById("write-modal").addEventListener("click", (e) => {
+        if (e.target.id === "write-modal") closeWriteModal();
+      });
+    </script>
+  </body>
+</html>
