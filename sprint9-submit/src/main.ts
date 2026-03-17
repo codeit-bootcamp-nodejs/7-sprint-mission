@@ -26,6 +26,9 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/notifications', notificationsRouter);
 
+app.get('/', (req, res) => {
+  res.send('Panda Market API Server is Running! 🐼');
+});
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
