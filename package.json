@@ -4,8 +4,8 @@
     "build": "tsc",
     "dev": "nodemon",
     "test": "cross-env NODE_ENV=test jest",
-  "test:watch": "cross-env NODE_ENV=test jest --watch",
-  "test:cov": "cross-env NODE_ENV=test jest --coverage"
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:cov": "cross-env NODE_ENV=test jest --coverage"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -29,6 +29,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1008.0",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "bcrypt": "^6.0.0",
