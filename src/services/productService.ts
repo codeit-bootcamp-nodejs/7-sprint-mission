@@ -7,7 +7,7 @@ import type {
   CreateProductCommentDto,
   ListProductCommentsCursorDto,
 } from "../dtos/product.dto.js";
-
+import { prisma } from "../../prisma/prisma.js";
 import * as productRepository from "../repositories/product.repository.js";
 
 export const createProduct = async (dto: CreateProductDto) => {
@@ -21,6 +21,13 @@ export const getProductById = async (dto: GetProductDto) => {
 export const updateProduct = async (dto: UpdateProductDto) => {
   const { id, ...data } = dto;
   return productRepository.updateProductById({ id, data });
+};
+
+export type UpdateProductInput = {
+  name?: string;
+  price?: number;
+  description?: string | null;
+  tags?: string[];
 };
 
 export const deleteProduct = async (dto: DeleteProductDto) => {
@@ -52,4 +59,17 @@ export const listProductCommentsCursor = async (dto: ListProductCommentsCursorDt
     take,
     cursorId: dto.cursorId,
   });
+};
+
+// 상품 좋아요 유저 목록 조회
+export const getProductLikeUserIds = async (
+  productId: bigint
+): Promise<bigint[]> => {
+
+  const likes = await prisma.productLike.findMany({
+    where: { product_id: productId },
+    select: { user_id: true },
+  });
+
+  return likes.map((like) => like.user_id);
 };

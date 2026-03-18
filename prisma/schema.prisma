@@ -22,6 +22,8 @@ model User {
   productLikes  ProductLike[]
   articleLikes  ArticleLike[]
   refreshTokens RefreshToken[]
+
+  notifications Notification[]
 }
 
 model product {
@@ -105,4 +107,34 @@ model RefreshToken {
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+}
+
+enum NotificationType {
+  PRODUCT_PRICE_CHANGED
+  ARTICLE_COMMENT
+}
+
+enum NotificationResourceType {
+  PRODUCT
+  ARTICLE
+  COMMENT
+}
+
+model Notification {
+  id           BigInt                   @id @default(autoincrement())
+  user_id      BigInt
+  type         NotificationType
+  resourceType NotificationResourceType
+  resourceId   String
+
+  message String
+  isRead  Boolean   @default(false)
+  readAt  DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, isRead])
+  @@index([user_id, createdAt])
 }

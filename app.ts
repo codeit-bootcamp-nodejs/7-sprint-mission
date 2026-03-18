@@ -1,58 +1,31 @@
-import "dotenv/config";
-
-import express, { type Request, type Response } from "express";
-import cors from "cors";
-import path from "path";
+import express from "express";
+import cookieParser from "cookie-parser";
 
 import articleRouter from "./src/routers/articleRouter.js";
-import productRouter from "./src/routers/productRouter.js";
 import commentRouter from "./src/routers/commentRouter.js";
 import uploadRouter from "./src/routers/uploadRouter.js";
 import authRouter from "./src/routers/authRouter.js";
 import likeRouter from "./src/routers/likeRouter.js";
+import productRouter from "./src/routers/productRouter.js";
 import userRouter from "./src/routers/userRouter.js";
+import notificationRouter from "./src/routers/notificationRouter.js";
 
-import { errorMiddleware } from "./src/middlewares/error.js";
+import errorMiddleware from "./src/middlewares/error.js";
 
 const app = express();
 
-app.set("json replacer", (_key: string, value: unknown) =>
-  typeof value === "bigint" ? value.toString() : value
-);
-
-app.set("json spaces", 2);
-
-app.use(cors());
 app.use(express.json());
-
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(cookieParser());
 
 app.use("/api/articles", articleRouter);
-app.use("/api/products", productRouter);
 app.use("/api/comments", commentRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/auth", authRouter);
 app.use("/api", likeRouter);
+app.use("/api/products", productRouter);
 app.use("/api/users", userRouter);
-
-app.get("/", (_req: Request, res: Response) => {
-  res.json({
-    message: "API Server",
-    endpoints: [
-      "/api/auth/register",
-      "/api/auth/login",
-      "/api/articles",
-      "/api/products",
-      "/api/comments",
-      "/api/upload/image"
-    ]
-  });
-});
+app.use("/api/notifications", notificationRouter);
 
 app.use(errorMiddleware);
 
-const PORT = Number(process.env.API_PORT) || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export default app;

@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 
 import * as productService from "../services/productService.js";
+import * as notificationService from "../services/notificationService.js";
+
 import { Product } from "../constructors/product.js";
 import { Comment } from "../constructors/comment.js";
 import { NotFoundError, BadRequestError } from "../../errors/customErrors.js";
@@ -88,31 +90,59 @@ export const update = async (
   res: Response
 ) => {
   const id = BigInt(req.params.id);
+  const requesterId = req.user!.userId;
 
-  const exists = await productService.getProductById({ id, userId: null });
-  if (!exists) throw new NotFoundError("상품을 찾을 수 없습니다.");
+  const exists = await productService.getProductById({
+    id,
+    userId: null,
+  });
 
-  const data: Omit<UpdateProductDto, "id"> = {};
+  if (!exists) {
+    throw new NotFoundError("상품을 찾을 수 없습니다.");
+  }
+
+  const dto: UpdateProductDto = { id };
 
   if (req.body.name !== undefined) {
-    data.name = string(req.body.name, "상품명을 입력해 주세요.");
+    dto.name = string(req.body.name, "상품명을 입력해 주세요.");
   }
+
   if (req.body.price !== undefined) {
-    data.price = positiveInt(req.body.price, "가격을 입력해 주세요.");
+    dto.price = positiveInt(req.body.price);
   }
+
   if (req.body.description !== undefined) {
-    data.description = string(req.body.description);
+    dto.description = string(req.body.description);
   }
+
   if (req.body.tags !== undefined) {
-    data.tags = optionalStringArray(req.body.tags) ?? [];
+    dto.tags = optionalStringArray(req.body.tags) ?? [];
   }
 
-  if (Object.keys(data).length === 0) {
-    throw new BadRequestError("수정할 내용을 입력해 주세요.");
-  }
-
-  const dto: UpdateProductDto = { id, ...data };
+  const oldPrice = exists.price;
   const updated = await productService.updateProduct(dto);
+
+  // 가격이 바뀐 경우 알림 생성
+  if (dto.price !== undefined && oldPrice !== updated.price) {
+    const likerUserIds = await productService.getProductLikeUserIds(id);
+
+    // 본인 알림 제외
+    const targetUserIds = likerUserIds.filter(
+      (userId) => userId.toString() !== requesterId
+    );
+
+    await Promise.all(
+      targetUserIds.map((userId) =>
+        notificationService.createNotification({
+          userId: userId.toString(),
+          type: "PRODUCT_PRICE_CHANGED",
+          resourceType: "PRODUCT",
+          resourceId: id.toString(),
+          message: "좋아요한 상품의 가격이 변경되었습니다.",
+        })
+      )
+    );
+  }
 
   res.json(Product.fromEntity(updated));
 };
@@ -137,8 +167,11 @@ export const list = async (
 
   const sortRaw = optionalString(req.query.sort);
   let sort: ProductSort | undefined;
+
   if (sortRaw !== undefined) {
-    if (sortRaw !== "recent") throw new BadRequestError("정렬 기준이 올바르지 않습니다.");
+    if (sortRaw !== "recent") {
+      throw new BadRequestError("정렬 기준이 올바르지 않습니다.");
+    }
     sort = "recent";
   }
 
@@ -160,8 +193,11 @@ export const createComment = async (
 ) => {
   const productId = BigInt(req.params.id);
 
-  // 존재 확인
-  const product = await productService.getProductById({ id: productId, userId: null });
+  const product = await productService.getProductById({
+    id: productId,
+    userId: null,
+  });
+
   if (!product) throw new NotFoundError("상품을 찾을 수 없습니다.");
 
   const dto: CreateProductCommentDto = {
@@ -181,13 +217,15 @@ export const listComments = async (
   const productId = BigInt(req.params.id);
 
   const cursorIdStr = optionalString(req.query.cursorId);
+
   const dto: ListProductCommentsCursorDto = {
     productId,
     limit: optionalPositiveInt(req.query.limit),
     cursorId: cursorIdStr ? BigInt(cursorIdStr) : undefined,
   };
 
-  const { entities, nextCursorId } = await productService.listProductCommentsCursor(dto);
+  const { entities, nextCursorId } =
+    await productService.listProductCommentsCursor(dto);
 
   res.status(200).json({
     items: entities.map(Comment.fromEntity),

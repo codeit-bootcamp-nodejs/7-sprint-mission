@@ -1,6 +1,6 @@
 import { HttpError } from "../../errors/customErrors.js";
 
-export function errorMiddleware(err, req, res, next) {
+export default function errorMiddleware(err, req, res, next) {
 
   let statusCode = 500;
   let message = "서버 오류가 발생했습니다.";

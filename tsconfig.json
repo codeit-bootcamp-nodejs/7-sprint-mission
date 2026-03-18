@@ -12,6 +12,7 @@
 
     "allowJs": true,
     "checkJs": false,
+    "isolatedModules": true,
 
     "noImplicitAny": false,
     "skipLibCheck": true,
