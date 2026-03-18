@@ -8,8 +8,8 @@ import {
   getProductList,
   createComment,
   getCommentList,
-  createLike,
-  deleteLike,
+  createFavorite,
+  deleteFavorite,
 } from '../controllers/productsController';
 import authenticate from '../middlewares/authenticate';
 
@@ -22,7 +22,7 @@ productsRouter.delete('/:id', authenticate(), withAsync(deleteProduct));
 productsRouter.get('/', authenticate({ optional: true }), withAsync(getProductList));
 productsRouter.post('/:id/comments', authenticate(), withAsync(createComment));
 productsRouter.get('/:id/comments', withAsync(getCommentList));
-productsRouter.post('/:id/likes', authenticate(), withAsync(createLike));
-productsRouter.delete('/:id/likes', authenticate(), withAsync(deleteLike));
+productsRouter.post('/:id/favorites', authenticate(), withAsync(createFavorite));
+productsRouter.delete('/:id/favorites', authenticate(), withAsync(deleteFavorite));
 
 export default productsRouter;

@@ -1,13 +1,7 @@
-import { object } from "superstruct";
-
 class NotFoundError extends Error {
-  name: string;
-
-  constructor(modelName: String, id: number | string) {
+  constructor(modelName: string, id: number) {
     super(`${modelName} with id ${id} not found`);
     this.name = 'NotFoundError';
-
-    Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }
 
