@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { createServer } from 'http';
 import { PUBLIC_PATH, STATIC_PATH } from './lib/constants';
 import articleRouter from './routers/articleRouter';
 import productRouter from './routers/productRouter';
@@ -11,6 +12,8 @@ import cookieParser from 'cookie-parser';
 import passport from './lib/passport/index';
 import { specs, swaggerUi } from './lib/swagger.util';
 import homeRouter from './routers/homeRouter';
+import notificationsRouter from './routers/notificationRouter';
+import socketService from './services/socketService';
 
 const app = express();
 app.use(cors());
@@ -29,9 +32,11 @@ app.use('/auth', authsRouter);
 if (process.env.NODE_ENV !== 'TEST') {
     app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
 }
+app.use('/notifications', notificationsRouter);
 app.use('/', homeRouter);
 
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
-
-export default app;
+const server = createServer(app);
+socketService.initialize(server);
+export default server;

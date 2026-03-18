@@ -21,6 +21,7 @@ model User {
   articleLikes   ArticleLike[]
   productComment ProductComment[]
   articleComment ArticleComment[]
+  Notification   Notification[]
 }
 
 model Article {
@@ -111,4 +112,20 @@ model ArticleComment {
 
   @@index([articleId, createdAt])
   @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  PRICE_CHANGED
+  NEW_COMMENT
+}
+
+model Notification {
+  id        BigInt           @id @default(autoincrement())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    BigInt
+  type      NotificationType
+  payload   Json
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }

@@ -8,6 +8,9 @@ import * as authRepository from '../repositories/authRepository';
 import { NotFoundError } from '../lib/errors/NotFoundError';
 import { UpdateUserInput, UserParam } from '../lib/types/authType';
 import { Prisma } from '@prisma/client/extension';
+import { UnauthorizedError } from '../lib/errors/UnauthorizedError';
+import jwt from 'jsonwebtoken';
+import { JWT_ACCESS_TOKEN_SECRET } from '../lib/constants';
 
 export async function loginUser({ user, res }: { user: Express.User; res: Response }) {
     const { accessToken, refreshToken } = generateTokens(user.id);
@@ -113,4 +116,25 @@ function getActualChanges<T extends object>(current: T, next: Partial<T>): Parti
     });
 
     return changes;
+}
+
+export async function authenticate(accessToken?: string) {
+    if (!accessToken) {
+        throw new UnauthorizedError('Unauthorized');
+    }
+
+    const { userId } = verifyAccessToken(accessToken);
+    const user = await authRepository.findUserByUserId(userId);
+    if (!user) {
+        throw new UnauthorizedError('Unauthorized');
+    }
+    return user;
+}
+
+export function verifyAccessToken(token: string) {
+    const decoded = jwt.verify(token, JWT_ACCESS_TOKEN_SECRET);
+    if (typeof decoded === 'string') {
+        throw new Error('Invalid token');
+    }
+    return { userId: decoded.id };
 }
