@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,72 +13,96 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum NotificationType {
+  PRICE_CHANGED
+  NEW_COMMENT
+}
+
 model Article {
-  id        Int       @id @default(autoincrement())
-  title     String
-  content   String
-  image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comments  Comment[]
-  likes     Like[]
+  id             Int       @id @default(autoincrement())
+  title          String
+  content        String
+  image          String?
+  comments Comment[]
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
+  likes           Like[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String
-  price       Int
-  tags        String[]
-  images      String[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  userId      Int
-  comments    Comment[]
-  likes       Like[]
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             Int       @id @default(autoincrement())
+  name           String
+  description    String
+  price          Int
+  tags           String[]
+  images         String[]
+  comments       Comment[]
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
+  favorites      Favorite[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
   articleId Int?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    Int
-  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
-  nickname     String
-  image        String?
-  password     String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  refreshToken String?
-  articles     Article[]
-  comments     Comment[]
-  likes        Like[]
-  products     Product[]
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  nickname String
+  image    String?
+  password String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  articles   Article[]
+  products   Product[]
+  comments   Comment[]
+  favorites  Favorite[]
+  likes      Like[]
+  notifications Notification[]
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Like {
   id        Int      @id @default(autoincrement())
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId Int
+  user      User     @relation(fields: [userId], references: [id])
   userId    Int
-  productId Int?
-  articleId Int?
   createdAt DateTime @default(now())
-  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade) // 👈 'Product'에서 'product'로 변경
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, articleId])
-  @@unique([userId, productId])
+  updatedAt DateTime @updatedAt
 }
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  type      NotificationType
+  payload   Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
