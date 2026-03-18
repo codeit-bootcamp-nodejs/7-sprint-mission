@@ -1,158 +1,75 @@
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { create } from 'superstruct';
-import bcrypt from 'bcrypt';
-import { prismaClient } from '../lib/prismaClient';
 import {
   UpdateMeBodyStruct,
   UpdatePasswordBodyStruct,
   GetMyProductListParamsStruct,
-  GetMyLikeListParamsStruct,
+  GetMyFavoriteListParamsStruct,
+  GetMyNotificationsParamsStruct,
 } from '../structs/usersStructs';
-import NotFoundError from '../lib/errors/NotFoundError';
-import UnauthorizedError from '../lib/errors/UnauthorizedError';
+import * as usersService from '../services/usersService';
+import * as authService from '../services/authService';
+import * as notificationsService from '../services/notificationsService';
+import userResponseDTO from '../dto/userResponseDTO';
 
 export async function getMe(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
-  const user = await prismaClient.user.findUnique({ where: { id: req.user.id } });
-  if (!user) {
-    throw new NotFoundError('user', req.user.id.toString());
-  }
-
-  const { password: _, ...userWithoutPassword } = user;
-  return res.send(userWithoutPassword);
+  const user = await usersService.getUser(req.user.id);
+  res.send(userResponseDTO(user));
 }
 
 export async function updateMe(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
-  const { nickname, image } = create(req.body, UpdateMeBodyStruct);
-
-  const updatedUser = await prismaClient.user.update({
-    where: { id: req.user.id },
-    data: {
-      ...(nickname !== undefined && { nickname }),
-      ...(image !== undefined && { image }),
-    },
-  });
-
-  const { password: _, ...userWithoutPassword } = updatedUser;
-  return res.status(200).send(userWithoutPassword);
+  const data = create(req.body, UpdateMeBodyStruct);
+  const updatedUser = await usersService.updateUser(req.user.id, data);
+  res.status(200).send(userResponseDTO(updatedUser));
 }
 
 export async function updateMyPassword(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
   const { password, newPassword } = create(req.body, UpdatePasswordBodyStruct);
-
-  const user = await prismaClient.user.findUnique({ where: { id: req.user.id } });
-  if (!user) {
-    throw new NotFoundError('user', req.user.id.toString());
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new UnauthorizedError('Invalid credentials');
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-  await prismaClient.user.update({
-    where: { id: req.user.id },
-    data: { password: hashedPassword },
-  });
-
-  return res.status(200).send();
+  await authService.updateMyPassword(req.user.id, password, newPassword);
+  res.status(200).send();
 }
 
 export async function getMyProductList(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
   const { page, pageSize, orderBy, keyword } = create(req.query, GetMyProductListParamsStruct);
-
-  const where = {
-    userId: req.user.id,
-    ...(keyword
-      ? {
-          OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
-        }
-      : {}),
-  };
-
-  const totalCount = await prismaClient.product.count({ where });
-
-  const products = await prismaClient.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    where,
-    include: {
-      likes: true,
-    },
+  const { list, totalCount } = await usersService.getMyProductList(req.user.id, {
+    page,
+    pageSize,
+    orderBy,
+    keyword,
   });
 
-  const productsWithLikes = products.map((product) => ({
-    ...product,
-    likes: undefined,
-    likeCount: product.likes.length,
-    isLiked: product.likes.some((like) => like.userId === req.user!.id),
-  }));
-
-  return res.send({
-    list: productsWithLikes,
+  res.send({
+    list,
     totalCount,
   });
 }
 
-// 함수명을 getMyLikeList로 수정했습니다.
-export async function getMyLikeList(req: Request, res: Response) {
-  if (!req.user) {
-    throw new UnauthorizedError('Unauthorized');
-  }
-
-  const { page, pageSize, orderBy, keyword } = create(req.query, GetMyLikeListParamsStruct);
-
-  const where = {
-    likes: {
-      some: {
-        userId: req.user.id,
-      },
-    },
-    ...(keyword
-      ? { OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }] }
-      : {}),
-  };
-
-  const totalCount = await prismaClient.product.count({ where });
-
-  const products = await prismaClient.product.findMany({
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-    orderBy: orderBy === 'recent' ? { id: 'desc' } : { id: 'asc' },
-    where,
-    include: {
-      likes: true,
-    },
+export async function getMyFavoriteList(req: Request, res: Response) {
+  const { page, pageSize, orderBy, keyword } = create(req.query, GetMyFavoriteListParamsStruct);
+  const { list, totalCount } = await usersService.getMyFavoriteList(req.user.id, {
+    page,
+    pageSize,
+    orderBy,
+    keyword,
   });
 
-  const productsWithLikes = products.map((product) => ({
-    ...product,
-    likes: undefined,
-    likeCount: product.likes.length,
-    isLiked: true,
-  }));
+  res.send({
+    list,
+    totalCount,
+  });
+}
 
-  return res.send({
-    list: productsWithLikes,
+export async function getMyNotifications(req: Request, res: Response) {
+  const { cursor, limit } = create(req.query, GetMyNotificationsParamsStruct);
+  const { list, totalCount, unreadCount, nextCursor } = await notificationsService.getMyNotifications(req.user.id, {
+    cursor,
+    limit,
+  });
+
+  res.send({
+    list,
+    nextCursor,
+    unreadCount,
     totalCount,
   });
 }
