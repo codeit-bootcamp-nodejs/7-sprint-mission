@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### Article 삭제하기
-DELETE http://localhost:3000/articles/2
+DELETE http://localhost:3000/articles/1
 
 ### Article 좋아요 테스트
 POST http://localhost:3000/articles/1/likes
@@ -43,7 +43,7 @@ Content-Type: application/json
 }
 
 ### Article의 Comment 가져오기 테스트
-GET http://localhost:3000/articles/1/comments?limit=200
+GET http://localhost:3000/articles/1/comments?limit=4
 
 ### Comment 업데이트 테스트
 PATCH http://localhost:3000/comments/1
@@ -75,22 +75,18 @@ GET http://localhost:3000/products
 GET http://localhost:3000/products/1
 
 ### Product 업데이트하기 테스트
-PATCH http://localhost:3000/products/2
+PATCH http://localhost:3000/products/1
 Content-Type: application/json
 
 {
-    "name": "업데이트된 테스트 Product",
-    "description": "이것은 업데이트된 테스트 Product 설명입니다.",
-    "price": 150,
-    "tags": ["업데이트", "Product"],
-    "images": ["업데이트된_image1.png"]
+    "price": 110
 }
 
 ### Product 삭제하기 테스트
 DELETE http://localhost:3000/products/2
 
 ### Product 좋아요 테스트
-POST http://localhost:3000/products/102/favorites
+POST http://localhost:3000/products/1/favorites
 
 ### Product 좋아요 취소 테스트
 DELETE http://localhost:3000/products/1/favorites
@@ -139,9 +135,9 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-
-    "email": "testuser@example.com",
-    "nickname": "testuser",
+    "image": "https://example.com/image.jpg",
+    "email": "testuser2@example.com",
+    "nickname": "testuser2",
     "password": "testpassword"
 }
 
@@ -186,3 +182,8 @@ GET http://localhost:3000/users/me/products?page=1&pageSize=5
 ### 내 좋아요 목록 가져오기 테스트
 GET http://localhost:3000/users/me/favorites?page=1&pageSize=5
 
+### 내 알림 조회하기
+GET http://localhost:3000/users/me/notifications?limit=5&cursor=2
+
+### 내 알림 읽기
+PATCH http://localhost:3000/notifications/1/read

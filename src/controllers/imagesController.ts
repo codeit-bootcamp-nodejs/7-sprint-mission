@@ -1,64 +1,86 @@
-import * as multerModule from 'multer';
-import type { Request, Response } from 'express';
+import { Request, Response } from 'express';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { PUBLIC_PATH, STATIC_PATH } from '../lib/constants';
+import {
+  PUBLIC_PATH,
+  STATIC_PATH,
+  NODE_ENV,
+  AWS_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_S3_BUCKET_NAME,
+} from '../lib/constants';
 import BadRequestError from '../lib/errors/BadRequestError';
-
-const multer = (multerModule as any).default || multerModule;
 
 const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const FILE_SIZE_LIMIT = 5 * 1024 * 1024;
 
-export const upload = (multer as any)({
-  storage: (multer as any).diskStorage({
-    destination(
-      req: Request,
-      file: Express.Multer.File,
-      cb: (error: Error | null, destination: string) => void,
-    ) {
-      cb(null, PUBLIC_PATH);
-    },
-    filename(
-      req: Request,
-      file: Express.Multer.File,
-      cb: (error: Error | null, filename: string) => void,
-    ) {
-      const ext = path.extname(file.originalname);
-      const filename = `${uuidv4()}${ext}`;
-      cb(null, filename);
-    },
-  }),
+const isProduction = NODE_ENV === 'production';
 
-  limits: {
-    fileSize: FILE_SIZE_LIMIT,
-  },
+// S3 클라이언트 (프로덕션 전용)
+const s3 = isProduction
+  ? new S3Client({
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  : null;
 
-  fileFilter: function (
-    req: Request,
-    file: Express.Multer.File,
-    cb: (error: Error | null, acceptFile: boolean) => void,
-  ) {
+// 환경에 따라 storage 분기
+const storage = isProduction
+  ? multerS3({
+      s3: s3!,
+      bucket: AWS_S3_BUCKET_NAME,
+      contentType: multerS3.AUTO_CONTENT_TYPE,
+      key(req, file, cb) {
+        const ext = path.extname(file.originalname);
+        const filename = `uploads/${uuidv4()}${ext}`;
+        cb(null, filename);
+      },
+    })
+  : multer.diskStorage({
+      destination(req, file, cb) {
+        cb(null, PUBLIC_PATH);
+      },
+      filename(req, file, cb) {
+        const ext = path.extname(file.originalname);
+        const filename = `${uuidv4()}${ext}`;
+        cb(null, filename);
+      },
+    });
+
+export const upload = multer({
+  storage,
+  limits: { fileSize: FILE_SIZE_LIMIT },
+  fileFilter(req, file, cb) {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       const err = new BadRequestError('Only png, jpeg, and jpg are allowed');
-      return cb(err, false);
+      return cb(err);
     }
-
     cb(null, true);
   },
 });
 
 export async function uploadImage(req: Request, res: Response) {
-  // req.file 존재 여부 확인 (타입 가드)
   if (!req.file) {
-    throw new BadRequestError('파일이 업로드되지 않았습니다.');
+    throw new BadRequestError('File is required');
   }
 
-  const host = req.get('host');
+  let url: string;
 
-  // host가 undefined일 수 있으므로 ?? '' 처리
-  const filePath = path.join(host ?? '', STATIC_PATH, req.file.filename);
-  const url = `http://${filePath}`;
+  if (isProduction) {
+    // multer-s3가 location 필드에 S3 URL을 넣어줌
+    url = (req.file as Express.MulterS3.File).location;
+  } else {
+    const host = req.get('host');
+    if (!host) throw new BadRequestError('Host is required');
+    url = `http://${path.join(host, STATIC_PATH, req.file.filename)}`;
+  }
 
-  return res.send({ url });
+  res.send({ url });
 }
