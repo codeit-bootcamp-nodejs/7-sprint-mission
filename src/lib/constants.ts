@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET || 'default_access_secret';
@@ -12,6 +13,12 @@ const PORT = Number(process.env.PORT) || 3000;
 const JWT_ACCESS_TOKEN_EXPIRES = process.env.JWT_ACCESS_TOKEN_EXPIRES || '1h';
 const JWT_REFRESH_TOKEN_EXPIRES = process.env.JWT_REFRESH_TOKEN_EXPIRES || '7d';
 const NODE_ENV = process.env.NODE_ENV || 'DEV';
+
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID as string;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY as string;
+const AWS_REGION = process.env.AWS_REGION as string;
+const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME as string;
+
 export {
     JWT_ACCESS_TOKEN_SECRET,
     JWT_REFRESH_TOKEN_SECRET,
@@ -23,4 +30,8 @@ export {
     STATIC_PATH,
     PORT,
     NODE_ENV,
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    AWS_REGION,
+    AWS_S3_BUCKET_NAME,
 };
