@@ -21,6 +21,7 @@ jobs:
           node-version: "20"
 
       - name: Install & Build Check
+        working-directory: ./sprint11
         run: |
           npm ci
           npx prisma generate
@@ -34,15 +35,16 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }} # .pem 키 파일 내용
           script: |
-            cd ~/7-sprint-mission/sprint11 
+            cd ~/7-sprint-mission
             git pull origin main
+
+            cd sprint11
             npm install
             npx prisma generate
             npx prisma migrate deploy
             npm run build
 
             # PM2로 서버 재시작
-            # 프로젝트이름은 pm2 list에 뜨는 이름으로 수정하세요.
             pm2 reload all || pm2 start dist/main.js --name "my-app"
 
             echo "배포가 완료되었습니다!"

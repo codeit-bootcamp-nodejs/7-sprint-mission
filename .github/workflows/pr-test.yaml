@@ -11,6 +11,10 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./sprint11
+
     # 깃허브 액션 안에서 임시로 사용할 테스트용 DB 설정
     services:
       postgres:

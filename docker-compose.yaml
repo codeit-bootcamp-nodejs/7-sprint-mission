@@ -9,12 +9,12 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: pandamarket
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       # DB 데이터는 Named Volume으로 관리
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,14 +25,14 @@ services:
       dockerfile: Dockerfile
     container_name: panda-market-app
     ports:
-      - '3000:3000' # 호스트 3000번 포트 접근 가능
+      - "3000:3000" # 호스트 3000번 포트 접근 가능
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_ACCESS_TOKEN_SECRET=${JWT_ACCESS_TOKEN_SECRET}
       - PORT=${PORT}
       - NODE_ENV=${NODE_ENV}
     volumes:
-      - ./public:/app/public
+      - ./sprint11/public:/app/public
     depends_on:
       db:
         condition: service_healthy # DB가 완전히 준비된 후 앱 실행

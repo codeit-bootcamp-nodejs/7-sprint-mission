@@ -3,10 +3,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 RUN apk add --no-cache openssl
-COPY package*.json ./
+COPY sprint11/package*.json ./
 RUN npm ci
 
-COPY . .
+COPY sprint11/ .
 
 # Prisma 타입 생성 및 TypeScript 컴파일
 RUN npx prisma generate
@@ -23,7 +23,7 @@ RUN apk add --no-cache openssl libc6-compat
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # 의존성 설치
-COPY package*.json ./
+COPY sprint11/package*.json ./
 RUN npm ci --only=production
 
 # 빌드 스테이지에서 컴파일된 결과물만 가져오기
