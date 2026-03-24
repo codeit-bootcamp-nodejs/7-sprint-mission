@@ -1,0 +1,61 @@
+name: Pull Request Test
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    # 깃허브 액션 안에서 임시로 사용할 테스트용 DB 설정
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+        # DB가 준비될 때까지 기다리는 헬스 체크
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code #코드 복사
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js #node 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies #라이브러리 설치
+        run: npm ci
+
+      - name: Generate Prisma Client #prisma 준비
+        run: npx prisma generate
+
+      # 테스트용 DB에 테이블 구조 생성.
+      - name: Run DB migrations
+        env:
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
+        run: npx prisma migrate deploy
+
+      - name: Run tests
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          DATABASE_URL: postgresql://testuser:testpassword@localhost:5432/testdb
+          # 테스트에 필요한 키
+          JWT_SECRET: test_jwt_secret
+          REFRESH_SECRET: test_refresh_secret
+        run: npm test
