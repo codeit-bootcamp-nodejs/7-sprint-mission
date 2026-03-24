@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { createServer } from 'http';
 import cookieParser from 'cookie-parser';
 import { PUBLIC_PATH, STATIC_PATH } from './lib/constants';
 import articlesRouter from './routers/articlesRouter';
@@ -11,7 +10,6 @@ import imagesRouter from './routers/imagesRouter';
 import authRouter from './routers/authRouter';
 import usersRouter from './routers/usersRouter';
 import { defaultNotFoundHandler, globalErrorHandler } from './controllers/errorController';
-import socketService from './services/socketService';
 import notificationsRouter from './routers/notificationsRouter';
 
 const app = express();
@@ -32,7 +30,4 @@ app.use('/notifications', notificationsRouter);
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
-const server = createServer(app);
-socketService.initialize(server);
-
-export default server;
+export default app;

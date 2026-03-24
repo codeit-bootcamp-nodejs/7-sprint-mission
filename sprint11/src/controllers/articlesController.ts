@@ -11,6 +11,16 @@ import * as articlesService from '../services/articlesService';
 import * as commentsService from '../services/commentsService';
 import * as likesService from '../services/likesService';
 
+//  (TypeScript가 무조건 읽도록 강제)
+declare module 'express-serve-static-core' {
+  interface Request {
+    user: {
+      id: number; // 혹은 number (본인 모델에 맞게)
+      [key: string]: any;
+    };
+  }
+}
+
 export async function createArticle(req: Request, res: Response) {
   const data = create(req.body, CreateArticleBodyStruct);
   const article = await articlesService.createArticle({
