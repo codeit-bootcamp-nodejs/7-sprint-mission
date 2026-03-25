@@ -1,0 +1,11 @@
+# AWS에 접속
+- 키 파일 있는 곳에서 터미널 → ssh -i "sprint10-key.pem" ec2-user@43.201.49.220( ec2 퍼블릭 ip )
+
+# 의존성 설치 및 빌드
+npm install
+npm run build
+
+# PM2 시작 및 자동 실행
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
