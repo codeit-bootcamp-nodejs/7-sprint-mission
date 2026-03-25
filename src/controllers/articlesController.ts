@@ -38,7 +38,7 @@ export async function updateArticle(req: Request, res: Response) {
 export async function deleteArticle(req: Request, res: Response) {
   const {user, params} = req as AuthenticatedRequest;
   const { id } = create(params, IdParamsStruct);
-  await articleService.deleteArticle(id, user.id);
+  await articleService.deleteArticle(user.id, id);
   return res.status(204).send();
 }
 

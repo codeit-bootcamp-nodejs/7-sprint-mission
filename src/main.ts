@@ -34,8 +34,14 @@ app.use('/notifications', notificationsRouter);
 app.use(defaultNotFoundHandler);
 app.use(globalErrorHandler);
 
-initSocket(server);
+if (process.env.NODE_ENV !== 'test') {
+  initSocket(server);
+}
 
-server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Server started on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+}
+
+export { app, server };
