@@ -9,7 +9,7 @@ describe('상품 API 통합 테스트', () => {
     email: 'product@test.com',
     nickname: '테스트 유저',
     password: 'password123',
-    image: null
+    image: null,
   };
 
   const productData = {
@@ -17,14 +17,14 @@ describe('상품 API 통합 테스트', () => {
     description: '테스트용 상세 설명입니다.',
     price: 15000,
     tags: ['전자제품', '중고'],
-    images: ['https://example.com/image.png']
+    images: ['https://example.com/image.png'],
   };
 
   beforeAll(async () => {
     await request(app).post('/auth/register').send(testUser);
     const loginRes = await request(app).post('/auth/login').send({
       email: testUser.email,
-      password: testUser.password
+      password: testUser.password,
     });
     authCookie = loginRes.get('Set-Cookie')!;
   });
@@ -38,16 +38,13 @@ describe('상품 API 통합 테스트', () => {
 
     test('GET /products/:id - 존재하지 않는 상품 조회 시 404 반환', async () => {
       const res = await request(app).get('/products/999');
-      expect(res.status).toBe(404); 
+      expect(res.status).toBe(404);
     });
   });
 
   describe('상품 생성 및 정보 확인 (인증 필요/미필요)', () => {
     test('POST /products - 상품 등록 성공 (201)', async () => {
-      const res = await request(app)
-        .post('/products')
-        .set('Cookie', authCookie)
-        .send(productData);
+      const res = await request(app).post('/products').set('Cookie', authCookie).send(productData);
 
       expect(res.status).toBe(201);
       testProductId = res.body.id; // 생성된 ID 저장
@@ -81,9 +78,7 @@ describe('상품 API 통합 테스트', () => {
 
   describe(' 상품 삭제 및 삭제 확인 (인증 필요)', () => {
     test('DELETE /products/:id - 내 상품 삭제 성공 (204)', async () => {
-      const res = await request(app)
-        .delete(`/products/${testProductId}`)
-        .set('Cookie', authCookie);
+      const res = await request(app).delete(`/products/${testProductId}`).set('Cookie', authCookie);
       expect(res.status).toBe(204);
     });
 
