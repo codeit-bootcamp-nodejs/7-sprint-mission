@@ -1,47 +1,21 @@
 import { Request, Response } from 'express';
 import { create } from 'superstruct';
-import bcrypt from 'bcrypt';
-import { prismaClient } from '../lib/prismaClient';
-import { generateTokens, verifyRefreshToken } from '../lib/token';
 import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME, NODE_ENV } from '../lib/constants';
 import { LoginBodyStruct, RegisterBodyStruct } from '../structs/authStructs';
-import BadRequestError from '../lib/errors/BadRequestError';
+import * as authService from '../services/authService';
+import userResponseDTO from '../dto/userResponseDTO';
 
 export async function register(req: Request, res: Response) {
-  const { email, nickname, password } = create(req.body, RegisterBodyStruct);
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const isExist = await prismaClient.user.findUnique({ where: { email } });
-  if (isExist) {
-    throw new BadRequestError('User already exists');
-  }
-
-  const user = await prismaClient.user.create({
-    data: { email, nickname, password: hashedPassword },
-  });
-
-  const { password: _, ...userWithoutPassword } = user;
-  res.status(201).json(userWithoutPassword);
+  const data = create(req.body, RegisterBodyStruct);
+  const user = await authService.register(data);
+  res.status(201).json(userResponseDTO(user));
 }
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = create(req.body, LoginBodyStruct);
-
-  const user = await prismaClient.user.findUnique({ where: { email } });
-  if (!user) {
-    throw new BadRequestError('Invalid credentials');
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new BadRequestError('Invalid credentials');
-  }
-
-  const { accessToken, refreshToken } = generateTokens(user.id);
+  const data = create(req.body, LoginBodyStruct);
+  const { accessToken, refreshToken } = await authService.login(data);
   setTokenCookies(res, accessToken, refreshToken);
-  res.status(200).send(accessToken);
+  res.status(200).send();
 }
 
 export async function logout(req: Request, res: Response) {
@@ -51,18 +25,7 @@ export async function logout(req: Request, res: Response) {
 
 export async function refreshToken(req: Request, res: Response) {
   const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
-  if (!refreshToken) {
-    throw new BadRequestError('Invalid refresh token');
-  }
-
-  const { userId } = verifyRefreshToken(refreshToken);
-
-  const user = await prismaClient.user.findUnique({ where: { id: userId } });
-  if (!user) {
-    throw new BadRequestError('Invalid refresh token');
-  }
-
-  const { accessToken, refreshToken: newRefreshToken } = generateTokens(userId);
+  const { accessToken, refreshToken: newRefreshToken } = await authService.refreshToken(refreshToken);
   setTokenCookies(res, accessToken, newRefreshToken);
   res.status(200).send();
 }
