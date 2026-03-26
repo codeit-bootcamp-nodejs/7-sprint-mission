@@ -1,0 +1,46 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: aws-actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Build Check
+        working-directory: ./sprint11
+        run: |
+          npm ci
+          npx prisma generate
+          npm run build
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/PANDAMARKET-BE-SPRINT-MISSION-3-MAIN
+
+            # 2. 최신 코드 가져오기
+            git pull origin main
+
+            # 3. 도커 컴포즈로 컨테이너 재빌드 및 실행
+            # 기존 컨테이너 중지 및 삭제 후 새로 시작
+            sudo docker compose down
+            sudo docker compose up -d --build
+
+            echo "Docker 기반 배포가 성공적으로 완료되었습니다!"
