@@ -7,8 +7,6 @@ import { errorHandler } from './middlewares/errorHandler';
 import commentRouter from './router/comment.router';
 import authRouter from './router/auth.router';
 import userRouter from './router/user.router';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import notificationRouter from './router/notification.router';
@@ -34,33 +32,5 @@ app.use('/users', userRouter);
 app.use('/notifications', notificationRouter);
 
 app.use(errorHandler);
-
-const httpServer = createServer(app);
-
-export const io = new Server(httpServer, {
-  cors: {
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://web.postman.co'],
-    credentials: true,
-  },
-});
-
-io.on('connection', (socket) => {
-  console.log('유저 연결됨:', socket.id);
-
-  socket.on('join', (userId) => {
-    socket.join(`user_${userId}`);
-    console.log(`유저 ${userId}가 방에 입장했습니다.`);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('유저 연결 끊김:', socket.id);
-  });
-});
-
-const PORT = 3000;
-
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
 
 export default app;

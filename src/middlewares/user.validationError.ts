@@ -18,14 +18,14 @@ export const validateUpdateProfile = async (req: Request, _res: Response, next: 
       if (nickname.trim() === '') {
         throw new ValidationError('닉네임은 비어있을 수 없습니다.');
       }
-    }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { nickname: nickname.trim() },
-    });
+      const existingUser = await prisma.user.findUnique({
+        where: { nickname: nickname.trim() },
+      });
 
-    if (existingUser) {
-      throw new ValidationError('이미 사용 중인 닉네임입니다.');
+      if (existingUser) {
+        throw new ValidationError('이미 사용 중인 닉네임입니다.');
+      }
     }
 
     next();

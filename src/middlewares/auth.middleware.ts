@@ -29,7 +29,7 @@ export const authenticateUserOptional = async (
 
   // 토큰이 없어도 에러를 던지지 않고 그냥 next()로 보냅니다.
   if (!token) {
-    req.user = undefined;
+    delete req.user;
     return next();
   }
 
@@ -39,7 +39,7 @@ export const authenticateUserOptional = async (
     next();
   } catch (error) {
     // 토큰이 유효하지 않아도 조회는 가능해야 하므로 에러 대신 유저 정보만 비우고 넘깁니다.
-    req.user = undefined;
+    delete req.user;
     next();
   }
 };

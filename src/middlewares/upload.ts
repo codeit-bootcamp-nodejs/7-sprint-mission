@@ -1,27 +1,30 @@
 import multer from 'multer';
 import type { FileFilterCallback } from 'multer';
 import path from 'path';
-import fs from 'fs';
+import { S3Client } from '@aws-sdk/client-s3';
+import multerS3 from 'multer-s3';
 import { ValidationError } from '../errors/validationError';
 import type { Request } from 'express';
 
-const ensureDir = (dir: string) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
+const MB = 1024 * 1024;
+const MAX_FILE_SIZE = 5 * MB; //5MB
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION || 'ap-northeast-2',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
 export const createUploader = (folderName: string) => {
-  const uploadPath = path.join('uploads', folderName);
-  ensureDir(uploadPath);
-
-  const storage = multer.diskStorage({
-    destination(_req, _file, cb) {
-      cb(null, uploadPath);
-    },
-    filename(_req, file, cb) {
+  const storage = multerS3({
+    s3: s3,
+    bucket: process.env.S3_BUCKET_NAME!,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key(_req, file, cb) {
       const ext = path.extname(file.originalname);
-      const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      const filename = `${folderName}/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
       cb(null, filename);
     },
   });
@@ -38,7 +41,7 @@ export const createUploader = (folderName: string) => {
     storage,
     fileFilter,
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
+      fileSize: MAX_FILE_SIZE,
     },
   });
 };

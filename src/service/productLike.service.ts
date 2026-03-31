@@ -1,14 +1,16 @@
 import { NotFoundError } from '../errors/notFoundError';
-import { findDetailProduct } from '../repository/product.repository';
+import { ProductRepo } from '../repository/product.repository';
 import {
   deleteProductLikeRepo,
   isProductLikedByUser,
   productLikeRepo,
 } from '../repository/productLike.repository';
 
+const productRepo = new ProductRepo();
+
 // 상품 좋아요 서비스
 export const productLikeService = async (userId: bigint, productId: bigint) => {
-  const product = await findDetailProduct(productId);
+  const product = await productRepo.findDetailProduct(productId);
   if (!product) throw new NotFoundError('상품을 찾을 수 없습니다.');
 
   const existingLike = await isProductLikedByUser(userId, productId);

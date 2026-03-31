@@ -13,6 +13,7 @@
 /out
 /es
 /lib
+/coverage
 
 # TypeScript 캐시
 /.tsbuildinfo

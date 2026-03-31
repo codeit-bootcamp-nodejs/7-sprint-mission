@@ -1,29 +1,24 @@
 import express from 'express';
 import { authenticateUser } from '../middlewares/auth.middleware';
-import {
-  getMyProfile,
-  updateMyProfile,
-  changeMyPassword,
-  getMyProduct,
-  getMyLikedProducts,
-  getMyLikedArticles,
-} from '../controller/user.controller';
+import { UserController } from '../controller/user.controller';
 import { myProfileUpload } from '../middlewares/upload';
 import { validateUpdateProfile, validateChangePassword } from '../middlewares/user.validationError';
 
 const userRouter = express.Router();
 
-userRouter.get('/me', authenticateUser, getMyProfile);
+userRouter.use(authenticateUser);
+const userController = new UserController();
+
+userRouter.get('/me', userController.getProfile);
 userRouter.patch(
   '/me',
-  authenticateUser,
   myProfileUpload.single('image'),
   validateUpdateProfile,
-  updateMyProfile,
+  userController.updateProfile,
 );
-userRouter.patch('/me/password', authenticateUser, validateChangePassword, changeMyPassword);
-userRouter.get('/me/product', authenticateUser, getMyProduct);
-userRouter.get('/me/likes/products', authenticateUser, getMyLikedProducts);
-userRouter.get('/me/likes/articles', authenticateUser, getMyLikedArticles);
+userRouter.patch('/me/password', validateChangePassword, userController.changePassword);
+userRouter.get('/me/product', userController.getUserProducts);
+userRouter.get('/me/likes/products', userController.getLikedProducts);
+userRouter.get('/me/likes/articles', userController.getLikedArticles);
 
 export default userRouter;

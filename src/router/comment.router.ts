@@ -6,15 +6,11 @@ import { authenticateUser } from '../middlewares/auth.middleware';
 
 const commentRouter = express.Router();
 
-// Comment 공통
-commentRouter.patch(
-  '/comments/:commentId',
-  authenticateUser,
-  validateCommentId,
-  validateComment,
-  updateComment,
-);
+// 인증 미들웨어 적용
+commentRouter.use(authenticateUser);
 
-commentRouter.delete('/comments/:commentId', authenticateUser, validateCommentId, deleteComment);
+// Comment 공통
+commentRouter.patch('/comments/:commentId', validateCommentId, validateComment, updateComment);
+commentRouter.delete('/comments/:commentId', validateCommentId, deleteComment);
 
 export default commentRouter;

@@ -1,7 +1,7 @@
 import { eventEmitter } from '../event';
 import { NotificationRepo } from '../repository/notification.repository';
 import { NotificationList } from '../model/notification.model';
-import { io } from '../app';
+import { io } from '../server';
 import {
   ArticleCommentCreatedEvent,
   ProductCommentCreatedEvent,

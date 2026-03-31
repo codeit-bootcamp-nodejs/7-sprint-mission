@@ -7,7 +7,12 @@ interface ArticleParams extends ParamsDictionary {
   articleId: string;
 }
 
-// 게시글 좋아요 컨트롤러
+/**
+ * 게시글 좋아요 컨트롤러
+ * @param req - 요청 객체 (params: articleId, user: 로그인 정보)
+ * @param res - 응답 객체 (message: 좋아요 성공 메세지)
+ * @param next - 에러 핸들러로 넘기기 위한 함수
+ */
 export const likeArticle = async (
   req: Request<ArticleParams>,
   res: Response,
@@ -28,7 +33,13 @@ export const likeArticle = async (
     next(e);
   }
 };
-// 게시글 좋아요 취소 컨트롤러
+
+/**
+ * 게시글 좋아요 취소 컨트롤러
+ * @param req - 요청 객체 (params: articleId, user: 로그인 정보)
+ * @param res - 응답 객체 (status: 204 No Content)
+ * @param next - 에러 핸들러로 넘기기 위한 함수
+ */
 export const unLikeArticle = async (
   req: Request<ArticleParams>,
   res: Response,

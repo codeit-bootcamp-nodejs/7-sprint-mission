@@ -9,21 +9,17 @@ declare global {
   }
 }
 
-// 1. PostgreSQL 커넥션 풀 설정
+// 환경변수 체크
 const connectionString = process.env.DATABASE_URL;
+
+// 어댑터 설정 (v7 버전에서는 이 방식이 가장 안정적입니다)
 const pool = new pg.Pool({ connectionString });
-
-// 2. 드라이버 어댑터 설정 (PostgreSQL 환경 최적화)
-const adapter = new PrismaPg(pool);
-
-// 3. Prisma Client 인스턴스 생성
-// BigInt를 사용하므로 로그를 켜서 쿼리 흐름을 보는 것이 좋습니다.
+const adapter = new PrismaPg(pool as unknown as ConstructorParameters<typeof PrismaPg>[0]);
 const prisma = new PrismaClient({
   adapter,
-  log: ['query', 'info', 'warn', 'error'],
+  log: ['error', 'warn'],
 });
 
-// 4. BigInt JSON 변환 에러 방지 설정 (필수)
 if (!BigInt.prototype.toJSON) {
   BigInt.prototype.toJSON = function () {
     return this.toString();
