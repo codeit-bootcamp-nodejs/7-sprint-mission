@@ -1,0 +1,12 @@
+node_modules
+dist
+uploads
+.git
+.env
+*.jpg
+*.png
+infra
+client-demo
+__tests__
+.devcontainer
+generated
