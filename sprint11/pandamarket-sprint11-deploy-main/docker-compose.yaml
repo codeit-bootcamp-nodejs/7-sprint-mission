@@ -1,0 +1,30 @@
+name : panda-market
+
+services:
+  db:
+    image: postgres:latest
+    container_name: panda-market-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: panda-market
+    ports:
+      - 5432:5432
+    volumes:
+      - panda-market-data:/var/lib/postgresql
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/panda-market
+      JWT_ACCESS_TOKEN_SECRET: your-secret-key
+      JWT_REFRESH_TOKEN_SECRET: your-refresh-secret-key
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./public:/app/public
+
+volumes:
+  panda-market-data:

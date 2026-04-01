@@ -1,0 +1,40 @@
+name : PR Main
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: 
+    - main  
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+
+    steps:
+      - name : Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/testdb
+          JWT_ACCESS_TOKEN_SECRET: your-secret-key
+          JWT_REFRESH_TOKEN_SECRET: your-refresh-secret-key
