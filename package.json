@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "scripts": {
     "start": "node ./src/main.js",
     "dev": "npx nodemon --exec npx ts-node src/main.ts",
