@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "node ./src/main.js",
-    "dev": "npx nodemon --exec npx ts-node src/main.ts",
+    "dev": "npx nodemon --exec \"npx ts-node --files src/main.ts\"",
     "test": "npx jest --config jest.config.cjs",
     "test:coverage": "npx jest --config jest.config.cjs --coverage"
   },
