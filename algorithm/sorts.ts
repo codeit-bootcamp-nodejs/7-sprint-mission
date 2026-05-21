@@ -1,5 +1,5 @@
 // 선택 정렬
-function selectionSort(arr) {
+export function selectionSort(arr: number[]): void {
   for (let i = 0; i < arr.length - 1; i++) {
     let minIndex = i;
 
@@ -14,9 +14,9 @@ function selectionSort(arr) {
 }
 
 // 삽입 정렬
-function insertionSort(arr) {
+export function insertionSort(arr: number[]): void {
   for (let i = 1; i < arr.length; i++) {
-    let current = arr[i];
+    const current = arr[i];
     let j = i - 1;
 
     while (j >= 0 && arr[j] > current) {
@@ -29,7 +29,7 @@ function insertionSort(arr) {
 }
 
 // 병합 정렬
-function mergeSort(arr) {
+export function mergeSort(arr: number[]): number[] {
   if (arr.length <= 1) return arr;
 
   const middle = Math.floor(arr.length / 2);
@@ -40,8 +40,8 @@ function mergeSort(arr) {
   return merge(left, right);
 }
 
-function merge(left, right) {
-  const result = [];
+function merge(left: number[], right: number[]): number[] {
+  const result: number[] = [];
 
   let leftIndex = 0;
   let rightIndex = 0;
@@ -62,7 +62,11 @@ function merge(left, right) {
 }
 
 // 퀵 정렬
-function quickSort(arr, left = 0, right = arr.length - 1) {
+export function quickSort(
+  arr: number[],
+  left: number = 0,
+  right: number = arr.length - 1
+): void {
   if (left >= right) return;
 
   const pivotIndex = partition(arr, left, right);
@@ -71,7 +75,11 @@ function quickSort(arr, left = 0, right = arr.length - 1) {
   quickSort(arr, pivotIndex + 1, right);
 }
 
-function partition(arr, left, right) {
+function partition(
+  arr: number[],
+  left: number,
+  right: number
+): number {
   const pivot = arr[right];
 
   let i = left - 1;
@@ -87,10 +95,3 @@ function partition(arr, left, right) {
 
   return i + 1;
 }
-
-module.exports = {
-  selectionSort,
-  insertionSort,
-  mergeSort,
-  quickSort,
-};
