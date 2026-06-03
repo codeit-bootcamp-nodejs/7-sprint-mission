@@ -85,17 +85,64 @@ function partition(arr,start,end){
     [arr[i+1],arr[end]] = [arr[end],arr[i+1]];
     return i+1;
 }
+
+
+function swap(tree,index1,index2){
+    const temp = tree[index1];
+    tree[index1] = tree[index2];
+    tree[index2] = temp;
+
+}
+
+function heapify(tree,index,treeSize){
+    const leftIndex = 2*index;
+    const rightIndex = leftIndex +1;
+
+    let largest = index;
+
+    if(leftIndex <treeSize && tree[largest] < tree[leftIndex]){
+        largest = leftIndex;
+    }
+
+    if(rightIndex <tree && tree[largest] < tree[rightIndex]){
+        largest = rightIndex;
+    }
+    if(largest !== index){
+        swap(tree,index,largest);
+        heapify(tree,largest,treeSize);
+    }
+}
+
+function heapsort(tree){
+    const treeSize = tree.length;
+
+    for(let index=Math.floor(treeSize/2)-1;index >=0;index--){
+        heapify(tree,index,treeSize);
+    }
+
+    for(let i= treeSize-1;i>0;i--){
+        swap(tree,0,i);
+        heapify(tree,0,1);
+    }
+}
+
 const nums = [8,4,6,2,5];
 console.log(nums); 
-selectionSort(nums);
+// selectionSort(nums);
+// console.log(nums); 
+
+
+// insertionSort(nums);
+// console.log(nums); 
+
+// console.log(mergeSort(nums));
+
+// quickSort(nums);
+// console.log(nums); 
+
+heapsort(nums);
 console.log(nums); 
 
 
-insertionSort(nums);
-console.log(nums); 
 
-console.log(mergeSort(nums));
-
-quickSort(nums);
-console.log(nums); 
 
